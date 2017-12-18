@@ -50,11 +50,11 @@ typedef int MemoryRegion;
 #define pci_irq_assert(...)
 #define pci_irq_deassert(...)
 #define ldl_le_p(p) (*((uint32_t*)(p)))
-#define g_malloc0(size) calloc(1, size)
-#define g_free(ptr) free(ptr)
+// #define g_malloc0(size) calloc(1, size)
+// #define g_free(ptr) free(ptr)
 
 
-// #include "g-lru-cache.h"
+#include "g-lru-cache.h"
 #include "swizzle.h"
 #include "nv2a_shaders.h"
 #include "nv2a_debug.h"
@@ -260,11 +260,11 @@ typedef struct PGRAPHState {
     SurfaceShape last_surface_shape;
 
     hwaddr dma_a, dma_b;
-    // GLruCache *texture_cache;
+    GLruCache *texture_cache;
     bool texture_dirty[NV2A_MAX_TEXTURES];
     TextureBinding *texture_binding[NV2A_MAX_TEXTURES];
 
-    // GHashTable *shader_cache;
+    GHashTable *shader_cache;
     ShaderBinding *shader_binding;
 
     bool texture_matrix_enable[NV2A_MAX_TEXTURES];
