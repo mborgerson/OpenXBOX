@@ -23,7 +23,8 @@
 #define HW_NV2A_VSH_H
 
 #include <stdbool.h>
-#include "qapi/qmp/qstring.h"
+#include <stdint.h>
+// #include "qapi/qmp/qstring.h"
 
 enum VshLight {
     LIGHT_OFF,
@@ -132,11 +133,11 @@ typedef enum {
 
 uint8_t vsh_get_field(const uint32_t *shader_token, VshFieldName field_name);
 
-void vsh_translate(uint16_t version,
-                   const uint32_t *tokens,
-                   unsigned int length,
-                   bool z_perspective,
-                   QString *header, QString *body);
+// void vsh_translate(uint16_t version,
+//                    const uint32_t *tokens,
+//                    unsigned int length,
+//                    bool z_perspective,
+//                    QString *header, QString *body);
 
 
 #endif

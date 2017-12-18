@@ -1,6 +1,13 @@
+typedef struct RAMHTEntry {
+    uint32_t handle;
+    hwaddr instance;
+    enum FIFOEngine engine;
+    unsigned int channel_id : 5;
+    bool valid;
+} RAMHTEntry;
+
 /* PFIFO - MMIO and DMA FIFO submission to PGRAPH and VPE */
-static uint64_t pfifo_read(void *opaque,
-                                  hwaddr addr, unsigned int size)
+uint64_t pfifo_read(void *opaque, hwaddr addr, unsigned int size)
 {
     int i;
     NV2AState *d = opaque;

@@ -23,6 +23,8 @@
 #ifndef HW_XBOX_SWIZZLE_H
 #define HW_XBOX_SWIZZLE_H
 
+#include <stdint.h>
+
 void swizzle_box(
     const uint8_t *src_buf,
     unsigned int width,

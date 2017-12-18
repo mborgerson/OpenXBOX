@@ -30,254 +30,34 @@
 // #include "gl/gloffscreen.h"
 // #include "gl/glextensions.h"
 
-#include "g-lru-cache.h"
+
+
+#include <SDL.h>
+#include <GL/glew.h>
+#include <assert.h>
+
+#define true 1
+#define false 0
+typedef int bool;
+typedef uint32_t hwaddr;
+typedef int qemu_irq;
+typedef SDL_cond *QemuCond;
+typedef SDL_mutex *QemuMutex;
+typedef int MemoryRegion;
+
+#define pci_irq_assert(...)
+#define pci_irq_deassert(...)
+
+
+// #include "g-lru-cache.h"
 #include "swizzle.h"
 #include "nv2a_shaders.h"
 #include "nv2a_debug.h"
-#include "nv2a.h"
+// #include "nv2a.h"
 #include "nv2a_int.h"
 
+
 #define USE_TEXTURE_CACHE
-
-static const GLenum pgraph_texture_min_filter_map[] = {
-    0,
-    GL_NEAREST,
-    GL_LINEAR,
-    GL_NEAREST_MIPMAP_NEAREST,
-    GL_LINEAR_MIPMAP_NEAREST,
-    GL_NEAREST_MIPMAP_LINEAR,
-    GL_LINEAR_MIPMAP_LINEAR,
-    GL_LINEAR, /* TODO: Convolution filter... */
-};
-
-static const GLenum pgraph_texture_mag_filter_map[] = {
-    0,
-    GL_NEAREST,
-    GL_LINEAR,
-    0,
-    GL_LINEAR /* TODO: Convolution filter... */
-};
-
-static const GLenum pgraph_texture_addr_map[] = {
-    0,
-    GL_REPEAT,
-    GL_MIRRORED_REPEAT,
-    GL_CLAMP_TO_EDGE,
-    GL_CLAMP_TO_BORDER,
-    // GL_CLAMP
-};
-
-static const GLenum pgraph_blend_factor_map[] = {
-    GL_ZERO,
-    GL_ONE,
-    GL_SRC_COLOR,
-    GL_ONE_MINUS_SRC_COLOR,
-    GL_SRC_ALPHA,
-    GL_ONE_MINUS_SRC_ALPHA,
-    GL_DST_ALPHA,
-    GL_ONE_MINUS_DST_ALPHA,
-    GL_DST_COLOR,
-    GL_ONE_MINUS_DST_COLOR,
-    GL_SRC_ALPHA_SATURATE,
-    0,
-    GL_CONSTANT_COLOR,
-    GL_ONE_MINUS_CONSTANT_COLOR,
-    GL_CONSTANT_ALPHA,
-    GL_ONE_MINUS_CONSTANT_ALPHA,
-};
-
-static const GLenum pgraph_blend_equation_map[] = {
-    GL_FUNC_SUBTRACT,
-    GL_FUNC_REVERSE_SUBTRACT,
-    GL_FUNC_ADD,
-    GL_MIN,
-    GL_MAX,
-    GL_FUNC_REVERSE_SUBTRACT,
-    GL_FUNC_ADD,
-};
-
-static const GLenum pgraph_blend_logicop_map[] = {
-    GL_CLEAR,
-    GL_AND,
-    GL_AND_REVERSE,
-    GL_COPY,
-    GL_AND_INVERTED,
-    GL_NOOP,
-    GL_XOR,
-    GL_OR,
-    GL_NOR,
-    GL_EQUIV,
-    GL_INVERT,
-    GL_OR_REVERSE,
-    GL_COPY_INVERTED,
-    GL_OR_INVERTED,
-    GL_NAND,
-    GL_SET,
-};
-
-static const GLenum pgraph_cull_face_map[] = {
-    0,
-    GL_FRONT,
-    GL_BACK,
-    GL_FRONT_AND_BACK
-};
-
-static const GLenum pgraph_depth_func_map[] = {
-    GL_NEVER,
-    GL_LESS,
-    GL_EQUAL,
-    GL_LEQUAL,
-    GL_GREATER,
-    GL_NOTEQUAL,
-    GL_GEQUAL,
-    GL_ALWAYS,
-};
-
-static const GLenum pgraph_stencil_func_map[] = {
-    GL_NEVER,
-    GL_LESS,
-    GL_EQUAL,
-    GL_LEQUAL,
-    GL_GREATER,
-    GL_NOTEQUAL,
-    GL_GEQUAL,
-    GL_ALWAYS,
-};
-
-static const GLenum pgraph_stencil_op_map[] = {
-    0,
-    GL_KEEP,
-    GL_ZERO,
-    GL_REPLACE,
-    GL_INCR,
-    GL_DECR,
-    GL_INVERT,
-    GL_INCR_WRAP,
-    GL_DECR_WRAP,
-};
-
-typedef struct ColorFormatInfo {
-    unsigned int bytes_per_pixel;
-    bool linear;
-    GLint gl_internal_format;
-    GLenum gl_format;
-    GLenum gl_type;
-    GLenum gl_swizzle_mask[4];
-} ColorFormatInfo;
-
-static const ColorFormatInfo kelvin_color_format_map[66] = {
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_Y8] =
-        {1, false, GL_R8, GL_RED, GL_UNSIGNED_BYTE,
-         {GL_RED, GL_RED, GL_RED, GL_ONE}},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_AY8] =
-        {1, false, GL_R8, GL_RED, GL_UNSIGNED_BYTE,
-         {GL_RED, GL_RED, GL_RED, GL_RED}},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A1R5G5B5] =
-        {2, false, GL_RGB5_A1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_X1R5G5B5] =
-        {2, false, GL_RGB5, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A4R4G4B4] =
-        {2, false, GL_RGBA4, GL_BGRA, GL_UNSIGNED_SHORT_4_4_4_4_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R5G6B5] =
-        {2, false, GL_RGB565, GL_RGB, GL_UNSIGNED_SHORT_5_6_5},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8] =
-        {4, false, GL_RGBA8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_X8R8G8B8] =
-        {4, false, GL_RGB8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV},
-
-    /* paletted texture */
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_I8_A8R8G8B8] =
-        {1, false, GL_RGBA8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV},
-
-    [NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5] =
-        {4, false, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, 0, GL_RGBA},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT23_A8R8G8B8] =
-        {4, false, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, 0, GL_RGBA},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT45_A8R8G8B8] =
-        {4, false, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, 0, GL_RGBA},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A1R5G5B5] =
-        {2, true, GL_RGB5_A1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_R5G6B5] =
-        {2, true, GL_RGB565, GL_RGB, GL_UNSIGNED_SHORT_5_6_5},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8] =
-        {4, true, GL_RGBA8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_Y8] =
-        {1, true, GL_R8, GL_RED, GL_UNSIGNED_BYTE,
-         {GL_RED, GL_RED, GL_RED, GL_ONE}},
-
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8] =
-        {1, false, GL_R8, GL_RED, GL_UNSIGNED_BYTE,
-         {GL_ONE, GL_ONE, GL_ONE, GL_RED}},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8Y8] =
-        {2, false, GL_RG8, GL_RG, GL_UNSIGNED_BYTE,
-         {GL_GREEN, GL_GREEN, GL_GREEN, GL_RED}},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_AY8] =
-        {1, true, GL_R8, GL_RED, GL_UNSIGNED_BYTE,
-         {GL_RED, GL_RED, GL_RED, GL_RED}},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_X1R5G5B5] =
-        {2, true, GL_RGB5, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A4R4G4B4] =
-        {2, false, GL_RGBA4, GL_BGRA, GL_UNSIGNED_SHORT_4_4_4_4_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_X8R8G8B8] =
-        {4, true, GL_RGB8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8] =
-        {1, true, GL_R8, GL_RED, GL_UNSIGNED_BYTE,
-         {GL_ONE, GL_ONE, GL_ONE, GL_RED}},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8Y8] =
-        {2, true, GL_RG8, GL_RG, GL_UNSIGNED_BYTE,
-         {GL_GREEN, GL_GREEN, GL_GREEN, GL_RED}},
-
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R6G5B5] =
-        {2, false, GL_RGB8_SNORM, GL_RGB, GL_BYTE}, /* FIXME: This might be signed */
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_G8B8] =
-        {2, false, GL_RG8_SNORM, GL_RG, GL_BYTE, /* FIXME: This might be signed */
-         {GL_ZERO, GL_RED, GL_GREEN, GL_ONE}},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R8B8] =
-        {2, false, GL_RG8_SNORM, GL_RG, GL_BYTE, /* FIXME: This might be signed */
-         {GL_RED, GL_ZERO, GL_GREEN, GL_ONE}},
-
-
-    /* TODO: format conversion */
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LC_IMAGE_CR8YB8CB8YA8] =
-        {2, true, GL_RGBA8,  GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_DEPTH_X8_Y24_FIXED] =
-        {4, true, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_DEPTH_Y16_FIXED] =
-        {2, true, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_Y16] =
-        {2, true, GL_R16, GL_RED, GL_UNSIGNED_SHORT,
-         {GL_RED, GL_RED, GL_RED, GL_ONE}},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8] =
-        {4, false, GL_RGBA8, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV},
-
-    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R8G8B8A8] =
-        {4, false, GL_RGBA8, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8},
-
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8B8G8R8] =
-        {4, true, GL_RGBA8, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_B8G8R8A8] =
-        {4, true, GL_RGBA8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8},
-    [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_R8G8B8A8] =
-        {4, true, GL_RGBA8, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8}
-};
-
-typedef struct SurfaceColorFormatInfo {
-    unsigned int bytes_per_pixel;
-    GLint gl_internal_format;
-    GLenum gl_format;
-    GLenum gl_type;
-} SurfaceColorFormatInfo;
-
-static const SurfaceColorFormatInfo kelvin_surface_color_format_map[] = {
-    [NV097_SET_SURFACE_FORMAT_COLOR_LE_X1R5G5B5_Z1R5G5B5] =
-        {2, GL_RGB5_A1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV},
-    [NV097_SET_SURFACE_FORMAT_COLOR_LE_R5G6B5] =
-        {2, GL_RGB565, GL_RGB, GL_UNSIGNED_SHORT_5_6_5},
-    [NV097_SET_SURFACE_FORMAT_COLOR_LE_X8R8G8B8_Z8R8G8B8] =
-        {4, GL_RGBA8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV},
-    [NV097_SET_SURFACE_FORMAT_COLOR_LE_A8R8G8B8] =
-        {4, GL_RGBA8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV},
-};
 
 #define GET_MASK(v, mask) (((v) & (mask)) >> (ffs(mask)-1))
 
@@ -305,16 +85,6 @@ enum FIFOEngine {
     ENGINE_GRAPHICS = 1,
     ENGINE_DVD = 2,
 };
-
-
-
-typedef struct RAMHTEntry {
-    uint32_t handle;
-    hwaddr instance;
-    enum FIFOEngine engine;
-    unsigned int channel_id : 5;
-    bool valid;
-} RAMHTEntry;
 
 typedef struct DMAObject {
     unsigned int dma_class;
@@ -478,11 +248,11 @@ typedef struct PGRAPHState {
     SurfaceShape last_surface_shape;
 
     hwaddr dma_a, dma_b;
-    GLruCache *texture_cache;
+    // GLruCache *texture_cache;
     bool texture_dirty[NV2A_MAX_TEXTURES];
     TextureBinding *texture_binding[NV2A_MAX_TEXTURES];
 
-    GHashTable *shader_cache;
+    // GHashTable *shader_cache;
     ShaderBinding *shader_binding;
 
     bool texture_matrix_enable[NV2A_MAX_TEXTURES];
@@ -490,7 +260,7 @@ typedef struct PGRAPHState {
     /* FIXME: Move to NV_PGRAPH_BUMPMAT... */
     float bump_env_matrix[NV2A_MAX_TEXTURES-1][4]; /* 3 allowed stages with 2x2 matrix each */
 
-    GloContext *gl_context;
+    SDL_GLContext *gl_context;
     GLuint gl_framebuffer;
     GLuint gl_color_buffer, gl_zeta_buffer;
     GraphicsSubchannel subchannel_data[NV2A_NUM_SUBCHANNELS];
@@ -554,7 +324,7 @@ typedef struct PGRAPHState {
 
 
 typedef struct CacheEntry {
-    QSIMPLEQ_ENTRY(CacheEntry) entry;
+    // QSIMPLEQ_ENTRY(CacheEntry) entry;
 
     unsigned int method : 14;
     unsigned int subchannel : 3;
@@ -591,8 +361,8 @@ typedef struct Cache1State {
     /* The actual command queue */
     QemuMutex cache_lock;
     QemuCond cache_cond;
-    QSIMPLEQ_HEAD(, CacheEntry) cache;
-    QSIMPLEQ_HEAD(, CacheEntry) working_cache;
+    // QSIMPLEQ_HEAD(, CacheEntry) cache;
+    // QSIMPLEQ_HEAD(, CacheEntry) working_cache;
 } Cache1State;
 
 typedef struct ChannelControl {
@@ -604,15 +374,15 @@ typedef struct ChannelControl {
 
 
 typedef struct NV2AState {
-    PCIDevice dev;
+    // PCIDevice dev;
     qemu_irq irq;
 
     bool exiting;
 
-    VGACommonState vga;
-    GraphicHwOps hw_ops;
+    // VGACommonState vga;
+    // GraphicHwOps hw_ops;
 
-    QEMUTimer *vblank_timer;
+    // QEMUTimer *vblank_timer;
 
     MemoryRegion *vram;
     MemoryRegion vram_pci;
@@ -633,7 +403,7 @@ typedef struct NV2AState {
         uint32_t pending_interrupts;
         uint32_t enabled_interrupts;
 
-        QemuThread puller_thread;
+        // QemuThread puller_thread;
         Cache1State cache1;
 
         uint32_t regs[0x2000];
@@ -717,6 +487,7 @@ static void update_irq(NV2AState *d)
     }
 }
 
+#if 0
 static DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
 {
     assert(dma_obj_address < memory_region_size(&d->ramin));
@@ -750,20 +521,28 @@ static void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
     *len = dma.limit;
     return d->vram_ptr + dma.address;
 }
+#endif
 
-#include "nv2a_pbus.cpp"
-#include "nv2a_pcrtc.cpp"
-#include "nv2a_pfb.cpp"
-#include "nv2a_pfifo.cpp"
-#include "nv2a_pgraph.cpp"
-#include "nv2a_pmc.cpp"
-#include "nv2a_pramdac.cpp"
-#include "nv2a_prmcio.cpp"
-#include "nv2a_prmvio.cpp"
-#include "nv2a_ptimer.cpp"
-#include "nv2a_pvideo.cpp"
-#include "nv2a_stubs.cpp"
-#include "nv2a_user.cpp"
+// #include "nv2a_pbus.cpp"
+// #include "nv2a_pcrtc.cpp"
+// #include "nv2a_pfb.cpp"
+// #include "nv2a_pfifo.cpp"
+// #include "nv2a_pgraph.cpp"
+// #include "nv2a_pmc.cpp"
+// #include "nv2a_pramdac.cpp"
+// #include "nv2a_prmcio.cpp"
+// #include "nv2a_prmvio.cpp"
+// #include "nv2a_ptimer.cpp"
+// #include "nv2a_pvideo.cpp"
+// #include "nv2a_stubs.cpp"
+// #include "nv2a_user.cpp"
+
+typedef uint64_t (*read_func)(void *opaque, hwaddr addr, unsigned int size);
+typedef void (*write_func)(void *opaque, hwaddr addr, uint64_t val, unsigned int size);
+typedef struct {
+    read_func read;
+    write_func write;
+} MemoryRegionOps;
 
 typedef struct NV2ABlockInfo {
     const char* name;
@@ -773,188 +552,37 @@ typedef struct NV2ABlockInfo {
 } NV2ABlockInfo;
 
 static const struct NV2ABlockInfo blocktable[] = {
-    [ NV_PMC ]  = {
-        .name = "PMC",
-        .offset = 0x000000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pmc_read,
-            .write = pmc_write,
-        },
-    },
-    [ NV_PBUS ]  = {
-        .name = "PBUS",
-        .offset = 0x001000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pbus_read,
-            .write = pbus_write,
-        },
-    },
-    [ NV_PFIFO ]  = {
-        .name = "PFIFO",
-        .offset = 0x002000,
-        .size   = 0x002000,
-        .ops = {
-            .read = pfifo_read,
-            .write = pfifo_write,
-        },
-    },
-    [ NV_PRMA ]  = {
-        .name = "PRMA",
-        .offset = 0x007000,
-        .size   = 0x001000,
-        .ops = {
-            .read = prma_read,
-            .write = prma_write,
-        },
-    },
-    [ NV_PVIDEO ]  = {
-        .name = "PVIDEO",
-        .offset = 0x008000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pvideo_read,
-            .write = pvideo_write,
-        },
-    },
-    [ NV_PTIMER ]  = {
-        .name = "PTIMER",
-        .offset = 0x009000,
-        .size   = 0x001000,
-        .ops = {
-            .read = ptimer_read,
-            .write = ptimer_write,
-        },
-    },
-    [ NV_PCOUNTER ]  = {
-        .name = "PCOUNTER",
-        .offset = 0x00a000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pcounter_read,
-            .write = pcounter_write,
-        },
-    },
-    [ NV_PVPE ]  = {
-        .name = "PVPE",
-        .offset = 0x00b000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pvpe_read,
-            .write = pvpe_write,
-        },
-    },
-    [ NV_PTV ]  = {
-        .name = "PTV",
-        .offset = 0x00d000,
-        .size   = 0x001000,
-        .ops = {
-            .read = ptv_read,
-            .write = ptv_write,
-        },
-    },
-    [ NV_PRMFB ]  = {
-        .name = "PRMFB",
-        .offset = 0x0a0000,
-        .size   = 0x020000,
-        .ops = {
-            .read = prmfb_read,
-            .write = prmfb_write,
-        },
-    },
-    [ NV_PRMVIO ]  = {
-        .name = "PRMVIO",
-        .offset = 0x0c0000,
-        .size   = 0x001000,
-        .ops = {
-            .read = prmvio_read,
-            .write = prmvio_write,
-        },
-    },
-    [ NV_PFB ]  = {
-        .name = "PFB",
-        .offset = 0x100000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pfb_read,
-            .write = pfb_write,
-        },
-    },
-    [ NV_PSTRAPS ]  = {
-        .name = "PSTRAPS",
-        .offset = 0x101000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pstraps_read,
-            .write = pstraps_write,
-        },
-    },
-    [ NV_PGRAPH ]  = {
-        .name = "PGRAPH",
-        .offset = 0x400000,
-        .size   = 0x002000,
-        .ops = {
-            .read = pgraph_read,
-            .write = pgraph_write,
-        },
-    },
-    [ NV_PCRTC ]  = {
-        .name = "PCRTC",
-        .offset = 0x600000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pcrtc_read,
-            .write = pcrtc_write,
-        },
-    },
-    [ NV_PRMCIO ]  = {
-        .name = "PRMCIO",
-        .offset = 0x601000,
-        .size   = 0x001000,
-        .ops = {
-            .read = prmcio_read,
-            .write = prmcio_write,
-        },
-    },
-    [ NV_PRAMDAC ]  = {
-        .name = "PRAMDAC",
-        .offset = 0x680000,
-        .size   = 0x001000,
-        .ops = {
-            .read = pramdac_read,
-            .write = pramdac_write,
-        },
-    },
-    [ NV_PRMDIO ]  = {
-        .name = "PRMDIO",
-        .offset = 0x681000,
-        .size   = 0x001000,
-        .ops = {
-            .read = prmdio_read,
-            .write = prmdio_write,
-        },
-    },
-    /*[ NV_PRAMIN ]  = {
-        .name = "PRAMIN",
-        .offset = 0x700000,
-        .size   = 0x100000,
-        .ops = {
-            .read = pramin_read,
-            .write = pramin_write,
-        },
-    },*/
-    [ NV_USER ]  = {
-        .name = "USER",
-        .offset = 0x800000,
-        .size   = 0x800000,
-        .ops = {
-            .read = user_read,
-            .write = user_write,
-        },
-    },
+
+#define ENTRY(NAME, OFFSET, SIZE, RDFUNC, WRFUNC) \
+    [ NV_ ## NAME ]  = { \
+        .name = #NAME, .offset = OFFSET, .size = SIZE, \
+        .ops = { .read = RDFUNC, .write = WRFUNC }, \
+    }, \
+
+    ENTRY(PMC,      0x000000, 0x001000, NULL, NULL) // pmc_read,      pmc_write)
+    ENTRY(PBUS,     0x001000, 0x001000, NULL, NULL) // pbus_read,     pbus_write)
+    ENTRY(PFIFO,    0x002000, 0x002000, NULL, NULL) // pfifo_read,    pfifo_write)
+    ENTRY(PRMA,     0x007000, 0x001000, NULL, NULL) // prma_read,     prma_write)
+    ENTRY(PVIDEO,   0x008000, 0x001000, NULL, NULL) // pvideo_read,   pvideo_write)
+    ENTRY(PTIMER,   0x009000, 0x001000, NULL, NULL) // ptimer_read,   ptimer_write)
+    ENTRY(PCOUNTER, 0x00a000, 0x001000, NULL, NULL) // pcounter_read, pcounter_write)
+    ENTRY(PVPE,     0x00b000, 0x001000, NULL, NULL) // pvpe_read,     pvpe_write)
+    ENTRY(PTV,      0x00d000, 0x001000, NULL, NULL) // ptv_read,      ptv_write)
+    ENTRY(PRMFB,    0x0a0000, 0x020000, NULL, NULL) // prmfb_read,    prmfb_write)
+    ENTRY(PRMVIO,   0x0c0000, 0x001000, NULL, NULL) // prmvio_read,   prmvio_write)
+    ENTRY(PFB,      0x100000, 0x001000, NULL, NULL) // pfb_read,      pfb_write)
+    ENTRY(PSTRAPS,  0x101000, 0x001000, NULL, NULL) // pstraps_read,  pstraps_write)
+    ENTRY(PGRAPH,   0x400000, 0x002000, NULL, NULL) // pgraph_read,   pgraph_write)
+    ENTRY(PCRTC,    0x600000, 0x001000, NULL, NULL) // pcrtc_read,    pcrtc_write)
+    ENTRY(PRMCIO,   0x601000, 0x001000, NULL, NULL) // prmcio_read,   prmcio_write)
+    ENTRY(PRAMDAC,  0x680000, 0x001000, NULL, NULL) // pramdac_read,  pramdac_write)
+    ENTRY(PRMDIO,   0x681000, 0x001000, NULL, NULL) // prmdio_read,   prmdio_write)
+    //ENTRY(PRAMIN, 0x700000, 0x100000, NULL, NULL) // pramin_read,   pramin_write)
+    ENTRY(USER,     0x800000, 0x800000, NULL, NULL) // user_read,     user_write)
+#undef ENTRY
 };
 
+#if 0
 static const char* nv2a_reg_names[] = {};
 static const char* nv2a_method_names[] = {};
 
@@ -1258,3 +886,4 @@ void nv2a_init(PCIBus *bus, int devfn, MemoryRegion *ram)
     NV2AState *d = NV2A_DEVICE(dev);
     nv2a_init_memory(d, ram);
 }
+#endif
