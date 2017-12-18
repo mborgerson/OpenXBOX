@@ -1,7 +1,6 @@
-static uint64_t pramdac_read(void *opaque,
-                                  hwaddr addr, unsigned int size)
+uint64_t pramdac_read(void *opaque, hwaddr addr, unsigned int size)
 {
-    NV2AState *d = opaque;
+    NV2AState *d = (NV2AState *)opaque;
 
     uint64_t r = 0;
     switch (addr & ~3) {
@@ -32,10 +31,9 @@ static uint64_t pramdac_read(void *opaque,
     return r;
 }
 
-static void pramdac_write(void *opaque, hwaddr addr,
-                               uint64_t val, unsigned int size)
+void pramdac_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
-    NV2AState *d = opaque;
+    NV2AState *d = (NV2AState *)opaque;
     uint32_t m, n, p;
 
     reg_log_write(NV_PRAMDAC, addr, val);
