@@ -24,7 +24,7 @@
 // #include "ui/console.h"
 // #include "hw/display/vga.h"
 // #include "hw/display/vga_int.h"
-// #include "qemu/queue.h"
+#include "queue.h"
 // #include "qemu/thread.h"
 // #include "qapi/qmp/qstring.h"
 // #include "gl/gloffscreen.h"
@@ -35,18 +35,23 @@
 #include <SDL.h>
 #include <GL/glew.h>
 #include <assert.h>
+#include <util.h>
+#include <stdlib.h>
 
 #define true 1
 #define false 0
 typedef int bool;
 typedef uint32_t hwaddr;
 typedef int qemu_irq;
-typedef SDL_cond *QemuCond;
-typedef SDL_mutex *QemuMutex;
+#define qemu_mutex_lock SDL_LockMutex
+#define qemu_mutex_unlock SDL_UnlockMutex
 typedef int MemoryRegion;
 
 #define pci_irq_assert(...)
 #define pci_irq_deassert(...)
+#define ldl_le_p(p) (*((uint32_t*)(p)))
+#define g_malloc0(size) calloc(1, size)
+#define g_free(ptr) free(ptr)
 
 
 // #include "g-lru-cache.h"
@@ -73,6 +78,13 @@ typedef int MemoryRegion;
     case (v)+(step):                                                 \
     case (v)+(step)*2:                                               \
     case (v)+(step)*3
+
+
+#define NV2A_DEVICE(obj) \
+    OBJECT_CHECK(NV2AState, (obj), "nv2a")
+
+void reg_log_read(int block, hwaddr addr, uint64_t val);
+void reg_log_write(int block, hwaddr addr, uint64_t val);
 
 
 enum FifoMode {
@@ -216,11 +228,11 @@ typedef struct GraphicsContext {
 
 
 typedef struct PGRAPHState {
-    QemuMutex lock;
+    SDL_mutex * lock;
 
     uint32_t pending_interrupts;
     uint32_t enabled_interrupts;
-    QemuCond interrupt_cond;
+    SDL_cond * interrupt_cond;
 
     hwaddr context_table;
     hwaddr context_address;
@@ -233,9 +245,9 @@ typedef struct PGRAPHState {
     uint32_t notify_source;
 
     bool fifo_access;
-    QemuCond fifo_access_cond;
+    SDL_cond * fifo_access_cond;
 
-    QemuCond flip_3d;
+    SDL_cond * flip_3d;
 
     unsigned int channel_id;
     bool channel_valid;
@@ -324,8 +336,7 @@ typedef struct PGRAPHState {
 
 
 typedef struct CacheEntry {
-    // QSIMPLEQ_ENTRY(CacheEntry) entry;
-
+    QSIMPLEQ_ENTRY(CacheEntry) entry;
     unsigned int method : 14;
     unsigned int subchannel : 3;
     bool nonincreasing;
@@ -359,10 +370,10 @@ typedef struct Cache1State {
     enum FIFOEngine last_engine;
 
     /* The actual command queue */
-    QemuMutex cache_lock;
-    QemuCond cache_cond;
-    // QSIMPLEQ_HEAD(, CacheEntry) cache;
-    // QSIMPLEQ_HEAD(, CacheEntry) working_cache;
+    SDL_mutex * cache_lock;
+    SDL_cond * cache_cond;
+    QSIMPLEQ_HEAD(, CacheEntry) cache;
+    QSIMPLEQ_HEAD(, CacheEntry) working_cache;
 } Cache1State;
 
 typedef struct ChannelControl {
@@ -450,13 +461,8 @@ typedef struct NV2AState {
 } NV2AState;
 
 
-#define NV2A_DEVICE(obj) \
-    OBJECT_CHECK(NV2AState, (obj), "nv2a")
 
-static void reg_log_read(int block, hwaddr addr, uint64_t val);
-static void reg_log_write(int block, hwaddr addr, uint64_t val);
-
-static void update_irq(NV2AState *d)
+void update_irq(NV2AState *d)
 {
     /* PFIFO */
     if (d->pfifo.pending_interrupts & d->pfifo.enabled_interrupts) {
@@ -481,9 +487,9 @@ static void update_irq(NV2AState *d)
 
     if (d->pmc.pending_interrupts && d->pmc.enabled_interrupts) {
         NV2A_DPRINTF("raise irq\n");
-        pci_irq_assert(&d->dev);
+        // pci_irq_assert(&d->dev);
     } else {
-        pci_irq_deassert(&d->dev);
+        // pci_irq_deassert(&d->dev);
     }
 }
 
@@ -526,7 +532,7 @@ static void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
 // #include "nv2a_pbus.cpp"
 // #include "nv2a_pcrtc.cpp"
 // #include "nv2a_pfb.cpp"
-// #include "nv2a_pfifo.cpp"
+#include "nv2a_pfifo.cpp"
 // #include "nv2a_pgraph.cpp"
 // #include "nv2a_pmc.cpp"
 // #include "nv2a_pramdac.cpp"
@@ -582,11 +588,10 @@ static const struct NV2ABlockInfo blocktable[] = {
 #undef ENTRY
 };
 
-#if 0
 static const char* nv2a_reg_names[] = {};
-static const char* nv2a_method_names[] = {};
+// static const char* nv2a_method_names[] = {};
 
-static void reg_log_read(int block, hwaddr addr, uint64_t val) {
+void reg_log_read(int block, hwaddr addr, uint64_t val) {
     if (blocktable[block].name) {
         hwaddr naddr = blocktable[block].offset + addr;
         if (naddr < ARRAY_SIZE(nv2a_reg_names) && nv2a_reg_names[naddr]) {
@@ -602,7 +607,7 @@ static void reg_log_read(int block, hwaddr addr, uint64_t val) {
     }
 }
 
-static void reg_log_write(int block, hwaddr addr, uint64_t val) {
+void reg_log_write(int block, hwaddr addr, uint64_t val) {
     if (blocktable[block].name) {
         hwaddr naddr = blocktable[block].offset + addr;
         if (naddr < ARRAY_SIZE(nv2a_reg_names) && nv2a_reg_names[naddr]) {
@@ -618,6 +623,7 @@ static void reg_log_write(int block, hwaddr addr, uint64_t val) {
     }
 }
 
+#if 0
 static void nv2a_overlay_draw_line(VGACommonState *vga, uint8_t *line, int y)
 {
     NV2A_DPRINTF("nv2a_overlay_draw_line\n");
