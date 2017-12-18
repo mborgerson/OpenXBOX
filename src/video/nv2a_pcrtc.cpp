@@ -1,7 +1,6 @@
-static uint64_t pcrtc_read(void *opaque,
-                                hwaddr addr, unsigned int size)
+uint64_t pcrtc_read(void *opaque, hwaddr addr, unsigned int size)
 {
-    NV2AState *d = opaque;
+    NV2AState *d = (NV2AState *)opaque;
 
     uint64_t r = 0;
     switch (addr) {
@@ -21,10 +20,10 @@ static uint64_t pcrtc_read(void *opaque,
     reg_log_read(NV_PCRTC, addr, r);
     return r;
 }
-static void pcrtc_write(void *opaque, hwaddr addr,
-                             uint64_t val, unsigned int size)
+
+void pcrtc_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
-    NV2AState *d = opaque;
+    NV2AState *d = (NV2AState *)opaque;
 
     reg_log_write(NV_PCRTC, addr, val);
 
@@ -39,7 +38,7 @@ static void pcrtc_write(void *opaque, hwaddr addr,
         break;
     case NV_PCRTC_START:
         val &= 0x07FFFFFF;
-        assert(val < memory_region_size(d->vram));
+        // assert(val < memory_region_size(d->vram));
         d->pcrtc.start = val;
 
         NV2A_DPRINTF("PCRTC_START - %x %x %x %x\n",

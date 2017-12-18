@@ -521,7 +521,7 @@ static void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
 }
 
 // #include "nv2a_pbus.cpp"
-// #include "nv2a_pcrtc.cpp"
+#include "nv2a_pcrtc.cpp"
 // #include "nv2a_pfb.cpp"
 #include "nv2a_pfifo.cpp"
 // #include "nv2a_pgraph.cpp"
