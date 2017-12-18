@@ -251,7 +251,7 @@ Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
 
     m_mmio = new MemoryRegion(MEM_REGION_MMIO, mmio_base, mmio_size, mmio_data);
     assert( m_mmio != NULL);
-    // m_mmio->SetEventHandler(Nv2aDevice::EventHandler, this);
+    m_mmio->SetEventHandler(Nv2aDevice::EventHandler, this);
     mem->AddSubRegion(m_mmio);
 
     // Create VRAM region -- NV2A shares system memory with CPU. Memory can be
@@ -265,7 +265,7 @@ Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
     uint32_t vram_size = ram->m_size;
     void *vram_data = ram->m_data;
 
-    m_vram = new MemoryRegion(MEM_REGION_MMIO, vram_base, vram_size, vram_data);
+    m_vram = new MemoryRegion(MEM_REGION_RAM, vram_base, vram_size, vram_data);
     assert(mmio_data != NULL && m_vram != NULL);
     // m_vram->SetEventHandler(Nv2aDevice::EventHandler, this);
     mem->AddSubRegion(m_vram);
@@ -283,15 +283,13 @@ Nv2aDevice::~Nv2aDevice()
 
 int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, void *user_data)
 {
-    #if 0
     Nv2aDevice *inst = (Nv2aDevice *)user_data;
-    uint32_t offset = event->addr - inst->m_mmio_base;
+    uint32_t offset = event->addr - inst->m_mmio->m_start;
     
     log_debug("Nv2aDevice::EventHandler! %08x\n", event->addr);
     if (offset == PCRTC_START) {
         log_debug("Read to PCRTC_START\n");
     }
-    #endif
 
     return 0;
 }
