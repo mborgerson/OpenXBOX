@@ -1,4 +1,5 @@
 set(SOURCES ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/video.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/nv2a.c
     PARENT_SCOPE
     )

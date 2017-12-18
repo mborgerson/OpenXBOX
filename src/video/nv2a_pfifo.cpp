@@ -7,9 +7,30 @@ typedef struct RAMHTEntry {
 } RAMHTEntry;
 
 static void pfifo_run_pusher(NV2AState *d);
-static void* pfifo_puller_thread(void *arg);
+void* pfifo_puller_thread(void *arg);
 static uint32_t ramht_hash(NV2AState *d, uint32_t handle);
 static RAMHTEntry ramht_lookup(NV2AState *d, uint32_t handle);
+
+
+/* Stub out PGRAPH stuff for now */
+#if 1
+static void pgraph_method(NV2AState *d, unsigned int subchannel, unsigned int method, uint32_t parameter)
+{
+    // STUB
+    log_debug("%s: stubbed out (subchannel=%d, method=%d, parameter=%d)\n", __func__, subchannel, method, parameter);
+}
+
+static void pgraph_context_switch(NV2AState *d, unsigned int channel_id)
+{
+    // STUB
+    log_debug("%s: stubbed out (channel_id=%d)\n", __func__, channel_id);
+}
+
+static void pgraph_wait_fifo_access(NV2AState *d) {
+    // STUB
+    log_debug("%s: stubbed out\n", __func__);
+}
+#endif
 
 /* PFIFO - MMIO and DMA FIFO submission to PGRAPH and VPE */
 uint64_t pfifo_read(void *opaque, hwaddr addr, unsigned int size)
@@ -108,8 +129,7 @@ uint64_t pfifo_read(void *opaque, hwaddr addr, unsigned int size)
     return r;
 }
 
-static void pfifo_write(void *opaque, hwaddr addr,
-                        uint64_t val, unsigned int size)
+void pfifo_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
     int i;
     NV2AState *d = opaque;
@@ -352,12 +372,12 @@ static void pfifo_run_pusher(NV2AState *d) {
     }
 }
 
-static void* pfifo_puller_thread(void *arg)
+void* pfifo_puller_thread(void *arg)
 {
     NV2AState *d = arg;
     Cache1State *state = &d->pfifo.cache1;
 
-    glo_set_current(d->pgraph.gl_context);
+    // glo_set_current(d->pgraph.gl_context);
 
     while (true) {
         SDL_LockMutex(state->cache_lock);
@@ -366,7 +386,7 @@ static void* pfifo_puller_thread(void *arg)
 
             if (d->exiting) {
                 SDL_UnlockMutex(state->cache_lock);
-                glo_set_current(NULL);
+                // glo_set_current(NULL);
                 return NULL;
             }
         }

@@ -36,6 +36,7 @@
 #include <GL/glew.h>
 #include <assert.h>
 #include <util.h>
+#include <log.h>
 #include <stdlib.h>
 
 #define true 1
@@ -493,10 +494,9 @@ void update_irq(NV2AState *d)
     }
 }
 
-#if 0
 static DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
 {
-    assert(dma_obj_address < memory_region_size(&d->ramin));
+    // assert(dma_obj_address < memory_region_size(&d->ramin));
 
     uint32_t *dma_obj = (uint32_t*)(d->ramin_ptr + dma_obj_address);
     uint32_t flags = ldl_le_p(dma_obj);
@@ -513,7 +513,7 @@ static DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
 
 static void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
 {
-    assert(dma_obj_address < memory_region_size(&d->ramin));
+    // assert(dma_obj_address < memory_region_size(&d->ramin));
 
     DMAObject dma = nv_dma_load(d, dma_obj_address);
 
@@ -527,7 +527,6 @@ static void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
     *len = dma.limit;
     return d->vram_ptr + dma.address;
 }
-#endif
 
 // #include "nv2a_pbus.cpp"
 // #include "nv2a_pcrtc.cpp"
