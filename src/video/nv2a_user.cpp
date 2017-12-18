@@ -1,8 +1,7 @@
 /* USER - PFIFO MMIO and DMA submission area */
-static uint64_t user_read(void *opaque,
-                               hwaddr addr, unsigned int size)
+uint64_t user_read(void *opaque, hwaddr addr, unsigned int size)
 {
-    NV2AState *d = opaque;
+    NV2AState *d = (NV2AState *)opaque;
 
     unsigned int channel_id = addr >> 16;
     assert(channel_id < NV2A_NUM_CHANNELS);
@@ -36,10 +35,9 @@ static uint64_t user_read(void *opaque,
     return r;
 }
 
-static void user_write(void *opaque, hwaddr addr,
-                            uint64_t val, unsigned int size)
+void user_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
-    NV2AState *d = opaque;
+    NV2AState *d = (NV2AState *)opaque;
 
     reg_log_write(NV_USER, addr, val);
 

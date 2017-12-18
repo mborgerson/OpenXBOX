@@ -532,7 +532,7 @@ static void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
 // #include "nv2a_ptimer.cpp"
 // #include "nv2a_pvideo.cpp"
 // #include "nv2a_stubs.cpp"
-// #include "nv2a_user.cpp"
+#include "nv2a_user.cpp"
 
 typedef uint64_t (*read_func)(void *opaque, hwaddr addr, unsigned int size);
 typedef void (*write_func)(void *opaque, hwaddr addr, uint64_t val, unsigned int size);
