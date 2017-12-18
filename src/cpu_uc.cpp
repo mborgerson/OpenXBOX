@@ -198,7 +198,7 @@ struct CpuExitInfo *UnicornCpu::GetExitInfo()
 /*!
  * Unicorn MMIO handler
  */
-static void xb_uc_hook(
+static bool xb_uc_hook(
     uc_engine   *uc,
     uc_mem_type  type,
     uint64_t     address,
@@ -213,7 +213,7 @@ static void xb_uc_hook(
     region = (MemoryRegion *)user_data;
 
     if (region->m_handler == NULL) {
-        return;
+        return false;
     }
 
     MemoryRegionEvent event = {
@@ -223,12 +223,15 @@ static void xb_uc_hook(
     };
     
     switch (type) {
+    case UC_MEM_READ_PROT:
     case UC_MEM_READ:  event.type = MEM_EVENT_READ; break;
+    case UC_MEM_WRITE_PROT:
     case UC_MEM_WRITE: event.type = MEM_EVENT_WRITE; break;
     default:           assert(0); break;
     }
 
     region->m_handler(region, &event, region->m_handler_user);
+    return true;
 }
 
 /*!
@@ -245,27 +248,36 @@ int UnicornCpu::MemMap(MemoryRegion *mem)
     for (int i = 0; i < mem->m_subregions.size(); i++) {
         log_debug("Mapping Region %d [%08x-%08zx)\n", i, mem->m_subregions[i]->m_start, mem->m_subregions[i]->m_start + mem->m_subregions[i]->m_size);
 
-        err = uc_mem_map_ptr(m_uc,
-                             mem->m_subregions[i]->m_start,
-                             mem->m_subregions[i]->m_size,
-                             UC_PROT_READ | UC_PROT_WRITE | UC_PROT_EXEC,
-                             mem->m_subregions[i]->m_data);
+        uint32_t perms = UC_PROT_READ | UC_PROT_WRITE | UC_PROT_EXEC;
 
+        if (mem->m_subregions[i]->m_handler != NULL) {
+            // Unicorn supports a type of hook with normal RWX memory, but it
+            // seems to *really* slow things down. Instead, removing RWX
+            // permissions from the region and handling the error case seems to
+            // be much faster. Go figure.
+            perms = UC_PROT_NONE;
+        }
+
+        err = uc_mem_map_ptr(m_uc,
+                            mem->m_subregions[i]->m_start,
+                            mem->m_subregions[i]->m_size,
+                            perms,
+                            mem->m_subregions[i]->m_data);
         if (err != UC_ERR_OK) {
             log_error("uc_mem_map_ptr failed (%u)\n", err);
             return -1;
         }
 
-        // Install hook for this region
         if (mem->m_subregions[i]->m_handler != NULL) {
+            // Register the handler
             uc_hook hook;
             uint64_t start, limit;
             start = mem->m_subregions[i]->m_start;
             limit = start + mem->m_subregions[i]->m_size - 1;
             log_debug("\tAdding hook!\n");
             err = uc_hook_add(m_uc, &hook, // FIXME: We leak these hooks! They should be cleaned up.
-                              UC_HOOK_MEM_VALID, (void*)xb_uc_hook,
-                              mem->m_subregions[i], start, limit);
+                            UC_HOOK_MEM_PROT, (void*)xb_uc_hook,
+                            mem->m_subregions[i], start, limit);
             if (err != UC_ERR_OK) {
                 log_error("uc_hook_add failed (%u)\n", err);
                 return -1;
