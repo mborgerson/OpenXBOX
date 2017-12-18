@@ -7,7 +7,7 @@ typedef struct RAMHTEntry {
 } RAMHTEntry;
 
 static void pfifo_run_pusher(NV2AState *d);
-void* pfifo_puller_thread(void *arg);
+void* pfifo_puller_thread(void *opaque);
 static uint32_t ramht_hash(NV2AState *d, uint32_t handle);
 static RAMHTEntry ramht_lookup(NV2AState *d, uint32_t handle);
 
@@ -36,7 +36,7 @@ static void pgraph_wait_fifo_access(NV2AState *d) {
 uint64_t pfifo_read(void *opaque, hwaddr addr, unsigned int size)
 {
     int i;
-    NV2AState *d = opaque;
+    NV2AState *d = (NV2AState *)opaque;
 
     uint64_t r = 0;
     switch (addr) {
@@ -132,7 +132,7 @@ uint64_t pfifo_read(void *opaque, hwaddr addr, unsigned int size)
 void pfifo_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
     int i;
-    NV2AState *d = opaque;
+    NV2AState *d = (NV2AState *)opaque;
 
     reg_log_write(NV_PFIFO, addr, val);
 
@@ -151,7 +151,7 @@ void pfifo_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
         break;
     case NV_PFIFO_CACHE1_PUSH1:
         d->pfifo.cache1.channel_id = GET_MASK(val, NV_PFIFO_CACHE1_PUSH1_CHID);
-        d->pfifo.cache1.mode = GET_MASK(val, NV_PFIFO_CACHE1_PUSH1_MODE);
+        d->pfifo.cache1.mode = (enum FifoMode)GET_MASK(val, NV_PFIFO_CACHE1_PUSH1_MODE);
         assert(d->pfifo.cache1.channel_id < NV2A_NUM_CHANNELS);
         break;
     case NV_PFIFO_CACHE1_DMA_PUSH:
@@ -210,7 +210,7 @@ void pfifo_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
     case NV_PFIFO_CACHE1_ENGINE:
         SDL_LockMutex(d->pfifo.cache1.cache_lock);
         for (i=0; i<NV2A_NUM_SUBCHANNELS; i++) {
-            d->pfifo.cache1.bound_engines[i] = (val >> (i*2)) & 3;
+            d->pfifo.cache1.bound_engines[i] = (enum FIFOEngine)((val >> (i*2)) & 3);
         }
         SDL_UnlockMutex(d->pfifo.cache1.cache_lock);
         break;
@@ -267,7 +267,7 @@ static void pfifo_run_pusher(NV2AState *d) {
     /* We're running so there should be no pending errors... */
     assert(state->error == NV_PFIFO_CACHE1_DMA_STATE_ERROR_NONE);
 
-    dma = nv_dma_map(d, state->dma_instance, &dma_len);
+    dma = (uint8_t*)nv_dma_map(d, state->dma_instance, &dma_len);
 
     NV2A_DPRINTF("DMA pusher: max 0x%" HWADDR_PRIx ", 0x%" HWADDR_PRIx " - 0x%" HWADDR_PRIx "\n",
                  dma_len, control->dma_get, control->dma_put);
@@ -287,7 +287,7 @@ static void pfifo_run_pusher(NV2AState *d) {
             /* data word of methods command */
             state->data_shadow = word;
 
-            command = g_malloc0(sizeof(CacheEntry));
+            command = (CacheEntry*)g_malloc0(sizeof(CacheEntry));
             command->method = state->method;
             command->subchannel = state->subchannel;
             command->nonincreasing = state->method_nonincreasing;
@@ -372,9 +372,9 @@ static void pfifo_run_pusher(NV2AState *d) {
     }
 }
 
-void* pfifo_puller_thread(void *arg)
+void* pfifo_puller_thread(void *opaque)
 {
-    NV2AState *d = arg;
+    NV2AState *d = (NV2AState*)opaque;
     Cache1State *state = &d->pfifo.cache1;
 
     // glo_set_current(d->pgraph.gl_context);
@@ -506,7 +506,7 @@ static RAMHTEntry ramht_lookup(NV2AState *d, uint32_t handle)
     return (RAMHTEntry){
         .handle = entry_handle,
         .instance = (entry_context & NV_RAMHT_INSTANCE) << 4,
-        .engine = (entry_context & NV_RAMHT_ENGINE) >> 16,
+        .engine = (enum FIFOEngine)((entry_context & NV_RAMHT_ENGINE) >> 16),
         .channel_id = (entry_context & NV_RAMHT_CHID) >> 24,
         .valid = entry_context & NV_RAMHT_STATUS,
     };
