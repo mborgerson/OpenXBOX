@@ -30,8 +30,6 @@
 // #include "gl/gloffscreen.h"
 // #include "gl/glextensions.h"
 
-
-
 #include <SDL.h>
 #include <GL/glew.h>
 #include <assert.h>
@@ -39,9 +37,6 @@
 #include <log.h>
 #include <stdlib.h>
 
-#define true 1
-#define false 0
-typedef int bool;
 typedef uint32_t hwaddr;
 typedef int qemu_irq;
 #define qemu_mutex_lock SDL_LockMutex
@@ -51,9 +46,6 @@ typedef int MemoryRegion;
 #define pci_irq_assert(...)
 #define pci_irq_deassert(...)
 #define ldl_le_p(p) (*((uint32_t*)(p)))
-// #define g_malloc0(size) calloc(1, size)
-// #define g_free(ptr) free(ptr)
-
 
 #include "g-lru-cache.h"
 #include "swizzle.h"
