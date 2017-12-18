@@ -35,3 +35,9 @@ add_definitions("-DCPU_UNICORN")
 target_link_libraries(openxbox ${LIBUNICORN_LIBRARY})
 target_include_directories(openxbox PUBLIC ${LIBUNICORN_INCLUDE_DIR})
 endif (USE_CPU_UNICORN)
+
+# glib
+find_package(PkgConfig)
+pkg_search_module(GLIB REQUIRED glib-2.0)
+target_link_libraries(openxbox ${GLIB_LDFLAGS})
+target_include_directories(openxbox PUBLIC ${GLIB_INCLUDE_DIRS})
