@@ -2,5 +2,6 @@ set(SOURCES ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/video.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/nv2a.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/g-lru-cache.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/swizzle.cpp
     PARENT_SCOPE
     )

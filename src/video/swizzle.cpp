@@ -24,9 +24,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
-#include "qemu/osdep.h"
-
-#include "hw/xbox/swizzle.h"
+#include "swizzle.h"
 
 /* This should be pretty straightforward.
  * It creates a bit pattern like ..zyxzyxzyx from ..xxx, ..yyy and ..zzz
