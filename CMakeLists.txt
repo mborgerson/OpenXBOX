@@ -39,5 +39,6 @@ endif (USE_CPU_UNICORN)
 # glib
 find_package(PkgConfig)
 pkg_search_module(GLIB REQUIRED glib-2.0)
-target_link_libraries(openxbox ${GLIB_LDFLAGS})
+pkg_search_module(GOBJ REQUIRED gobject-2.0)
+target_link_libraries(openxbox ${GLIB_LDFLAGS} ${GOBJ_LDFLAGS})
 target_include_directories(openxbox PUBLIC ${GLIB_INCLUDE_DIRS})
