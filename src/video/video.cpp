@@ -234,6 +234,10 @@ int Video::Update()
     return 0;
 }
 
+
+
+#include "nv2a.h"
+
 Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
 : Device::Device(mem)
 {
@@ -250,7 +254,7 @@ Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
     memset(mmio_data, 0, mmio_size);
 
     m_mmio = new MemoryRegion(MEM_REGION_MMIO, mmio_base, mmio_size, mmio_data);
-    assert( m_mmio != NULL);
+    assert(m_mmio != NULL);
     m_mmio->SetEventHandler(Nv2aDevice::EventHandler, this);
     mem->AddSubRegion(m_mmio);
 
@@ -270,7 +274,30 @@ Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
     // m_vram->SetEventHandler(Nv2aDevice::EventHandler, this);
     mem->AddSubRegion(m_vram);
 
-    *(uint32_t*)((uint8_t*)m_mmio->m_data + PCRTC_START) = XBOX_FRAMEBUFFER_BASE;
+    // Initialize NV2A State
+    m_nv2a = (NV2AState *)malloc(sizeof(NV2AState)); // FIXME
+    assert(m_nv2a != NULL);
+    memset(m_nv2a, 0, sizeof(NV2AState));
+
+
+    /* RAMIN - should be in vram somewhere, but not quite sure where atm */
+    m_nv2a->vram_ptr = (uint8_t*)m_vram->m_data;
+    m_nv2a->ramin_ptr = (uint8_t*)m_vram->m_data + 0x700000;
+
+    // FIXME: pgraph_init(d);
+    // FIXME: fire up puller
+
+    m_nv2a->pcrtc.start                    =  XBOX_FRAMEBUFFER_BASE;
+    m_nv2a->pramdac.core_clock_coeff       =  0x00011c01; /* 189MHz...?   */
+    m_nv2a->pramdac.core_clock_freq        =  189000000;
+    m_nv2a->pramdac.memory_clock_coeff     =  0;
+    m_nv2a->pramdac.video_clock_coeff      =  0x0003C20D; /* 25182Khz...? */
+    m_nv2a->pfifo.cache1.cache_lock        =  SDL_CreateMutex();
+    m_nv2a->pfifo.cache1.cache_cond        = SDL_CreateCond();
+    assert(m_nv2a->pfifo.cache1.cache_lock != NULL);
+    assert(m_nv2a->pfifo.cache1.cache_cond != NULL);
+    QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.cache);
+    QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.working_cache);
 }
 
 Nv2aDevice::~Nv2aDevice()
@@ -287,8 +314,56 @@ int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *eve
     uint32_t offset = event->addr - inst->m_mmio->m_start;
     
     log_debug("Nv2aDevice::EventHandler! %08x\n", event->addr);
-    if (offset == PCRTC_START) {
-        log_debug("Read to PCRTC_START\n");
+
+    const NV2ABlockInfo *block = NULL;
+
+    // Search block table for handlers
+    for (int i = 0; i < blocktable_len; i++) {
+        if (!blocktable[i].name) continue;
+        if (offset >= blocktable[i].offset && offset < (blocktable[i].offset + blocktable[i].size)) {
+            block = &blocktable[i];
+            break;
+        }
+    }
+
+    if (block == NULL) {
+        log_debug("  Could not find block table entry for offset %x!\n", offset);
+        assert(0);
+    }
+
+    log_debug("  Found block table entry %s\n", block->name);
+    uint32_t rel_offset = offset - block->offset;
+
+    if (event->type == MEM_EVENT_READ) {
+        //
+        // Handle read events using block handler
+        //
+        log_debug("  READ %x\n", rel_offset);
+        if (block->ops.read != NULL) {
+            uint64_t val = block->ops.read(inst->m_nv2a, rel_offset, event->size);
+            log_debug("  Got back value %llx\n", val);
+            // Update buffer
+            memcpy((uint8_t*)region->m_data + offset, &val, event->size);
+        } else {
+            // No handler provided, pass through to underlying buffer
+            log_debug("  Letting read pass through\n");
+        }
+    } else if (event->type == MEM_EVENT_WRITE) {
+        //
+        // Handle write events using block handler
+        //
+        log_debug("  WRITE %x\n", rel_offset);
+        if (block->ops.write != NULL) {
+            block->ops.write(inst->m_nv2a, rel_offset, event->value, event->size);
+        } else {
+            // No handler provided, pass through to underlying buffer
+            log_debug("  Letting write pass through\n");
+        }
+    } else {
+        //
+        // Unsupported event type!
+        //
+        assert(0);
     }
 
     return 0;
@@ -296,6 +371,17 @@ int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *eve
 
 void *Nv2aDevice::GetFramebuffer()
 {
+#if 0
+    //
+    // With the current way MMIO is handled, this backing store will not be
+    // set with the correct value until it is read for the first time by the
+    // guest. That will cause this routine to return whatever this address
+    // stored... because memory is zeroed at startup, RAM at address 0 will
+    // be rendered on the screen (looks like garbage).
+    //
     uint32_t offset = *(uint32_t*)((uint8_t*)m_mmio->m_data + PCRTC_START);
     return (char*)m_vram->m_data + offset;
+#endif
+
+    return (char*)m_vram->m_data + m_nv2a->pcrtc.start;
 }

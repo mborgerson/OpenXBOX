@@ -123,7 +123,7 @@ const struct NV2ABlockInfo blocktable[] = {
     ENTRY(PFB,      0x100000, 0x001000, NULL, NULL) // pfb_read,      pfb_write)
     ENTRY(PSTRAPS,  0x101000, 0x001000, NULL, NULL) // pstraps_read,  pstraps_write)
     ENTRY(PGRAPH,   0x400000, 0x002000, NULL, NULL) // pgraph_read,   pgraph_write)
-    ENTRY(PCRTC,    0x600000, 0x001000, NULL, NULL) // pcrtc_read,    pcrtc_write)
+    ENTRY(PCRTC,    0x600000, 0x001000, pcrtc_read,    pcrtc_write)
     ENTRY(PRMCIO,   0x601000, 0x001000, NULL, NULL) // prmcio_read,   prmcio_write)
     ENTRY(PRAMDAC,  0x680000, 0x001000, NULL, NULL) // pramdac_read,  pramdac_write)
     ENTRY(PRMDIO,   0x681000, 0x001000, NULL, NULL) // prmdio_read,   prmdio_write)

@@ -37,11 +37,14 @@ public:
     int UpdateFrameData(char *data);
 };
 
+#include "nv2a.h"
+
 class Nv2aDevice : public Device {
 protected:
     Scheduler    *m_sched;
     MemoryRegion *m_mmio;
     MemoryRegion *m_vram;
+    NV2AState    *m_nv2a;
 
 public:
     Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched);

@@ -42,7 +42,7 @@ typedef uint32_t hwaddr;
 typedef int qemu_irq;
 #define qemu_mutex_lock SDL_LockMutex
 #define qemu_mutex_unlock SDL_UnlockMutex
-typedef int MemoryRegion;
+// typedef int MemoryRegion;
 
 #define pci_irq_assert(...)
 #define pci_irq_deassert(...)
@@ -381,10 +381,10 @@ typedef struct NV2AState {
     // GraphicHwOps hw_ops;
     // QEMUTimer *vblank_timer;
 
-    MemoryRegion *vram;
-    MemoryRegion vram_pci;
+    // MemoryRegion *vram;
+    // MemoryRegion vram_pci;
     uint8_t *vram_ptr;
-    MemoryRegion ramin;
+    // MemoryRegion ramin;
     uint8_t *ramin_ptr;
 
     // MemoryRegion mmio;
