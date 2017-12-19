@@ -290,7 +290,7 @@ static void upload_gl_texture(GLenum gl_target, const TextureShape s, const uint
 static TextureBinding* generate_texture(const TextureShape s, const uint8_t *texture_data, const uint8_t *palette_data);
 static guint texture_key_hash(gconstpointer key);
 static gboolean texture_key_equal(gconstpointer a, gconstpointer b);
-static gpointer texture_key_retrieve(gpointer key, gpointer user_data);
+static gpointer texture_key_retrieve(gpointer key, gpointer user_data, GError **error);
 static void texture_key_destroy(gpointer data);
 static void texture_binding_destroy(gpointer data);
 static guint shader_hash(gconstpointer key);
@@ -2654,11 +2654,20 @@ void pgraph_init(NV2AState *d)
 
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
-    pg->texture_cache = g_lru_cache_new(
-        texture_key_hash, texture_key_equal,
-        NULL, texture_key_retrieve,
-        texture_key_destroy, texture_binding_destroy,
-        NULL, NULL);
+    pg->texture_cache = g_lru_cache_new_full(
+        0,
+        NULL,
+        texture_key_destroy,
+        0,
+        NULL,
+        texture_binding_destroy,
+        texture_key_hash,
+        texture_key_equal,
+        texture_key_retrieve,
+        NULL,
+        NULL
+        );
+
     g_lru_cache_set_max_size(pg->texture_cache, 512);
 
     pg->shader_cache = g_hash_table_new(shader_hash, shader_equal);
@@ -3671,7 +3680,8 @@ static void pgraph_bind_textures(NV2AState *d)
         gpointer cache_key = g_malloc(sizeof(TextureKey));
         memcpy(cache_key, &key, sizeof(TextureKey));
 
-        TextureBinding *binding = (TextureBinding *)g_lru_cache_get(pg->texture_cache, cache_key);
+        GError *err;
+        TextureBinding *binding = (TextureBinding *)g_lru_cache_get(pg->texture_cache, cache_key, &err);
         assert(binding);
         binding->refcnt++;
 #else
@@ -4329,12 +4339,15 @@ static gboolean texture_key_equal(gconstpointer a, gconstpointer b)
     return memcmp(&ak->state, &bk->state, sizeof(TextureShape)) == 0
             && ak->data_hash == bk->data_hash;
 }
-static gpointer texture_key_retrieve(gpointer key, gpointer user_data)
+static gpointer texture_key_retrieve(gpointer key, gpointer user_data, GError **error)
 {
     const TextureKey *k = (const TextureKey *)key;
     TextureBinding *v = generate_texture(k->state,
                                          k->texture_data,
                                          k->palette_data);
+    if (error != NULL) {
+        *error = NULL;
+    }
     return v;
 }
 static void texture_key_destroy(gpointer data)
