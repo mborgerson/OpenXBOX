@@ -282,7 +282,10 @@ Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
 
     /* RAMIN - should be in vram somewhere, but not quite sure where atm */
     m_nv2a->vram_ptr = (uint8_t*)m_vram->m_data;
+    m_nv2a->vram_size = m_vram->m_size;
     m_nv2a->ramin_ptr = (uint8_t*)m_vram->m_data + 0x700000;
+    m_nv2a->ramin_size = 0x100000;
+
 
     // FIXME: pgraph_init(d);
     // FIXME: fire up puller

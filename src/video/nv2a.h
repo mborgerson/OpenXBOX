@@ -46,7 +46,10 @@ typedef int qemu_irq;
 
 #define pci_irq_assert(...)
 #define pci_irq_deassert(...)
+
 #define ldl_le_p(p) (*((uint32_t*)(p)))
+#define stl_le_p(p, v) (*((uint32_t*)(p)) = (v))
+#define stq_le_p(p, v) (*((uint64_t*)(p)) = (v))
 
 #include "g-lru-cache.h"
 #include "swizzle.h"
@@ -384,8 +387,10 @@ typedef struct NV2AState {
     // MemoryRegion *vram;
     // MemoryRegion vram_pci;
     uint8_t *vram_ptr;
+    size_t vram_size;
     // MemoryRegion ramin;
     uint8_t *ramin_ptr;
+    size_t ramin_size;
 
     // MemoryRegion mmio;
     // MemoryRegion block_mmio[NV_NUM_BLOCKS];

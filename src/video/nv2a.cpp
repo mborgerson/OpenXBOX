@@ -55,7 +55,7 @@ void update_irq(NV2AState *d)
 
 DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
 {
-    // assert(dma_obj_address < memory_region_size(&d->ramin));
+    assert(dma_obj_address < d->ramin_size);
 
     uint32_t *dma_obj = (uint32_t*)(d->ramin_ptr + dma_obj_address);
     uint32_t flags = ldl_le_p(dma_obj);
@@ -72,7 +72,7 @@ DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
 
 void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
 {
-    // assert(dma_obj_address < memory_region_size(&d->ramin));
+    assert(dma_obj_address < d->ramin_size);
 
     DMAObject dma = nv_dma_load(d, dma_obj_address);
 
@@ -82,16 +82,18 @@ void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
 
     dma.address &= 0x07FFFFFF;
 
-    // assert(dma.address + dma.limit < memory_region_size(d->vram));
+    assert(dma.address + dma.limit < d->vram_size);
     *len = dma.limit;
     return d->vram_ptr + dma.address;
 }
 
+static const char* nv2a_method_names[] = {};
+
 // #include "nv2a_pbus.cpp"
 #include "nv2a_pcrtc.cpp"
 // #include "nv2a_pfb.cpp"
+#include "nv2a_pgraph.cpp"
 #include "nv2a_pfifo.cpp"
-// #include "nv2a_pgraph.cpp"
 #include "nv2a_pmc.cpp"
 #include "nv2a_pramdac.cpp"
 // #include "nv2a_prmcio.cpp"
@@ -135,7 +137,6 @@ const struct NV2ABlockInfo blocktable[] = {
 const int blocktable_len = ARRAY_SIZE(blocktable);
 
 static const char* nv2a_reg_names[] = {};
-// static const char* nv2a_method_names[] = {};
 
 void reg_log_read(int block, hwaddr addr, uint64_t val) {
     if (blocktable[block].name) {

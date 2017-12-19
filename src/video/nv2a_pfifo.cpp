@@ -11,27 +11,6 @@ void* pfifo_puller_thread(void *opaque);
 static uint32_t ramht_hash(NV2AState *d, uint32_t handle);
 static RAMHTEntry ramht_lookup(NV2AState *d, uint32_t handle);
 
-
-/* Stub out PGRAPH stuff for now */
-#if 1
-static void pgraph_method(NV2AState *d, unsigned int subchannel, unsigned int method, uint32_t parameter)
-{
-    // STUB
-    log_debug("%s: stubbed out (subchannel=%d, method=%d, parameter=%d)\n", __func__, subchannel, method, parameter);
-}
-
-static void pgraph_context_switch(NV2AState *d, unsigned int channel_id)
-{
-    // STUB
-    log_debug("%s: stubbed out (channel_id=%d)\n", __func__, channel_id);
-}
-
-static void pgraph_wait_fifo_access(NV2AState *d) {
-    // STUB
-    log_debug("%s: stubbed out\n", __func__);
-}
-#endif
-
 /* PFIFO - MMIO and DMA FIFO submission to PGRAPH and VPE */
 uint64_t pfifo_read(void *opaque, hwaddr addr, unsigned int size)
 {
