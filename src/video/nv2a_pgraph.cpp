@@ -1,12 +1,11 @@
 // FIXME
-#define qemu_mutex_lock_iothread(...)
-#define qemu_mutex_unlock_iothread(...)
-#define glextensions_init()
-#define glo_context_create(...) NULL
-#define glo_check_extension(...) 1
-#define glo_set_current(...)
-#define glo_context_destroy(...)
-#define glo_readpixels(...)
+#define qemu_mutex_lock_iothread(...) do { \
+    SDL_LockMutex(d->io_lock); \
+} while (0) \
+
+#define qemu_mutex_unlock_iothread(...)  do { \
+    SDL_UnlockMutex(d->io_lock); \
+} while (0) \
 
 // Xbox uses 4 KiB pages
 #define TARGET_PAGE_MASK 0xfff
@@ -252,12 +251,8 @@ static const SurfaceColorFormatInfo kelvin_surface_color_format_map[] = {
         {4, GL_RGBA8, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV},
 };
 
-
-void pgraph_init(NV2AState *d);
-void pgraph_destroy(PGRAPHState *pg);
 uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size);
 void pgraph_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size);
-
 
 static void pgraph_context_switch(NV2AState *d, unsigned int channel_id);
 static void pgraph_set_context_user(NV2AState *d, uint32_t val);

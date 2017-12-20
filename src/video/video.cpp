@@ -221,6 +221,8 @@ int Video::Cleanup()
 
 int Video::Update()
 {
+    m_nv2a->FixmeLock();
+
     void *fb = m_nv2a->GetFramebuffer();
 
     glActiveTexture(GL_TEXTURE0);
@@ -231,6 +233,8 @@ int Video::Update()
     glClear(GL_COLOR_BUFFER_BIT);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     SDL_GL_SwapWindow(m_window);
+
+    m_nv2a->FixmeUnlock();
     return 0;
 }
 
@@ -286,9 +290,10 @@ Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
     m_nv2a->ramin_ptr = (uint8_t*)m_vram->m_data + 0x700000;
     m_nv2a->ramin_size = 0x100000;
 
-
-    // FIXME: pgraph_init(d);
-    // FIXME: fire up puller
+    pgraph_init(m_nv2a);
+    log_debug("Starting puller thread\n");
+    m_nv2a->pfifo.puller_thread = SDL_CreateThread(pfifo_puller_thread, "FIFO_Puller", m_nv2a);
+    assert(m_nv2a->pfifo.puller_thread != NULL);
 
     m_nv2a->pcrtc.start                    =  XBOX_FRAMEBUFFER_BASE;
     m_nv2a->pramdac.core_clock_coeff       =  0x00011c01; /* 189MHz...?   */
@@ -301,6 +306,9 @@ Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
     assert(m_nv2a->pfifo.cache1.cache_cond != NULL);
     QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.cache);
     QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.working_cache);
+
+
+    m_nv2a->io_lock = SDL_CreateMutex();
 }
 
 Nv2aDevice::~Nv2aDevice()
@@ -315,6 +323,8 @@ int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *eve
 {
     Nv2aDevice *inst = (Nv2aDevice *)user_data;
     uint32_t offset = event->addr - inst->m_mmio->m_start;
+
+    SDL_LockMutex(inst->m_nv2a->io_lock);
     
     log_debug("Nv2aDevice::EventHandler! %08x\n", event->addr);
 
@@ -369,7 +379,19 @@ int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *eve
         assert(0);
     }
 
+    SDL_UnlockMutex(inst->m_nv2a->io_lock);
+
     return 0;
+}
+
+void Nv2aDevice::FixmeLock()
+{
+    SDL_LockMutex(m_nv2a->io_lock);
+}
+
+void Nv2aDevice::FixmeUnlock()
+{
+    SDL_UnlockMutex(m_nv2a->io_lock);
 }
 
 void *Nv2aDevice::GetFramebuffer()

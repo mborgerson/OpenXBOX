@@ -51,6 +51,9 @@ public:
     ~Nv2aDevice();
     static int EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, void *user_data);
     void *GetFramebuffer();
+
+    void FixmeLock();
+    void FixmeUnlock();
 };
 
 #endif

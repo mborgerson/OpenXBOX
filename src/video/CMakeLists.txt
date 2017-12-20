@@ -6,5 +6,7 @@ set(SOURCES ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/nv2a_vsh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/nv2a_psh.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/nv2a_shaders.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gloffscreen.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/glextensions.c
     PARENT_SCOPE
     )

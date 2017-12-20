@@ -57,6 +57,9 @@ typedef int qemu_irq;
 #include "nv2a_debug.h"
 #include "nv2a_int.h"
 
+#include "gloffscreen.h"
+#include "glextensions.h"
+
 #define USE_TEXTURE_CACHE
 
 #define GET_MASK(v, mask) (((v) & (mask)) >> (ffs(mask)-1))
@@ -266,7 +269,7 @@ typedef struct PGRAPHState {
     /* FIXME: Move to NV_PGRAPH_BUMPMAT... */
     float bump_env_matrix[NV2A_MAX_TEXTURES-1][4]; /* 3 allowed stages with 2x2 matrix each */
 
-    SDL_GLContext *gl_context;
+    GloContext *gl_context;
     GLuint gl_framebuffer;
     GLuint gl_color_buffer, gl_zeta_buffer;
     GraphicsSubchannel subchannel_data[NV2A_NUM_SUBCHANNELS];
@@ -401,7 +404,7 @@ typedef struct NV2AState {
     } pmc;
 
     struct {
-        // QemuThread puller_thread;
+        SDL_Thread *puller_thread;
         uint32_t pending_interrupts;
         uint32_t enabled_interrupts;
         Cache1State cache1;
@@ -443,6 +446,10 @@ typedef struct NV2AState {
         ChannelControl channel_control[NV2A_NUM_CHANNELS];
     } user;
 
+
+
+    SDL_mutex *io_lock;
+
 } NV2AState;
 
 typedef uint64_t (*read_func)(void *opaque, hwaddr addr, unsigned int size);
@@ -461,5 +468,9 @@ typedef struct NV2ABlockInfo {
 
 extern const struct NV2ABlockInfo blocktable[];
 extern const int blocktable_len;
+
+void pgraph_init(NV2AState *d);
+int pfifo_puller_thread(void *opaque);
+void pgraph_destroy(PGRAPHState *pg);
 
 #endif

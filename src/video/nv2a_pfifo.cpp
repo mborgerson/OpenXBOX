@@ -7,7 +7,7 @@ typedef struct RAMHTEntry {
 } RAMHTEntry;
 
 static void pfifo_run_pusher(NV2AState *d);
-void* pfifo_puller_thread(void *opaque);
+int pfifo_puller_thread(void *opaque);
 static uint32_t ramht_hash(NV2AState *d, uint32_t handle);
 static RAMHTEntry ramht_lookup(NV2AState *d, uint32_t handle);
 
@@ -351,12 +351,12 @@ static void pfifo_run_pusher(NV2AState *d) {
     }
 }
 
-void* pfifo_puller_thread(void *opaque)
+int pfifo_puller_thread(void *opaque)
 {
     NV2AState *d = (NV2AState*)opaque;
     Cache1State *state = &d->pfifo.cache1;
 
-    // glo_set_current(d->pgraph.gl_context);
+    glo_set_current(d->pgraph.gl_context);
 
     while (true) {
         SDL_LockMutex(state->cache_lock);
@@ -365,8 +365,8 @@ void* pfifo_puller_thread(void *opaque)
 
             if (d->exiting) {
                 SDL_UnlockMutex(state->cache_lock);
-                // glo_set_current(NULL);
-                return NULL;
+                glo_set_current(NULL);
+                return 0;
             }
         }
         QSIMPLEQ_CONCAT(&state->working_cache, &state->cache);
@@ -444,7 +444,7 @@ void* pfifo_puller_thread(void *opaque)
         SDL_UnlockMutex(d->pgraph.lock);
     }
 
-    return NULL;
+    return 0;
 }
 
 static uint32_t ramht_hash(NV2AState *d, uint32_t handle)
