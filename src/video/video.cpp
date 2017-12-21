@@ -7,6 +7,20 @@
 #include "video.h"
 #include <util.h>
 
+static int _RenderThreadWrapper(void *VideoInstance);
+
+/*!
+ * Wrapper function for SDL_CreateThread proto compatibility
+ *
+ * This function will simply call the RenderThread method of the Video class
+ */
+static int _RenderThreadWrapper(void *VideoInstance)
+{
+    ((Video *)VideoInstance)->RenderThread();
+    return 0;
+}
+
+#if 0
 #define PCRTC_START 0x00600800
 
 const char *vert_shader_src = "\
@@ -43,6 +57,7 @@ const GLfloat verts[6][4] = {
 const GLint indicies[] = {
     0, 1, 2, 0, 2, 3
 };
+#endif
 
 Video::Video(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
 {
@@ -53,7 +68,11 @@ Video::Video(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
 
 Video::~Video()
 {
-    delete m_nv2a;
+    free(m_nv2a);
+    free(m_mmio->m_data);
+    // Don't need to free vram (it's allocated as system memory!)
+    delete m_mmio;
+    delete m_vram;
 }
 
 int Video::Initialize()
@@ -107,32 +126,74 @@ int Video::Initialize()
         return 1;
     }
 
+#if 0
     InitShaders();
     InitGeometry();
     InitTextures();
+#endif
 
-    m_nv2a = new Nv2aDevice(m_mem, m_ram, m_sched);
+    // Create MMIO region -- 16 MiB of address space beginning at 0xFD000000
+    // which contains the control registers and some buffers for the NV2A.
+    uint32_t mmio_base = 0xFD000000;
+    uint32_t mmio_size = 0x1000000;
+    void *mmio_data;
+
+    mmio_data = valloc(mmio_size);
+    assert(mmio_data != NULL);
+    memset(mmio_data, 0, mmio_size);
+
+    m_mmio = new MemoryRegion(MEM_REGION_MMIO, mmio_base, mmio_size, mmio_data);
+    assert(m_mmio != NULL);
+    m_mmio->SetEventHandler(Video::EventHandler, this);
+    m_mem->AddSubRegion(m_mmio);
+
+    // Create VRAM region -- NV2A shares system memory with CPU. Memory can be
+    // accessed normally from CPU through the associated physical address, and
+    // it can also be accessed via the NV2A through a MMIO window which begins
+    // at the address specified by the second BAR of the NV2A PCI device. For
+    // example, the memory at physical address 0x100000 can also be accessed
+    // at address 0xF0100000. For performance, Xbox system software configures
+    // the caching policy of this aliased region to be write-combining.
+    uint32_t vram_base = 0xF0000000;
+    uint32_t vram_size = m_ram->m_size;
+    void *vram_data = m_ram->m_data;
+
+    m_vram = new MemoryRegion(MEM_REGION_RAM, vram_base, vram_size, vram_data);
+    assert(mmio_data != NULL && m_vram != NULL);
+    // m_vram->SetEventHandler(Video::EventHandler, this);
+    m_mem->AddSubRegion(m_vram);
+
+    // Initialize NV2A State
+    m_nv2a = (NV2AState *)malloc(sizeof(NV2AState)); // FIXME
     assert(m_nv2a != NULL);
+    memset(m_nv2a, 0, sizeof(NV2AState));
+
+    /* RAMIN - should be in vram somewhere, but not quite sure where atm */
+    m_nv2a->vram_ptr   = (uint8_t*)m_vram->m_data;
+    m_nv2a->vram_size  = m_vram->m_size;
+    m_nv2a->ramin_ptr  = (uint8_t*)m_vram->m_data + 0x700000;
+    m_nv2a->ramin_size = 0x100000;
+
+    pgraph_init(m_nv2a);
+
+    m_nv2a->pcrtc.start                = XBOX_FRAMEBUFFER_BASE;
+    m_nv2a->pramdac.core_clock_coeff   = 0x00011c01; /* 189MHz...?   */
+    m_nv2a->pramdac.core_clock_freq    = 189000000;
+    m_nv2a->pramdac.memory_clock_coeff = 0;
+    m_nv2a->pramdac.video_clock_coeff  = 0x0003C20D; /* 25182Khz...? */
+    m_nv2a->pfifo.cache1.cache_lock    = SDL_CreateMutex();
+    m_nv2a->pfifo.cache1.cache_cond    = SDL_CreateCond();
+    assert(m_nv2a->pfifo.cache1.cache_lock != NULL);
+    assert(m_nv2a->pfifo.cache1.cache_cond != NULL);
+    QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.cache);
+    QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.working_cache);
 
     // Start rendering thread
     log_debug("Spawning Rendering Thread\n");
-    m_sync_mutex = SDL_CreateMutex();
-    m_sync_cond = SDL_CreateCond();
-
     m_render_thread_should_exit = false;
-    m_render_thread = SDL_CreateThread(&Video::_RenderThreadWrapper, "Rendering", this);
+    m_render_thread = SDL_CreateThread(&_RenderThreadWrapper, "Rendering", this);
     assert(m_render_thread != NULL);
 
-    return 0;
-}
-
-/*!
- * Thread which handles all rendering commands from CPU
- */
-int Video::_RenderThreadWrapper(void *opaque)
-{
-    Video *inst = (Video *)opaque;
-    inst->RenderThread();
     return 0;
 }
 
@@ -144,13 +205,7 @@ void Video::RenderThread()
     SDL_GL_MakeCurrent(m_window, m_context);
 
     while (!m_render_thread_should_exit) {
-        SDL_LockMutex(m_sync_mutex);
-        SDL_CondWait(m_sync_cond, m_sync_mutex);
-
-        log_debug("Render pulse!\n");
-
-        m_nv2a->Update();
-
+#if 0
         void *fb = m_nv2a->GetFramebuffer();
 
         glActiveTexture(GL_TEXTURE0);
@@ -161,12 +216,12 @@ void Video::RenderThread()
         glClear(GL_COLOR_BUFFER_BIT);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
         SDL_GL_SwapWindow(m_window);
-
-        SDL_UnlockMutex(m_sync_mutex);
+#endif
+        pfifo_puller_thread(m_nv2a);
     }
 }
 
-#if 1
+#if 0
 int Video::InitShaders()
 {
     GLint status;
@@ -256,9 +311,16 @@ int Video::Cleanup()
     // Signal for rendering thread to finish and wait
     log_debug("Waiting for rendering thread to exit...\n");
     m_render_thread_should_exit = true;
+
+    Cache1State *state = &m_nv2a->pfifo.cache1;
+    SDL_LockMutex(state->cache_lock);
+    SDL_CondSignal(state->cache_cond);
+    SDL_UnlockMutex(state->cache_lock);
+    m_nv2a->exiting = true;
+
     SDL_WaitThread(m_render_thread, NULL);
 
-#if 1
+#if 0
     glUseProgram(0);
     glDisableVertexAttribArray(0); // FIXME
     glDetachShader(m_shader_prog, m_vert_shader);
@@ -279,101 +341,27 @@ int Video::Cleanup()
 
 int Video::Update()
 {
-    SDL_LockMutex(m_sync_mutex);
-    SDL_CondSignal(m_sync_cond);
-    SDL_UnlockMutex(m_sync_mutex);
-    SDL_LockMutex(m_sync_mutex);
-    SDL_UnlockMutex(m_sync_mutex);
     return 0;
 }
 
-
-
-#include "nv2a.h"
-
-Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
-: Device::Device(mem)
+void Video::FixmeLock()
 {
-    m_sched = sched;
-
-    // Create MMIO region -- 16 MiB of address space beginning at 0xFD000000
-    // which contains the control registers and some buffers for the NV2A.
-    uint32_t mmio_base = 0xFD000000;
-    uint32_t mmio_size = 0x1000000;
-    void *mmio_data;
-
-    mmio_data = valloc(mmio_size);
-    assert(mmio_data != NULL);
-    memset(mmio_data, 0, mmio_size);
-
-    m_mmio = new MemoryRegion(MEM_REGION_MMIO, mmio_base, mmio_size, mmio_data);
-    assert(m_mmio != NULL);
-    m_mmio->SetEventHandler(Nv2aDevice::EventHandler, this);
-    mem->AddSubRegion(m_mmio);
-
-    // Create VRAM region -- NV2A shares system memory with CPU. Memory can be
-    // accessed normally from CPU through the associated physical address, and
-    // it can also be accessed via the NV2A through a MMIO window which begins
-    // at the address specified by the second BAR of the NV2A PCI device. For
-    // example, the memory at physical address 0x100000 can also be accessed
-    // at address 0xF0100000. For performance, Xbox system software configures
-    // the caching policy of this aliased region to be write-combining.
-    uint32_t vram_base = 0xF0000000;
-    uint32_t vram_size = ram->m_size;
-    void *vram_data = ram->m_data;
-
-    m_vram = new MemoryRegion(MEM_REGION_RAM, vram_base, vram_size, vram_data);
-    assert(mmio_data != NULL && m_vram != NULL);
-    // m_vram->SetEventHandler(Nv2aDevice::EventHandler, this);
-    mem->AddSubRegion(m_vram);
-
-    // Initialize NV2A State
-    m_nv2a = (NV2AState *)malloc(sizeof(NV2AState)); // FIXME
-    assert(m_nv2a != NULL);
-    memset(m_nv2a, 0, sizeof(NV2AState));
-
-    /* RAMIN - should be in vram somewhere, but not quite sure where atm */
-    m_nv2a->vram_ptr   = (uint8_t*)m_vram->m_data;
-    m_nv2a->vram_size  = m_vram->m_size;
-    m_nv2a->ramin_ptr  = (uint8_t*)m_vram->m_data + 0x700000;
-    m_nv2a->ramin_size = 0x100000;
-
-    // pgraph_init(m_nv2a);
-    // log_debug("Starting puller thread\n");
-    // m_nv2a->pfifo.puller_thread = SDL_CreateThread(pfifo_puller_thread, "FIFO_Puller", m_nv2a);
-    // assert(m_nv2a->pfifo.puller_thread != NULL);
-
-    m_nv2a->pcrtc.start                = XBOX_FRAMEBUFFER_BASE;
-    m_nv2a->pramdac.core_clock_coeff   = 0x00011c01; /* 189MHz...?   */
-    m_nv2a->pramdac.core_clock_freq    = 189000000;
-    m_nv2a->pramdac.memory_clock_coeff = 0;
-    m_nv2a->pramdac.video_clock_coeff  = 0x0003C20D; /* 25182Khz...? */
-    m_nv2a->pfifo.cache1.cache_lock    = SDL_CreateMutex();
-    m_nv2a->pfifo.cache1.cache_cond    = SDL_CreateCond();
-    assert(m_nv2a->pfifo.cache1.cache_lock != NULL);
-    assert(m_nv2a->pfifo.cache1.cache_cond != NULL);
-    QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.cache);
-    QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.working_cache);
-
-    // m_nv2a->io_lock = SDL_CreateMutex();
+    SDL_LockMutex(m_nv2a->io_lock);
 }
 
-Nv2aDevice::~Nv2aDevice()
+void Video::FixmeUnlock()
 {
-    free(m_mmio->m_data);
-    // Don't need to free vram (it's allocated as system memory!)
-    delete m_mmio;
-    delete m_vram;
+    SDL_UnlockMutex(m_nv2a->io_lock);
 }
 
-int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, void *user_data)
+int Video::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, void *user_data)
 {
-    Nv2aDevice *inst = (Nv2aDevice *)user_data;
+    Video *inst = (Video *)user_data;
     uint32_t offset = event->addr - inst->m_mmio->m_start;
 
     // SDL_LockMutex(inst->m_nv2a->io_lock);
     
-    log_debug("Nv2aDevice::EventHandler! %08x\n", event->addr);
+    log_debug("Video::EventHandler! %08x\n", event->addr);
 
     const NV2ABlockInfo *block = NULL;
 
@@ -431,10 +419,7 @@ int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *eve
     return 0;
 }
 
-void Nv2aDevice::Update()
-{
-}
-
+#if 0
 void *Nv2aDevice::GetFramebuffer()
 {
 #if 0
@@ -451,3 +436,4 @@ void *Nv2aDevice::GetFramebuffer()
 
     return (char*)m_vram->m_data + m_nv2a->pcrtc.start;
 }
+#endif

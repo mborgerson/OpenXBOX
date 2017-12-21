@@ -1,35 +1,32 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include <dev.h>
-#include <mem.h>
-
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 
+#include <dev.h>
+#include <mem.h>
 #include <sched.h>
-
-class Nv2aDevice;
+#include "nv2a.h"
 
 class Video {
 protected:
     Scheduler     *m_sched;
     MemoryRegion  *m_mem;
     MemoryRegion  *m_ram;
-    Nv2aDevice    *m_nv2a;
+    MemoryRegion  *m_mmio;
+    MemoryRegion  *m_vram;
+    NV2AState     *m_nv2a;
 
     SDL_Window    *m_window;
     SDL_GLContext  m_context;
-    GLuint         m_vao, m_vbo, m_ebo, m_tex;
-    GLuint         m_vert_shader;
-    GLuint         m_frag_shader;
-    GLuint         m_shader_prog;
+    // GLuint         m_vao, m_vbo, m_ebo, m_tex;
+    // GLuint         m_vert_shader;
+    // GLuint         m_frag_shader;
+    // GLuint         m_shader_prog;
 
     bool           m_render_thread_should_exit;
     SDL_Thread    *m_render_thread;
-
-    SDL_cond *m_sync_cond;
-    SDL_mutex *m_sync_mutex;
 
 public:
     Video(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched);
@@ -37,30 +34,15 @@ public:
     int Initialize();
     int Update();
     int Cleanup();
-    int InitShaders();
-    int InitGeometry();
-    int InitTextures();
-    int UpdateFrameData(char *data);
-    static int _RenderThreadWrapper(void *inst);
     void RenderThread();
-};
-
-#include "nv2a.h"
-
-class Nv2aDevice : public Device {
-protected:
-    Scheduler    *m_sched;
-    MemoryRegion *m_mmio;
-    MemoryRegion *m_vram;
-    NV2AState    *m_nv2a;
-
-public:
-    Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched);
-    ~Nv2aDevice();
     static int EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, void *user_data);
-    void *GetFramebuffer();
-
-    void Update();
+    void FixmeLock();
+    void FixmeUnlock();
+    
+    // int InitShaders();
+    // int InitGeometry();
+    // int InitTextures();
+    // void *GetFramebuffer();
 };
 
 #endif
