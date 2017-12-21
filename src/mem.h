@@ -10,7 +10,7 @@
 #define XBOX_STACK_SIZE       KiB(64)
 #define XBOX_STACK_BASE       (XBOX_RAM_SIZE-XBOX_STACK_SIZE) // (just put it at TOLM for now)
 #define XBOX_KIMPORT_BASE     MiB(0)
-#define XBOX_FRAMEBUFFER_BASE MiB(32)
+#define XBOX_FRAMEBUFFER_BASE MiB(40)
 
 class MemoryRegion;
 
