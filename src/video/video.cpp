@@ -190,6 +190,7 @@ int Video::Initialize()
 
     m_nv2a->io_lock = SDL_CreateMutex();
     assert(m_nv2a->io_lock != NULL);
+    m_nv2a->sdl_window = m_window; // hack
 
     // Start rendering thread
     log_debug("Spawning Rendering Thread\n");

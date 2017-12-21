@@ -652,6 +652,18 @@ static void pgraph_method(NV2AState *d,
         break;
     }
     case NV097_FLIP_STALL:
+        // HACK HACK HACK
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, pg->gl_framebuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, 640, 480, 0, 0, 640, 480, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        SDL_GL_SwapWindow(d->sdl_window); // ugh
+        assert(glGetError() == GL_NO_ERROR);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, pg->gl_framebuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pg->gl_framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, pg->gl_framebuffer);
+        // HACK HACK HACK
+
+
         pgraph_update_surface(d, false, true, true);
 
         while (true) {

@@ -1,5 +1,14 @@
 #include "common.h"
 
+
+// Xbox uses 4 KiB pages
+#define TARGET_PAGE_MASK 0xfff
+#define TARGET_PAGE_ALIGN(x) (((x) + 0xfff) & ~0xfff)
+
+uint32_t start = MiB(16);
+uint32_t cur = start;
+uint32_t end = MiB(40);
+
 /*
  * MmAllocateContiguousMemoryEx
  *
@@ -22,6 +31,15 @@ int Xbox::MmAllocateContiguousMemoryEx()
 	K_INIT_ARG(ULONG,     Protect);
 	PVOID rval;
 
+	printf("NumberOfBytes            = %x,\n", NumberOfBytes);
+	printf("LowestAcceptableAddress  = %x,\n", LowestAcceptableAddress);
+	printf("HighestAcceptableAddress = %x,\n", HighestAcceptableAddress);
+	printf("Alignment                = %x,\n", Alignment);
+	printf("Protect                  = %x\n", Protect);
+	rval = TARGET_PAGE_ALIGN(cur);
+	cur  = TARGET_PAGE_ALIGN(rval + NumberOfBytes);
+	printf("...allocated at %x\n", rval);
+
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }

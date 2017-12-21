@@ -449,6 +449,7 @@ typedef struct NV2AState {
 
 
     SDL_mutex *io_lock;
+    SDL_Window *sdl_window;
 
 } NV2AState;
 

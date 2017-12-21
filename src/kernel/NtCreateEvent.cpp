@@ -20,6 +20,8 @@ int Xbox::NtCreateEvent()
 	K_INIT_ARG(BOOLEAN,            InitialState);
 	NTSTATUS rval;
 
+	// FIXME: These events need to be handled in the scheduler.
+
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }
