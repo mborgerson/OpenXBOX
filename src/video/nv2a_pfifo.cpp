@@ -356,16 +356,16 @@ int pfifo_puller_thread(void *opaque)
     NV2AState *d = (NV2AState*)opaque;
     Cache1State *state = &d->pfifo.cache1;
 
-    glo_set_current(d->pgraph.gl_context);
+    // glo_set_current(d->pgraph.gl_context);
 
-    while (true) {
+    // while (true) {
         SDL_LockMutex(state->cache_lock);
         while (QSIMPLEQ_EMPTY(&state->cache) || !state->pull_enabled) {
             SDL_CondWait(state->cache_cond, state->cache_lock);
 
             if (d->exiting) {
                 SDL_UnlockMutex(state->cache_lock);
-                glo_set_current(NULL);
+                // glo_set_current(NULL);
                 return 0;
             }
         }
@@ -442,7 +442,7 @@ int pfifo_puller_thread(void *opaque)
         }
 
         SDL_UnlockMutex(d->pgraph.lock);
-    }
+    // }
 
     return 0;
 }
