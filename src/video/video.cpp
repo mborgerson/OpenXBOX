@@ -188,6 +188,9 @@ int Video::Initialize()
     QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.cache);
     QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.working_cache);
 
+    m_nv2a->io_lock = SDL_CreateMutex();
+    assert(m_nv2a->io_lock != NULL);
+
     // Start rendering thread
     log_debug("Spawning Rendering Thread\n");
     m_render_thread_should_exit = false;
