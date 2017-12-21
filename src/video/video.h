@@ -32,7 +32,6 @@ public:
     Video(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched);
     ~Video();
     int Initialize();
-    int Update();
     int Cleanup();
     void RenderThread();
     static int EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, void *user_data);

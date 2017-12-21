@@ -343,11 +343,6 @@ int Video::Cleanup()
     return 0;
 }
 
-int Video::Update()
-{
-    return 0;
-}
-
 void Video::FixmeLock()
 {
     SDL_LockMutex(m_nv2a->io_lock);
