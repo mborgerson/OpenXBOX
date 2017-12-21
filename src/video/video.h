@@ -25,6 +25,12 @@ protected:
     GLuint         m_frag_shader;
     GLuint         m_shader_prog;
 
+    bool           m_render_thread_should_exit;
+    SDL_Thread    *m_render_thread;
+
+    SDL_cond *m_sync_cond;
+    SDL_mutex *m_sync_mutex;
+
 public:
     Video(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched);
     ~Video();
@@ -35,6 +41,8 @@ public:
     int InitGeometry();
     int InitTextures();
     int UpdateFrameData(char *data);
+    static int _RenderThreadWrapper(void *inst);
+    void RenderThread();
 };
 
 #include "nv2a.h"
@@ -52,8 +60,7 @@ public:
     static int EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, void *user_data);
     void *GetFramebuffer();
 
-    void FixmeLock();
-    void FixmeUnlock();
+    void Update();
 };
 
 #endif

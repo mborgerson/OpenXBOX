@@ -114,9 +114,59 @@ int Video::Initialize()
     m_nv2a = new Nv2aDevice(m_mem, m_ram, m_sched);
     assert(m_nv2a != NULL);
 
+    // Start rendering thread
+    log_debug("Spawning Rendering Thread\n");
+    m_sync_mutex = SDL_CreateMutex();
+    m_sync_cond = SDL_CreateCond();
+
+    m_render_thread_should_exit = false;
+    m_render_thread = SDL_CreateThread(&Video::_RenderThreadWrapper, "Rendering", this);
+    assert(m_render_thread != NULL);
+
     return 0;
 }
 
+/*!
+ * Thread which handles all rendering commands from CPU
+ */
+int Video::_RenderThreadWrapper(void *opaque)
+{
+    Video *inst = (Video *)opaque;
+    inst->RenderThread();
+    return 0;
+}
+
+/*!
+ * Thread which handles all rendernig commands
+ */
+void Video::RenderThread()
+{
+    SDL_GL_MakeCurrent(m_window, m_context);
+
+    while (!m_render_thread_should_exit) {
+        SDL_LockMutex(m_sync_mutex);
+        SDL_CondWait(m_sync_cond, m_sync_mutex);
+
+        log_debug("Render pulse!\n");
+
+        m_nv2a->Update();
+
+        void *fb = m_nv2a->GetFramebuffer();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_tex);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 640, 480, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, fb);
+
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+        SDL_GL_SwapWindow(m_window);
+
+        SDL_UnlockMutex(m_sync_mutex);
+    }
+}
+
+#if 1
 int Video::InitShaders()
 {
     GLint status;
@@ -199,9 +249,16 @@ int Video::InitTextures()
 
     return 0;
 }
+#endif
 
 int Video::Cleanup()
 {
+    // Signal for rendering thread to finish and wait
+    log_debug("Waiting for rendering thread to exit...\n");
+    m_render_thread_should_exit = true;
+    SDL_WaitThread(m_render_thread, NULL);
+
+#if 1
     glUseProgram(0);
     glDisableVertexAttribArray(0); // FIXME
     glDetachShader(m_shader_prog, m_vert_shader);
@@ -213,6 +270,7 @@ int Video::Cleanup()
     glDeleteBuffers(1, &m_ebo);
     glDeleteBuffers(1, &m_vbo);
     glDeleteVertexArrays(1, &m_vao);
+#endif
     SDL_GL_DeleteContext(m_context);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -221,20 +279,11 @@ int Video::Cleanup()
 
 int Video::Update()
 {
-    m_nv2a->FixmeLock();
-
-    void *fb = m_nv2a->GetFramebuffer();
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_tex);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 640, 480, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, fb);
-
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
-    SDL_GL_SwapWindow(m_window);
-
-    m_nv2a->FixmeUnlock();
+    SDL_LockMutex(m_sync_mutex);
+    SDL_CondSignal(m_sync_cond);
+    SDL_UnlockMutex(m_sync_mutex);
+    SDL_LockMutex(m_sync_mutex);
+    SDL_UnlockMutex(m_sync_mutex);
     return 0;
 }
 
@@ -283,32 +332,30 @@ Nv2aDevice::Nv2aDevice(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
     assert(m_nv2a != NULL);
     memset(m_nv2a, 0, sizeof(NV2AState));
 
-
     /* RAMIN - should be in vram somewhere, but not quite sure where atm */
-    m_nv2a->vram_ptr = (uint8_t*)m_vram->m_data;
-    m_nv2a->vram_size = m_vram->m_size;
-    m_nv2a->ramin_ptr = (uint8_t*)m_vram->m_data + 0x700000;
+    m_nv2a->vram_ptr   = (uint8_t*)m_vram->m_data;
+    m_nv2a->vram_size  = m_vram->m_size;
+    m_nv2a->ramin_ptr  = (uint8_t*)m_vram->m_data + 0x700000;
     m_nv2a->ramin_size = 0x100000;
 
-    pgraph_init(m_nv2a);
-    log_debug("Starting puller thread\n");
-    m_nv2a->pfifo.puller_thread = SDL_CreateThread(pfifo_puller_thread, "FIFO_Puller", m_nv2a);
-    assert(m_nv2a->pfifo.puller_thread != NULL);
+    // pgraph_init(m_nv2a);
+    // log_debug("Starting puller thread\n");
+    // m_nv2a->pfifo.puller_thread = SDL_CreateThread(pfifo_puller_thread, "FIFO_Puller", m_nv2a);
+    // assert(m_nv2a->pfifo.puller_thread != NULL);
 
-    m_nv2a->pcrtc.start                    =  XBOX_FRAMEBUFFER_BASE;
-    m_nv2a->pramdac.core_clock_coeff       =  0x00011c01; /* 189MHz...?   */
-    m_nv2a->pramdac.core_clock_freq        =  189000000;
-    m_nv2a->pramdac.memory_clock_coeff     =  0;
-    m_nv2a->pramdac.video_clock_coeff      =  0x0003C20D; /* 25182Khz...? */
-    m_nv2a->pfifo.cache1.cache_lock        =  SDL_CreateMutex();
-    m_nv2a->pfifo.cache1.cache_cond        = SDL_CreateCond();
+    m_nv2a->pcrtc.start                = XBOX_FRAMEBUFFER_BASE;
+    m_nv2a->pramdac.core_clock_coeff   = 0x00011c01; /* 189MHz...?   */
+    m_nv2a->pramdac.core_clock_freq    = 189000000;
+    m_nv2a->pramdac.memory_clock_coeff = 0;
+    m_nv2a->pramdac.video_clock_coeff  = 0x0003C20D; /* 25182Khz...? */
+    m_nv2a->pfifo.cache1.cache_lock    = SDL_CreateMutex();
+    m_nv2a->pfifo.cache1.cache_cond    = SDL_CreateCond();
     assert(m_nv2a->pfifo.cache1.cache_lock != NULL);
     assert(m_nv2a->pfifo.cache1.cache_cond != NULL);
     QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.cache);
     QSIMPLEQ_INIT(&m_nv2a->pfifo.cache1.working_cache);
 
-
-    m_nv2a->io_lock = SDL_CreateMutex();
+    // m_nv2a->io_lock = SDL_CreateMutex();
 }
 
 Nv2aDevice::~Nv2aDevice()
@@ -324,7 +371,7 @@ int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *eve
     Nv2aDevice *inst = (Nv2aDevice *)user_data;
     uint32_t offset = event->addr - inst->m_mmio->m_start;
 
-    SDL_LockMutex(inst->m_nv2a->io_lock);
+    // SDL_LockMutex(inst->m_nv2a->io_lock);
     
     log_debug("Nv2aDevice::EventHandler! %08x\n", event->addr);
 
@@ -379,19 +426,13 @@ int Nv2aDevice::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *eve
         assert(0);
     }
 
-    SDL_UnlockMutex(inst->m_nv2a->io_lock);
+    // SDL_UnlockMutex(inst->m_nv2a->io_lock);
 
     return 0;
 }
 
-void Nv2aDevice::FixmeLock()
+void Nv2aDevice::Update()
 {
-    SDL_LockMutex(m_nv2a->io_lock);
-}
-
-void Nv2aDevice::FixmeUnlock()
-{
-    SDL_UnlockMutex(m_nv2a->io_lock);
 }
 
 void *Nv2aDevice::GetFramebuffer()
