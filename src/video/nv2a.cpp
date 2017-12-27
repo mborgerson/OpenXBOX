@@ -91,7 +91,7 @@ static const char* nv2a_method_names[] = {};
 
 // #include "nv2a_pbus.cpp"
 #include "nv2a_pcrtc.cpp"
-// #include "nv2a_pfb.cpp"
+#include "nv2a_pfb.cpp"
 #include "nv2a_pgraph.cpp"
 #include "nv2a_pfifo.cpp"
 #include "nv2a_pmc.cpp"
@@ -111,9 +111,9 @@ const struct NV2ABlockInfo blocktable[] = {
         .ops = { .read = RDFUNC, .write = WRFUNC }, \
     }, \
 
-    ENTRY(PMC,      0x000000, 0x001000, NULL, NULL) // pmc_read,      pmc_write)
+    ENTRY(PMC,      0x000000, 0x001000, pmc_read,      pmc_write)
     ENTRY(PBUS,     0x001000, 0x001000, NULL, NULL) // pbus_read,     pbus_write)
-    ENTRY(PFIFO,    0x002000, 0x002000, NULL, NULL) // pfifo_read,    pfifo_write)
+    ENTRY(PFIFO,    0x002000, 0x002000, pfifo_read,    pfifo_write)
     ENTRY(PRMA,     0x007000, 0x001000, NULL, NULL) // prma_read,     prma_write)
     ENTRY(PVIDEO,   0x008000, 0x001000, NULL, NULL) // pvideo_read,   pvideo_write)
     ENTRY(PTIMER,   0x009000, 0x001000, NULL, NULL) // ptimer_read,   ptimer_write)
@@ -122,15 +122,15 @@ const struct NV2ABlockInfo blocktable[] = {
     ENTRY(PTV,      0x00d000, 0x001000, NULL, NULL) // ptv_read,      ptv_write)
     ENTRY(PRMFB,    0x0a0000, 0x020000, NULL, NULL) // prmfb_read,    prmfb_write)
     ENTRY(PRMVIO,   0x0c0000, 0x001000, NULL, NULL) // prmvio_read,   prmvio_write)
-    ENTRY(PFB,      0x100000, 0x001000, NULL, NULL) // pfb_read,      pfb_write)
+    ENTRY(PFB,      0x100000, 0x001000, pfb_read,      pfb_write)
     ENTRY(PSTRAPS,  0x101000, 0x001000, NULL, NULL) // pstraps_read,  pstraps_write)
-    ENTRY(PGRAPH,   0x400000, 0x002000, NULL, NULL) // pgraph_read,   pgraph_write)
+    ENTRY(PGRAPH,   0x400000, 0x002000, pgraph_read,   pgraph_write)
     ENTRY(PCRTC,    0x600000, 0x001000, pcrtc_read,    pcrtc_write)
     ENTRY(PRMCIO,   0x601000, 0x001000, NULL, NULL) // prmcio_read,   prmcio_write)
-    ENTRY(PRAMDAC,  0x680000, 0x001000, NULL, NULL) // pramdac_read,  pramdac_write)
+    ENTRY(PRAMDAC,  0x680000, 0x001000, pramdac_read,  pramdac_write)
     ENTRY(PRMDIO,   0x681000, 0x001000, NULL, NULL) // prmdio_read,   prmdio_write)
-    //ENTRY(PRAMIN, 0x700000, 0x100000, NULL, NULL) // pramin_read,   pramin_write)
-    ENTRY(USER,     0x800000, 0x800000, NULL, NULL) // user_read,     user_write)
+    ENTRY(PRAMIN,   0x700000, 0x100000, NULL, NULL) // pramin_read,   pramin_write)
+    ENTRY(USER,     0x800000, 0x800000, user_read,     user_write)
 #undef ENTRY
 };
 
