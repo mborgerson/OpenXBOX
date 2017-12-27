@@ -176,7 +176,6 @@ int UnicornCpu::Run(uint64_t time_limit_us)
     // Begin CPU emulation
     m_exit_info.reason = EXIT_NORMAL;
     err = uc_emu_start(m_uc, eip, 0, time_limit_us, 0);
-    // If an interrupt occured, exit reason will have been updated
     if (err != UC_ERR_OK) {
         m_exit_info.reason = EXIT_ERROR;
         log_error("Failed on uc_emu_start() with error returned %u: %s\n",
@@ -250,6 +249,7 @@ int UnicornCpu::MemMap(MemoryRegion *mem)
 
         uint32_t perms = UC_PROT_READ | UC_PROT_WRITE | UC_PROT_EXEC;
 
+#if 0
         if (mem->m_subregions[i]->m_handler != NULL) {
             // Unicorn supports a type of hook with normal RWX memory, but it
             // seems to *really* slow things down. Instead, removing RWX
@@ -257,6 +257,7 @@ int UnicornCpu::MemMap(MemoryRegion *mem)
             // be much faster. Go figure.
             perms = UC_PROT_NONE;
         }
+#endif
 
         err = uc_mem_map_ptr(m_uc,
                             mem->m_subregions[i]->m_start,
@@ -276,7 +277,7 @@ int UnicornCpu::MemMap(MemoryRegion *mem)
             limit = start + mem->m_subregions[i]->m_size - 1;
             log_debug("\tAdding hook!\n");
             err = uc_hook_add(m_uc, &hook, // FIXME: We leak these hooks! They should be cleaned up.
-                            UC_HOOK_MEM_PROT, (void*)xb_uc_hook,
+                            UC_HOOK_MEM_VALID, (void*)xb_uc_hook,
                             mem->m_subregions[i], start, limit);
             if (err != UC_ERR_OK) {
                 log_error("uc_hook_add failed (%u)\n", err);
