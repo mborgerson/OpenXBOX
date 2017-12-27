@@ -303,10 +303,10 @@ int Xbox::Run()
             HandleKernelEntry(); // Did we stop to enter a Kernel function?
         }
 
-        t.Start();
-        m_video->Update();
-        t.Stop();
-        log_debug("Video update took %lld ms\n", t.GetMillisecondsElapsed());
+        // t.Start();
+        // m_video->Update();
+        // t.Stop();
+        // log_debug("Video update took %lld ms\n", t.GetMillisecondsElapsed());
     }
 
     m_video->Cleanup();
