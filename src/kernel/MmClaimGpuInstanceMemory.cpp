@@ -16,6 +16,10 @@ int Xbox::MmClaimGpuInstanceMemory()
 	K_INIT_ARG(PSIZE_T, NumberOfPaddingBytes);
 	PVOID rval;
 
+	SIZE_T val = 0x10000;
+	m_cpu->MemWrite(NumberOfPaddingBytes, 4, &val);
+	rval = 0x03FF0000;
+
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }
