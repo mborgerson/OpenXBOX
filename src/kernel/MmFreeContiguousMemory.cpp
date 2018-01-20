@@ -11,7 +11,7 @@
 int Xbox::MmFreeContiguousMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(PVOID, BaseAddress);
+	K_INIT_ARG(XboxTypes::PVOID, BaseAddress);
 
 	printf("Free at %x\n", BaseAddress);
 

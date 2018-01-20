@@ -6,6 +6,7 @@
 #include <log.h>
 #include "video.h"
 #include <util.h>
+#include "alloc.h"
 
 static int _RenderThreadWrapper(void *VideoInstance);
 

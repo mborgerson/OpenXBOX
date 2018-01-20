@@ -12,9 +12,9 @@
 int Xbox::MmClaimGpuInstanceMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(SIZE_T,  NumberOfBytes);
-	K_INIT_ARG(PSIZE_T, NumberOfPaddingBytes);
-	PVOID rval;
+	K_INIT_ARG(XboxTypes::SIZE_T,  NumberOfBytes);
+	K_INIT_ARG(XboxTypes::PSIZE_T, NumberOfPaddingBytes);
+	XboxTypes::PVOID rval;
 
 	SIZE_T val = 0x10000;
 	m_cpu->MemWrite(NumberOfPaddingBytes, 4, &val);

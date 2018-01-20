@@ -1,7 +1,7 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <GL/glew.h>
 
 #include <dev.h>
