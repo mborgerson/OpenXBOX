@@ -72,7 +72,6 @@ and change them to:
 ..\extern\glib-2.48.2\win64\lib\intl.lib
 ..\extern\glib-2.48.2\win64\lib\gobject-2.0.lib
 ```
-    3. Close the project properties window
 
 Now you can build the openxbox project. Remember to set it as the startup
 project before running.
