@@ -44,10 +44,10 @@ There are a few additional steps to be taken before the project successfully
 compiles.
 
 1. Automatically copy required DLLs to output directory
-  1. Open the openxbox project properties window
-  2. Choose All Configurations on the Configurations dropdown
-  3. Go to Build Events > Post-Build Event and edit the Command Line field
-  4. Add the following commands:
+    1. Open the openxbox project properties window
+    2. Choose All Configurations on the Configurations dropdown
+    3. Go to Build Events > Post-Build Event and edit the Command Line field
+    4. Add the following commands:
 ```
 copy /b /y $(ProjectDir)..\extern\glew-2.1.0\win64\bin\glew32.dll $(TargetDir)
 copy /b /y $(ProjectDir)..\extern\SDL2-2.0.7\lib\x64\SDL2.dll $(TargetDir)
@@ -58,9 +58,8 @@ copy /b /y $(ProjectDir)..\extern\glib-2.48.2\win64\bin\glib-2-vs10.dll $(Target
 copy /b /y $(ProjectDir)..\extern\glib-2.48.2\win64\bin\gobject-2-vs10.dll $(TargetDir)
 ```
 2. Fix glib library dependencies
-  1. Still in the openxbox project properties
-  3. Go to Linker > Input and edit the Additional Dependencies field
-  4. Find the lines that read:
+    1. Go to Linker > Input and edit the Additional Dependencies field
+    2. Find the lines that read:
 ```
 -L<OpenXBOX path>/extern/glib-2.48.2/win64/lib
 -lglib-2.0
@@ -73,6 +72,7 @@ and change them to:
 ..\extern\glib-2.48.2\win64\lib\intl.lib
 ..\extern\glib-2.48.2\win64\lib\gobject-2.0.lib
 ```
+    3. Close the project properties window
 
 Now you can build the openxbox project. Remember to set it as the startup
 project before running.
