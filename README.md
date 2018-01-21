@@ -38,16 +38,47 @@ All necessary dependencies are included in the extern folder.
 > cd build
 > cmake -G "Visual Studio 15 2017 Win64" ..
 ```
-Then open the .sln file created in the build folder and build the openxbox
-project. Remember to set it as the startup project before running.
+The .sln file will be generated in the build folder.
 
-TODO: for now, you need to copy the following required DLLs to the output
-folder in order to run/debug the application:
-- extern/glew-2.1.0/win64/bin/glew32.dll
-- extern/SDL2-2.0.7/lib/x64/SDL2.dll
-- extern/unicorn-1.0.1/win64/unicorn.dll
-- extern/unicorn-1.0.1/win64/libgcc_s_seh-1.dll
-- extern/unicorn-1.0.1/win64/libwinpthread-1.dll
+There are a few additional steps to be taken before the project successfully
+compiles.
+
+1. Automatically copy required DLLs to output directory
+  1. Open the openxbox project properties window
+  2. Choose All Configurations on the Configurations dropdown
+  3. Go to Build Events > Post-Build Event and edit the Command Line field
+  4. Add the following commands:
+```
+copy /b /y $(ProjectDir)..\extern\glew-2.1.0\win64\bin\glew32.dll $(TargetDir)
+copy /b /y $(ProjectDir)..\extern\SDL2-2.0.7\lib\x64\SDL2.dll $(TargetDir)
+copy /b /y $(ProjectDir)..\extern\unicorn-1.0.1\win64\unicorn.dll $(TargetDir)
+copy /b /y $(ProjectDir)..\extern\unicorn-1.0.1\win64\libgcc_s_seh-1.dll $(TargetDir)
+copy /b /y $(ProjectDir)..\extern\unicorn-1.0.1\win64\libwinpthread-1.dll $(TargetDir)
+copy /b /y $(ProjectDir)..\extern\glib-2.48.2\win64\bin\glib-2-vs10.dll $(TargetDir)
+copy /b /y $(ProjectDir)..\extern\glib-2.48.2\win64\bin\gobject-2-vs10.dll $(TargetDir)
+```
+2. Fix glib library dependencies
+  1. Still in the openxbox project properties
+  3. Go to Linker > Input and edit the Additional Dependencies field
+  4. Find the lines that read:
+```
+-L<OpenXBOX path>/extern/glib-2.48.2/win64/lib
+-lglib-2.0
+-lintl
+-lgobject-2.0
+```
+and change them to:
+```
+..\extern\glib-2.48.2\win64\lib\glib-2.0.lib
+..\extern\glib-2.48.2\win64\lib\intl.lib
+..\extern\glib-2.48.2\win64\lib\gobject-2.0.lib
+```
+
+Now you can build the openxbox project. Remember to set it as the startup
+project before running.
+
+Only 64-bit builds are supported on Windows. This project lacks adequate
+32-bit binaries of the glib-2.0 library.
 
 Design Concept
 --------------

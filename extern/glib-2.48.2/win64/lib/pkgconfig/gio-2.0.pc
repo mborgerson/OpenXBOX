@@ -1,0 +1,18 @@
+prefix=F:/gtk_compilation/vs10/x64
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+giomoduledir=${exec_prefix}/bin/gio/modules
+glib_compile_schemas=${exec_prefix}/bin/glib-compile-schemas
+glib_compile_resources=${exec_prefix}/bin/glib-compile-resources
+gdbus_codegen=python ${exec_prefix}/bin/gdbus-codegen
+
+Name: GIO
+Description: glib I/O library
+Version: 2.48.2
+Requires: glib-2.0 gobject-2.0
+Requires.private: gmodule-no-export-2.0
+Libs: -L${libdir} -lgio-2.0
+Libs.private: -lzlib1 -lws2_32   
+Cflags:

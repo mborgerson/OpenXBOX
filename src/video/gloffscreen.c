@@ -122,72 +122,72 @@ bool glo_check_extension(const char* ext_name)
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <dlfcn.h>
-
-
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/CGLTypes.h>
-#include <OpenGL/CGLCurrent.h>
-
-#include "gloffscreen.h"
-
-struct _GloContext {
-  CGLContextObj     cglContext;
-};
-
-/* Create an OpenGL context for a certain pixel format. formatflags are from 
- * the GLO_ constants */
-GloContext *glo_context_create(void)
-{
-    CGLError err;
-
-    GloContext *context = (GloContext *)malloc(sizeof(GloContext));
-
-    /* pixel format attributes */
-    CGLPixelFormatAttribute attributes[] = {
-        kCGLPFAAccelerated,
-        kCGLPFAOpenGLProfile,
-        (CGLPixelFormatAttribute)kCGLOGLPVersion_GL3_Core,
-        (CGLPixelFormatAttribute)0
-    };
-
-    CGLPixelFormatObj pix;
-    GLint num;
-    err = CGLChoosePixelFormat(attributes, &pix, &num);
-    if (err) return NULL;
-
-    err = CGLCreateContext(pix, NULL, &context->cglContext);
-    if (err) return NULL;
-
-    CGLDestroyPixelFormat(pix);
-
-    glo_set_current(context);
-
-    return context;
-}
-
-void* glo_get_extension_proc(const char* ext_proc)
-{
-    return dlsym(RTLD_NEXT, ext_proc);
-}
-
-/* Set current context */
-void glo_set_current(GloContext *context)
-{
-    if (context == NULL) {
-        CGLSetCurrentContext(NULL);
-    } else {
-        CGLSetCurrentContext(context->cglContext);
-    }
-}
-
-/* Destroy a previously created OpenGL context */
-void glo_context_destroy(GloContext *context)
-{
-    if (!context) return;
-    glo_set_current(NULL);
-    CGLDestroyContext(context->cglContext);
-}
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <dlfcn.h>
+//
+//
+//#include <OpenGL/OpenGL.h>
+//#include <OpenGL/CGLTypes.h>
+//#include <OpenGL/CGLCurrent.h>
+//
+//#include "gloffscreen.h"
+//
+//struct _GloContext {
+//  CGLContextObj     cglContext;
+//};
+//
+///* Create an OpenGL context for a certain pixel format. formatflags are from 
+// * the GLO_ constants */
+//GloContext *glo_context_create(void)
+//{
+//    CGLError err;
+//
+//    GloContext *context = (GloContext *)malloc(sizeof(GloContext));
+//
+//    /* pixel format attributes */
+//    CGLPixelFormatAttribute attributes[] = {
+//        kCGLPFAAccelerated,
+//        kCGLPFAOpenGLProfile,
+//        (CGLPixelFormatAttribute)kCGLOGLPVersion_GL3_Core,
+//        (CGLPixelFormatAttribute)0
+//    };
+//
+//    CGLPixelFormatObj pix;
+//    GLint num;
+//    err = CGLChoosePixelFormat(attributes, &pix, &num);
+//    if (err) return NULL;
+//
+//    err = CGLCreateContext(pix, NULL, &context->cglContext);
+//    if (err) return NULL;
+//
+//    CGLDestroyPixelFormat(pix);
+//
+//    glo_set_current(context);
+//
+//    return context;
+//}
+//
+//void* glo_get_extension_proc(const char* ext_proc)
+//{
+//    return dlsym(RTLD_NEXT, ext_proc);
+//}
+//
+///* Set current context */
+//void glo_set_current(GloContext *context)
+//{
+//    if (context == NULL) {
+//        CGLSetCurrentContext(NULL);
+//    } else {
+//        CGLSetCurrentContext(context->cglContext);
+//    }
+//}
+//
+///* Destroy a previously created OpenGL context */
+//void glo_context_destroy(GloContext *context)
+//{
+//    if (!context) return;
+//    glo_set_current(NULL);
+//    CGLDestroyContext(context->cglContext);
+//}

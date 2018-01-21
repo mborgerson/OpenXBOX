@@ -482,11 +482,11 @@ static RAMHTEntry ramht_lookup(NV2AState *d, uint32_t handle)
     uint32_t entry_handle = ldl_le_p((uint32_t*)entry_ptr);
     uint32_t entry_context = ldl_le_p((uint32_t*)(entry_ptr + 4));
 
-    return (RAMHTEntry){
-        .handle = entry_handle,
-        .instance = (entry_context & NV_RAMHT_INSTANCE) << 4,
-        .engine = (enum FIFOEngine)((entry_context & NV_RAMHT_ENGINE) >> 16),
-        .channel_id = (entry_context & NV_RAMHT_CHID) >> 24,
-        .valid = entry_context & NV_RAMHT_STATUS,
-    };
+	RAMHTEntry ramHTEntry;
+	ramHTEntry.handle = entry_handle;
+	ramHTEntry.instance = (entry_context & NV_RAMHT_INSTANCE) << 4;
+	ramHTEntry.engine = (enum FIFOEngine)((entry_context & NV_RAMHT_ENGINE) >> 16);
+	ramHTEntry.channel_id = (entry_context & NV_RAMHT_CHID) >> 24;
+	ramHTEntry.valid = entry_context & NV_RAMHT_STATUS;
+	return ramHTEntry;
 }

@@ -511,16 +511,16 @@ static void add_stage_code(struct PixelShader *ps,
 }
 
 // Add code for the final combiner stage
-static void add_final_stage_code(struct PixelShader *ps, struct FCInputInfo final)
+static void add_final_stage_code(struct PixelShader *ps, struct FCInputInfo _final)
 {
-    ps->varE = get_input_var(ps, final.e, false);
-    ps->varF = get_input_var(ps, final.f, false);
+    ps->varE = get_input_var(ps, _final.e, false);
+    ps->varF = get_input_var(ps, _final.f, false);
 
-    std::string *a = get_input_var(ps, final.a, false);
-    std::string *b = get_input_var(ps, final.b, false);
-    std::string *c = get_input_var(ps, final.c, false);
-    std::string *d = get_input_var(ps, final.d, false);
-    std::string *g = get_input_var(ps, final.g, false);
+    std::string *a = get_input_var(ps, _final.a, false);
+    std::string *b = get_input_var(ps, _final.b, false);
+    std::string *c = get_input_var(ps, _final.c, false);
+    std::string *d = get_input_var(ps, _final.d, false);
+    std::string *g = get_input_var(ps, _final.g, false);
 
     add_var_ref(ps, "r0");
     qstring_append_fmt(ps->code, "r0.rgb = %s + mix(vec3(%s), vec3(%s), vec3(%s));\n",

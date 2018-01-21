@@ -3,20 +3,22 @@ cmake_minimum_required (VERSION 2.6)
 project (openxbox)
 
 if(WIN32)
-	set(SDL2_PATH "${CMAKE_SOURCE_DIR}/extern/SDL2-2.0.7")
-	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
-		set(GLEW_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extern/glew-2.1.0/win32/include")
-		set(GLEW_LIBRARY_RELEASE "${CMAKE_SOURCE_DIR}/extern/glew-2.1.0/win32/lib/glew32.lib")
-
-		set(LIBUNICORN_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extern/unicorn-1.0.1/win32/include")
-		set(LIBUNICORN_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/extern/unicorn-1.0.1/win32")
+	if("${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
+		set(BUILD_PLATFORM win64)
 	else()
-		set(GLEW_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extern/glew-2.1.0/win64/include")
-		set(GLEW_LIBRARY_RELEASE "${CMAKE_SOURCE_DIR}/extern/glew-2.1.0/win64/lib/glew32.lib")
-
-		set(LIBUNICORN_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extern/unicorn-1.0.1/win64/include")
-		set(LIBUNICORN_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/extern/unicorn-1.0.1/win64")
+		set(BUILD_PLATFORM win32)
 	endif()
+
+	set(ENV{PKG_CONFIG_PATH} "${CMAKE_SOURCE_DIR}/extern/glib-2.48.2/${BUILD_PLATFORM}/lib/pkgconfig/;$ENV{PKG_CONFIG_PATH}")
+	set(PKG_CONFIG_EXECUTABLE "${CMAKE_SOURCE_DIR}/tools/pkg-config/bin/pkg-config.exe")
+
+	set(SDL2_PATH "${CMAKE_SOURCE_DIR}/extern/SDL2-2.0.7")
+
+	set(GLEW_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extern/glew-2.1.0/${BUILD_PLATFORM}/include")
+	set(GLEW_LIBRARY_RELEASE "${CMAKE_SOURCE_DIR}/extern/glew-2.1.0/${BUILD_PLATFORM}/lib/glew32.lib")
+
+	set(LIBUNICORN_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extern/unicorn-1.0.1/${BUILD_PLATFORM}/include")
+	set(LIBUNICORN_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/extern/unicorn-1.0.1/${BUILD_PLATFORM}")
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")

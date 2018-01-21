@@ -313,15 +313,15 @@ static std::string* decode_swizzle(
         return new std::string(""); // Will turn ".xyzw" into "."
     /* Don't print duplicates */
     } else if (x == y && y == z && z == w) {
-        return new std::string((char[]){'.', swizzle_str[x], '\0'});
+        return new std::string({'.', swizzle_str[x], '\0'});
     } else if (y == z && z == w) {
-        return new std::string((char[]){'.',
+        return new std::string({'.',
             swizzle_str[x], swizzle_str[y], '\0'});
     } else if (z == w) {
-        return new std::string((char[]){'.',
+        return new std::string({'.',
             swizzle_str[x], swizzle_str[y], swizzle_str[z], '\0'});
     } else {
-        return new std::string((char[]){'.',
+        return new std::string({'.',
                                        swizzle_str[x], swizzle_str[y],
                                        swizzle_str[z], swizzle_str[w],
                                        '\0'}); // Normal swizzle mask

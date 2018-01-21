@@ -62,14 +62,22 @@ typedef int qemu_irq;
 
 #define USE_TEXTURE_CACHE
 
+#ifdef _WIN32
+inline int ffs(int i) {
+	unsigned long index;
+	_BitScanForward(&index, i);
+	return index;
+}
+#endif
+
 #define GET_MASK(v, mask) (((v) & (mask)) >> (ffs(mask)-1))
 
-#define SET_MASK(v, mask, val) ({                                    \
+#define SET_MASK(v, mask, val) {                                    \
         const unsigned int __val = (val);                             \
         const unsigned int __mask = (mask);                          \
         (v) &= ~(__mask);                                            \
         (v) |= ((__val) << (ffs(__mask)-1)) & (__mask);              \
-    })
+    }
 
 #define CASE_4(v, step)                                              \
     case (v):                                                        \

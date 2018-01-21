@@ -21,6 +21,9 @@
 #include <assert.h>
 #include <util.h>
 #include "nv2a.h"
+#ifdef _WIN32
+#  include <inttypes.h>
+#endif
 
 void update_irq(NV2AState *d)
 {
@@ -62,12 +65,12 @@ DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
     uint32_t limit = ldl_le_p(dma_obj + 1);
     uint32_t frame = ldl_le_p(dma_obj + 2);
 
-    return (DMAObject){
-        .dma_class = GET_MASK(flags, NV_DMA_CLASS),
-        .dma_target = GET_MASK(flags, NV_DMA_TARGET),
-        .address = (frame & NV_DMA_ADDRESS) | GET_MASK(flags, NV_DMA_ADJUST),
-        .limit = limit,
-    };
+	DMAObject dmaObject;
+	dmaObject.dma_class = GET_MASK(flags, NV_DMA_CLASS);
+	dmaObject.dma_target = GET_MASK(flags, NV_DMA_TARGET);
+	dmaObject.address = (frame & NV_DMA_ADDRESS) | GET_MASK(flags, NV_DMA_ADJUST);
+	dmaObject.limit = limit;
+	return dmaObject;
 }
 
 void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
@@ -87,7 +90,7 @@ void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
     return d->vram_ptr + dma.address;
 }
 
-static const char* nv2a_method_names[] = {};
+static const char* nv2a_method_names[1] = {};
 
 // #include "nv2a_pbus.cpp"
 #include "nv2a_pcrtc.cpp"
@@ -106,9 +109,9 @@ static const char* nv2a_method_names[] = {};
 const struct NV2ABlockInfo blocktable[] = {
 
 #define ENTRY(NAME, OFFSET, SIZE, RDFUNC, WRFUNC) \
-    [ NV_ ## NAME ]  = { \
-        .name = #NAME, .offset = OFFSET, .size = SIZE, \
-        .ops = { .read = RDFUNC, .write = WRFUNC }, \
+    /*[ NV_ ## NAME ]  = */{ \
+        /*.name = */#NAME, /*.offset = */OFFSET, /*.size = */SIZE, \
+        /*.ops = */{/* .read = */RDFUNC, /*.write = */WRFUNC }, \
     }, \
 
     ENTRY(PMC,      0x000000, 0x001000, pmc_read,      pmc_write)
@@ -136,7 +139,7 @@ const struct NV2ABlockInfo blocktable[] = {
 
 const int blocktable_len = ARRAY_SIZE(blocktable);
 
-static const char* nv2a_reg_names[] = {};
+static const char* nv2a_reg_names[1] = {};
 
 void reg_log_read(int block, hwaddr addr, uint64_t val) {
     if (blocktable[block].name) {
