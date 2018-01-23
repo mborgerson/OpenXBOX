@@ -1,8 +1,5 @@
 #include "common.h"
 
-#ifdef _WIN32
-#  undef RtlMoveMemory
-#endif
 /*
  * RtlMoveMemory
  *

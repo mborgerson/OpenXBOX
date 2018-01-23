@@ -5,6 +5,11 @@
 #  undef RtlFillMemory
 #  undef RtlMoveMemory
 #  undef RtlZeroMemory
+#  undef InterlockedCompareExchange
+#  undef InterlockedDecrement
+#  undef InterlockedIncrement
+#  undef InterlockedExchange
+#  undef InterlockedExchangeAdd
 #endif
 
 #define KERNEL_IMPORTS \
