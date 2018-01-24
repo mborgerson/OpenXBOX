@@ -43,8 +43,8 @@ The .sln file will be generated in the build folder.
 Before you build the project, you'll need to manually fix the glib library
 dependencies:
 
-    1. Go to Linker > Input and edit the Additional Dependencies field
-    2. Find the lines that read:
+1. Go to Linker > Input and edit the Additional Dependencies field
+2. Find the lines that read:
 ```
 -L<OpenXBOX path>/extern/glib-2.48.2/win64/lib
 -lglib-2.0
