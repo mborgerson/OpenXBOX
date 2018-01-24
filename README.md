@@ -38,28 +38,7 @@ All necessary dependencies are included in the extern folder.
 > cd build
 > cmake -G "Visual Studio 15 2017 Win64" ..
 ```
-The .sln file will be generated in the build folder.
-
-Before you build the project, you'll need to manually fix the glib library
-dependencies:
-
-1. Go to Linker > Input and edit the Additional Dependencies field
-2. Find the lines that read:
-```
--L<OpenXBOX path>/extern/glib-2.48.2/win64/lib
--lglib-2.0
--lintl
--lgobject-2.0
-```
-and change them to:
-```
-..\extern\glib-2.48.2\win64\lib\glib-2.0.lib
-..\extern\glib-2.48.2\win64\lib\intl.lib
-..\extern\glib-2.48.2\win64\lib\gobject-2.0.lib
-```
-
-Now you can build the openxbox project. Remember to set it as the startup
-project before running.
+The .sln file will be generated in the build folder, ready to build.
 
 Only 64-bit builds are supported on Windows. This project lacks adequate
 32-bit binaries of the glib-2.0 library.
