@@ -90,6 +90,7 @@ void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
     return d->vram_ptr + dma.address;
 }
 
+// FIXME: fix array length or use std::map
 static const char* nv2a_method_names[1] = {};
 
 // #include "nv2a_pbus.cpp"
@@ -139,6 +140,7 @@ const struct NV2ABlockInfo blocktable[] = {
 
 const int blocktable_len = ARRAY_SIZE(blocktable);
 
+// FIXME: fix array length or use std::map
 static const char* nv2a_reg_names[1] = {};
 
 void reg_log_read(int block, hwaddr addr, uint64_t val) {
