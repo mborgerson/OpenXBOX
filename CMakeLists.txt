@@ -1,4 +1,8 @@
-cmake_minimum_required (VERSION 3.8)
+if(MSVC)
+    cmake_minimum_required (VERSION 3.8)
+else()
+    cmake_minimum_required (VERSION 2.6)
+endif()
 
 project (openxbox)
 
