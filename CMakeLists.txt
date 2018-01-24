@@ -19,6 +19,8 @@ if(WIN32)
 
 	set(LIBUNICORN_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/extern/unicorn-1.0.1/${BUILD_PLATFORM}/include")
 	set(LIBUNICORN_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/extern/unicorn-1.0.1/${BUILD_PLATFORM}")
+
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
@@ -28,6 +30,29 @@ option(USE_CPU_UNICORN "Use Unicorn CPU emulator" ON)
 # Add source directories
 set(SOURCES, "")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src")
+
+# Add Visual Studio filters to better organize the code
+if(WIN32)
+	foreach(FILE ${SOURCES}) 
+	    # Get the directory of the source file
+	    get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
+
+	    # Remove common directory prefix to make the group
+	    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/src" "" GROUP "${PARENT_DIR}")
+
+	    # Make sure we are using windows slashes
+	    string(REPLACE "/" "\\" GROUP "${GROUP}")
+
+	    # Group into "Source Files" and "Header Files"
+	    if ("${FILE}" MATCHES ".*\\.cpp")
+	       set(GROUP "Source Files${GROUP}")
+	    elseif("${FILE}" MATCHES ".*\\.h")
+	       set(GROUP "Header Files${GROUP}")
+	    endif()
+
+	    source_group("${GROUP}" FILES "${FILE}")
+	endforeach()
+endif()
 
 # Main Executable
 if(NOT WIN32)

@@ -1,4 +1,9 @@
+file(GLOB DIR_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+    )
+
 set(SOURCES ${SOURCES}
+    ${DIR_HEADERS}
     ${CMAKE_CURRENT_SOURCE_DIR}/video.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/nv2a.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/g-lru-cache.c

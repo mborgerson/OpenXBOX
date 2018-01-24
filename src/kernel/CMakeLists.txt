@@ -1,4 +1,9 @@
+file(GLOB DIR_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+    )
+
 set(SOURCES ${SOURCES}
+    ${DIR_HEADERS}
     ${CMAKE_CURRENT_SOURCE_DIR}/__combined.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/AvGetSavedDataAddress.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/AvSendTVEncoderOption.cpp
