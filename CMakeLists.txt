@@ -46,7 +46,7 @@ if(WIN32)
 	    # Group into "Source Files" and "Header Files"
 	    if("${FILE}" MATCHES ".*\\.c(pp)?")
 	       set(GROUP "Source Files${GROUP}")
-	    elseif("${FILE}" MATCHES ".*\\.h(pp)?")
+	    elseif("${FILE}" MATCHES ".*\\.h")
 	       set(GROUP "Header Files${GROUP}")
 	    endif()
 
@@ -90,3 +90,16 @@ pkg_search_module(GLIB REQUIRED glib-2.0)
 pkg_search_module(GOBJ REQUIRED gobject-2.0)
 target_link_libraries(openxbox ${GLIB_LDFLAGS} ${GOBJ_LDFLAGS})
 target_include_directories(openxbox PUBLIC ${GLIB_INCLUDE_DIRS})
+
+if(WIN32)
+	add_custom_command(TARGET openxbox
+		POST_BUILD
+		COMMAND copy /b /y $(ProjectDir)..\\extern\\glew-2.1.0\\win64\\bin\\glew32.dll $(TargetDir)
+		COMMAND copy /b /y $(ProjectDir)..\\extern\\SDL2-2.0.7\\lib\\x64\\SDL2.dll $(TargetDir)
+		COMMAND copy /b /y $(ProjectDir)..\\extern\\unicorn-1.0.1\\win64\\unicorn.dll $(TargetDir)
+		COMMAND copy /b /y $(ProjectDir)..\\extern\\unicorn-1.0.1\\win64\\libgcc_s_seh-1.dll $(TargetDir)
+		COMMAND copy /b /y $(ProjectDir)..\\extern\\unicorn-1.0.1\\win64\\libwinpthread-1.dll $(TargetDir)
+		COMMAND copy /b /y $(ProjectDir)..\\extern\\glib-2.48.2\\win64\\bin\\glib-2-vs10.dll $(TargetDir)
+		COMMAND copy /b /y $(ProjectDir)..\\extern\\glib-2.48.2\\win64\\bin\\gobject-2-vs10.dll $(TargetDir)
+		COMMENT "Copying DLLs to output directory")
+endif()

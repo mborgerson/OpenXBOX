@@ -40,24 +40,9 @@ All necessary dependencies are included in the extern folder.
 ```
 The .sln file will be generated in the build folder.
 
-There are a few additional steps to be taken before the project successfully
-compiles.
+Before you build the project, you'll need to manually fix the glib library
+dependencies:
 
-1. Automatically copy required DLLs to output directory
-    1. Open the openxbox project properties window
-    2. Choose All Configurations on the Configurations dropdown
-    3. Go to Build Events > Post-Build Event and edit the Command Line field
-    4. Add the following commands:
-```
-copy /b /y $(ProjectDir)..\extern\glew-2.1.0\win64\bin\glew32.dll $(TargetDir)
-copy /b /y $(ProjectDir)..\extern\SDL2-2.0.7\lib\x64\SDL2.dll $(TargetDir)
-copy /b /y $(ProjectDir)..\extern\unicorn-1.0.1\win64\unicorn.dll $(TargetDir)
-copy /b /y $(ProjectDir)..\extern\unicorn-1.0.1\win64\libgcc_s_seh-1.dll $(TargetDir)
-copy /b /y $(ProjectDir)..\extern\unicorn-1.0.1\win64\libwinpthread-1.dll $(TargetDir)
-copy /b /y $(ProjectDir)..\extern\glib-2.48.2\win64\bin\glib-2-vs10.dll $(TargetDir)
-copy /b /y $(ProjectDir)..\extern\glib-2.48.2\win64\bin\gobject-2-vs10.dll $(TargetDir)
-```
-2. Fix glib library dependencies
     1. Go to Linker > Input and edit the Additional Dependencies field
     2. Find the lines that read:
 ```
