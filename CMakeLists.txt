@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 
 project (openxbox)
 
-if(WIN32)
+if(MSVC)
 	if("${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
 		set(BUILD_PLATFORM win64)
 	else()
@@ -32,7 +32,7 @@ set(SOURCES, "")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src")
 
 # Add Visual Studio filters to better organize the code
-if(WIN32)
+if(MSVC)
 	foreach(FILE ${SOURCES}) 
 	    # Get the directory of the source file
 	    get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
@@ -55,7 +55,7 @@ if(WIN32)
 endif()
 
 # Main Executable
-if(NOT WIN32)
+if(NOT MSVC)
 	add_definitions("-Wall -Werror -O0 -g")
 endif()
 add_executable(openxbox ${SOURCES})
@@ -91,7 +91,7 @@ pkg_search_module(GOBJ REQUIRED gobject-2.0)
 target_link_libraries(openxbox ${GLIB_LDFLAGS} ${GOBJ_LDFLAGS})
 target_include_directories(openxbox PUBLIC ${GLIB_INCLUDE_DIRS})
 
-if(WIN32)
+if(MSVC)
 	add_custom_command(TARGET openxbox
 		POST_BUILD
 		COMMAND copy /b /y $(ProjectDir)..\\extern\\glew-2.1.0\\win64\\bin\\glew32.dll $(TargetDir)
