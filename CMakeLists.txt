@@ -44,9 +44,9 @@ if(WIN32)
 	    string(REPLACE "/" "\\" GROUP "${GROUP}")
 
 	    # Group into "Source Files" and "Header Files"
-	    if ("${FILE}" MATCHES ".*\\.cpp")
+	    if("${FILE}" MATCHES ".*\\.c(pp)?")
 	       set(GROUP "Source Files${GROUP}")
-	    elseif("${FILE}" MATCHES ".*\\.h")
+	    elseif("${FILE}" MATCHES ".*\\.h(pp)?")
 	       set(GROUP "Header Files${GROUP}")
 	    endif()
 
