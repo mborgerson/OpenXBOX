@@ -33,7 +33,7 @@ int Xbox::PsCreateSystemThreadEx()
 	XboxTypes::NTSTATUS rval;
 
 	// TODO: this is obviously incomplete
-	m_sched->ScheduleThread(new Thread(StartRoutine, 0x00200000, KernelStackSize));
+	m_sched->ScheduleThread(new Thread(StartRoutine, 0x02000000, KernelStackSize));
 	rval = 0;
 
 	K_EXIT_WITH_VALUE(rval);
