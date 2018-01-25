@@ -32,6 +32,7 @@ int Xbox::PsCreateSystemThreadEx()
 	K_INIT_ARG(XboxTypes::PKSYSTEM_ROUTINE, SystemRoutine);
 	XboxTypes::NTSTATUS rval;
 
+	// TODO: this is obviously incomplete
 	m_sched->ScheduleThread(new Thread(StartRoutine, 0x00200000, KernelStackSize));
 	rval = 0;
 
