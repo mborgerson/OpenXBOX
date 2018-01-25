@@ -1,4 +1,5 @@
 #include "common.h"
+#include "memmgr.h"
 
 /*
  * MmAllocateContiguousMemory
@@ -14,6 +15,18 @@ int Xbox::MmAllocateContiguousMemory()
 	K_INIT_ARG(XboxTypes::SIZE_T, NumberOfBytes);
 	XboxTypes::PVOID rval;
 
+	printf("NumberOfBytes            = %x,\n", NumberOfBytes);
+
+	ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous(NumberOfBytes);
+	if (block != nullptr) {
+		rval = block->BaseAddress();
+		printf("...allocated at %x\n", rval);
+	}
+	else {
+		rval = 0;
+		printf("...failed to allocate\n");
+	}
+
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }

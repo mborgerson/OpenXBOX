@@ -1,13 +1,6 @@
 #include "common.h"
+#include "memmgr.h"
 
-
-// Xbox uses 4 KiB pages
-#define TARGET_PAGE_MASK 0xfff
-#define TARGET_PAGE_ALIGN(x) (((x) + 0xfff) & ~0xfff)
-
-uint32_t start = MiB(16);
-uint32_t cur = start;
-uint32_t end = MiB(40);
 
 /*
  * MmAllocateContiguousMemoryEx
@@ -36,9 +29,16 @@ int Xbox::MmAllocateContiguousMemoryEx()
 	printf("HighestAcceptableAddress = %x,\n", HighestAcceptableAddress);
 	printf("Alignment                = %x,\n", Alignment);
 	printf("Protect                  = %x\n", Protect);
-	rval = TARGET_PAGE_ALIGN(cur);
-	cur  = TARGET_PAGE_ALIGN(rval + NumberOfBytes);
-	printf("...allocated at %x\n", rval);
+
+	ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment);
+	if (block != nullptr) {
+		rval = block->BaseAddress();
+		printf("...allocated at %x\n", rval);
+	}
+	else {
+		rval = 0;
+		printf("...failed to allocate\n");
+	}
 
 	K_EXIT_WITH_VALUE(rval);
 	return 0;

@@ -2,6 +2,7 @@
 #include "xbox.h"
 #include "timer.h"
 #include "alloc.h"
+#include "memmgr.h"
 
 #define ENABLE_GDB_SERVER     1 // FIXME: Allow enable from cmdline
 #define DUMP_SECTION_CONTENTS 0
@@ -66,6 +67,10 @@ int Xbox::Initialize()
     rgn = new MemoryRegion(MEM_REGION_RAM, 0, XBOX_RAM_SIZE, m_ram);
     assert(rgn != NULL);
     m_mem->AddSubRegion(rgn);
+
+	// Initialize memory manager
+	log_debug("Initializing Memory Manager\n");
+	m_memmgr = new MemoryManager(XBOX_RAM_SIZE);
 
     // Create kernel import function thunk handlers
     log_debug("Initializing Kernel Thunk Handlers\n");
