@@ -6,6 +6,11 @@ ContiguousMemoryBlock::ContiguousMemoryBlock(uint32_t basePage, uint32_t numPage
 {
 }
 
+// TODO: paged vs. non-paged pools
+// TODO: thread safety
+// take some pointers from Cxbx-Reloaded's VMManager
+// https://github.com/Cxbx-Reloaded/Cxbx-Reloaded/blob/master/src/CxbxKrnl/VMManager.cpp
+
 
 // NOTE: 0x20000 bytes removed from the main memory because the topmost region
 // is reserved for something. Thread stacks perhaps?
@@ -25,7 +30,7 @@ MemoryManager::~MemoryManager()
 	delete[] m_allocatedPages;
 }
 
-ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t minAcceptableAddress, uint32_t maxAcceptableAddress, uint32_t align)
+ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t minAcceptableAddress, uint32_t maxAcceptableAddress, uint32_t align, uint32_t protect)
 {
 	// Cannot allocate zero length
 	if (size == 0) {
@@ -81,7 +86,7 @@ ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t
 	for (uint32_t page = maxAcceptablePageNumber & pageAlignMask; page >= minAcceptablePageNumber; page -= pageAlign) {
 		if (IsRegionUnallocated(page, numPages)) {
 			ContiguousMemoryBlock *block = new ContiguousMemoryBlock(page, numPages);
-			RegisterBlock(block);
+			RegisterBlock(block, protect);
 			return block;
 		}
 	}
@@ -90,8 +95,9 @@ ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t
 	return nullptr;
 }
 
-bool MemoryManager::Free(uint32_t baseAddress)
+bool MemoryManager::FreeContiguous(uint32_t baseAddress)
 {
+	// TODO: what if the address is unaligned?
 	uint32_t page = BYTES_TO_PAGES(baseAddress);
 	if (m_pageToBlock.count(page)) {
 		ContiguousMemoryBlock *block = m_pageToBlock[page];
@@ -104,6 +110,28 @@ bool MemoryManager::Free(uint32_t baseAddress)
 		return true;
 	}
 	return false;
+}
+
+uint32_t MemoryManager::QueryAllocationSize(uint32_t baseAddress) {
+	// TODO: what if the address is unaligned?
+	uint32_t page = BYTES_TO_PAGES(baseAddress);
+	if (m_pageToBlock.count(page)) {
+		return m_pageToBlock[page]->Size();
+	}
+	return 0;
+}
+
+void MemoryManager::SetProtect(uint32_t baseAddress, uint32_t size, uint32_t protect) {
+	// TODO: set protection mask and update CPU
+}
+
+uint32_t MemoryManager::QueryProtect(uint32_t address) {
+	// TODO: implement
+	return 0;
+}
+
+void MemoryManager::SetPersist(uint32_t baseAddress, uint32_t size, bool persist) {
+	// TODO: implement
 }
 
 bool MemoryManager::IsRegionUnallocated(uint32_t basePage, uint32_t numPages) {

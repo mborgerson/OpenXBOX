@@ -1,5 +1,4 @@
 #include "common.h"
-#include "memmgr.h"
 
 /*
  * MmFreeContiguousMemory
@@ -14,7 +13,7 @@ int Xbox::MmFreeContiguousMemory()
 	K_ENTER_STDCALL();
 	K_INIT_ARG(XboxTypes::PVOID, BaseAddress);
 
-	if (m_memmgr->Free(BaseAddress)) {
+	if (m_memmgr->FreeContiguous(BaseAddress)) {
 		printf("Free at %x\n", BaseAddress);
 	}
 	else {

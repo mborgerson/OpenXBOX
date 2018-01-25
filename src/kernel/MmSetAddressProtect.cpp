@@ -17,6 +17,8 @@ int Xbox::MmSetAddressProtect()
 	K_INIT_ARG(XboxTypes::ULONG, NumberOfBytes);
 	K_INIT_ARG(XboxTypes::ULONG, NewProtect);
 
+	m_memmgr->SetProtect(BaseAddress, NumberOfBytes, NewProtect);
+
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }

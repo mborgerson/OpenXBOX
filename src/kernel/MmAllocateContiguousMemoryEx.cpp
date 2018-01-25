@@ -1,6 +1,4 @@
 #include "common.h"
-#include "memmgr.h"
-
 
 /*
  * MmAllocateContiguousMemoryEx
@@ -24,13 +22,13 @@ int Xbox::MmAllocateContiguousMemoryEx()
 	K_INIT_ARG(XboxTypes::ULONG,     Protect);
 	XboxTypes::PVOID rval;
 
-	printf("NumberOfBytes            = %x,\n", NumberOfBytes);
-	printf("LowestAcceptableAddress  = %x,\n", LowestAcceptableAddress);
-	printf("HighestAcceptableAddress = %x,\n", HighestAcceptableAddress);
-	printf("Alignment                = %x,\n", Alignment);
+	printf("NumberOfBytes            = %x\n", NumberOfBytes);
+	printf("LowestAcceptableAddress  = %x\n", LowestAcceptableAddress);
+	printf("HighestAcceptableAddress = %x\n", HighestAcceptableAddress);
+	printf("Alignment                = %x\n", Alignment);
 	printf("Protect                  = %x\n", Protect);
 
-	ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment);
+	ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment, Protect);
 	if (block != nullptr) {
 		rval = block->BaseAddress();
 		printf("...allocated at %x\n", rval);

@@ -17,6 +17,8 @@ int Xbox::MmPersistContiguousMemory()
 	K_INIT_ARG(XboxTypes::SIZE_T,  NumberOfBytes);
 	K_INIT_ARG(XboxTypes::BOOLEAN, Persist);
 
+	m_memmgr->SetPersist(BaseAddress, NumberOfBytes, Persist);
+
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }
