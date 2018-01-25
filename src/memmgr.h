@@ -41,7 +41,11 @@ protected:
 	std::map<uint32_t, ContiguousMemoryBlock *> m_pageToBlock;
 
 	// Page allocation bitmap
-	// TODO: use a bit set
+	// TODO: Use a bit set
+	// TODO: Keep track of protection masks and persistence state per page
+	// - Protection masks can be set by MmAllocateContiguousMemoryEx.
+	// - Persistence is used by MmPersistContiguousMemory. Pages marked as
+	//   persistent survive a system reboot.
 	bool *m_allocatedPages;
 
 	/*!

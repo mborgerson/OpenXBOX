@@ -32,6 +32,9 @@ int Xbox::PsCreateSystemThreadEx()
 	K_INIT_ARG(XboxTypes::PKSYSTEM_ROUTINE, SystemRoutine);
 	XboxTypes::NTSTATUS rval;
 
+	m_sched->ScheduleThread(new Thread(StartRoutine, 0x00200000, KernelStackSize));
+	rval = 0;
+
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }
