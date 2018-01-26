@@ -61,12 +61,14 @@ typedef uint32_t DWORD;
 
 #if DUMB_POINTERS
 	#define DEF_POINTER_TYPE(TYPE, PTYPE) typedef DWORD PTYPE
-	#define _PTR(type, expr) ((XboxTypes::##type *)(expr))
-	#define _VAL(type, expr) ((XboxTypes::P##type)(expr))
+	#define _W_PTR(type, expr) ((XboxTypes::##type *)(expr))
+	#define _R_PTR(type, expr) ((XboxTypes::##type *)((char *)(expr) + m_ram))
+	#define _VAL(type, expr) ((XboxTypes::P##type)((char *)(expr) - m_ram))
 #else
 	#define DEF_POINTER_TYPE(TYPE, PTYPE) typedef TYPE *PTYPE
-	#define _PTR(type, expr) (expr)
-	#define _VAL(type, expr) (expr)
+	#define _W_PTR(type, expr) (expr)
+	#define _R_PTR(type, expr) ((char *)(expr) + m_ram)
+	#define _VAL(type, expr) ((char *)(expr) - m_ram)
 #endif
 
 #define CONST const
@@ -242,59 +244,59 @@ typedef struct _LIST_ENTRY
 */
 
 #define InitializeListHead(ListHead) \
-	{_PTR(LIST_ENTRY, (ListHead))->Flink = _VAL(LIST_ENTRY, (ListHead));\
-	 _PTR(LIST_ENTRY, (ListHead))->Blink = _VAL(LIST_ENTRY, (ListHead));}
+	{_W_PTR(LIST_ENTRY, (ListHead))->Flink = _VAL(LIST_ENTRY, (ListHead));\
+	 _W_PTR(LIST_ENTRY, (ListHead))->Blink = _VAL(LIST_ENTRY, (ListHead));}
 
-#define IsListEmpty(ListHead) (_PTR(LIST_ENTRY, (ListHead))->Flink == _VAL(LIST_ENTRY, (ListHead)))
+#define IsListEmpty(ListHead) (_W_PTR(LIST_ENTRY, (ListHead))->Flink == _VAL(LIST_ENTRY, (ListHead)))
 
-#define RemoveHeadList(ListHead) _PTR(LIST_ENTRY, (ListHead))->Flink;{RemoveEntryList(_PTR(LIST_ENTRY, (ListHead))->Flink)}
+#define RemoveHeadList(ListHead) _R_PTR(LIST_ENTRY, (ListHead))->Flink;{RemoveEntryList((ListHead)->Flink)}
 
-#define RemoveTailList(ListHead) _PTR(LIST_ENTRY, (ListHead))->Blink;{RemoveEntryList(_PTR(LIST_ENTRY, (ListHead))->Blink)}
+#define RemoveTailList(ListHead) _R_PTR(LIST_ENTRY, (ListHead))->Blink;{RemoveEntryList((ListHead)->Blink)}
 
 #define RemoveEntryList(Entry) {\
     XboxTypes::PLIST_ENTRY _EX_Blink;\
     XboxTypes::PLIST_ENTRY _EX_Flink;\
-    _EX_Flink = _PTR(LIST_ENTRY, (Entry))->Flink;\
-    _EX_Blink = _PTR(LIST_ENTRY, (Entry))->Blink;\
-    _PTR(LIST_ENTRY, _EX_Blink)->Flink = _EX_Flink;\
-    _PTR(LIST_ENTRY, _EX_Flink)->Blink = _EX_Blink;\
+    _EX_Flink = _R_PTR(LIST_ENTRY, (Entry))->Flink;\
+    _EX_Blink = _R_PTR(LIST_ENTRY, (Entry))->Blink;\
+    _W_PTR(LIST_ENTRY, _EX_Blink)->Flink = _EX_Flink;\
+    _W_PTR(LIST_ENTRY, _EX_Flink)->Blink = _EX_Blink;\
 }
 
 #define InsertTailList(ListHead, Entry) {\
     XboxTypes::PLIST_ENTRY _EX_Blink;\
     XboxTypes::PLIST_ENTRY _EX_ListHead;\
     _EX_ListHead = _VAL(LIST_ENTRY, (ListHead));\
-    _EX_Blink = _VAL(LIST_ENTRY, _PTR(LIST_ENTRY, _EX_ListHead)->Blink);\
-    _PTR(LIST_ENTRY, (Entry))->Flink = _EX_ListHead;\
-    _PTR(LIST_ENTRY, (Entry))->Blink = _EX_Blink;\
-    _PTR(LIST_ENTRY, _EX_Blink)->Flink = _VAL(LIST_ENTRY, (Entry));\
-    _PTR(LIST_ENTRY, _EX_ListHead)->Blink = _VAL(LIST_ENTRY, (Entry));\
+    _EX_Blink = _R_PTR(LIST_ENTRY, _EX_ListHead)->Blink;\
+    _W_PTR(LIST_ENTRY, (Entry))->Flink = _EX_ListHead;\
+    _W_PTR(LIST_ENTRY, (Entry))->Blink = _EX_Blink;\
+    _W_PTR(LIST_ENTRY, _EX_Blink)->Flink = _VAL(LIST_ENTRY, (Entry));\
+    _W_PTR(LIST_ENTRY, _EX_ListHead)->Blink = _VAL(LIST_ENTRY, (Entry));\
 }
 
 #define InsertHeadList(ListHead, Entry) {\
     XboxTypes::PLIST_ENTRY _EX_Flink;\
     XboxTypes::PLIST_ENTRY _EX_ListHead;\
     _EX_ListHead = _VAL(LIST_ENTRY, (ListHead));\
-    _EX_Flink = _VAL(LIST_ENTRY, _PTR(LIST_ENTRY, _EX_ListHead)->Flink);\
-    _PTR(LIST_ENTRY, (Entry))->Flink = _EX_Flink;\
-    _PTR(LIST_ENTRY, (Entry))->Blink = _EX_ListHead;\
-    _PTR(LIST_ENTRY, _EX_Flink)->Blink = _VAL(LIST_ENTRY, (Entry));\
-    _PTR(LIST_ENTRY, _EX_ListHead)->Flink = _VAL(LIST_ENTRY, (Entry));\
+    _EX_Flink = _R_PTR(LIST_ENTRY, _EX_ListHead)->Flink;\
+    _W_PTR(LIST_ENTRY, (Entry))->Flink = _EX_Flink;\
+    _W_PTR(LIST_ENTRY, (Entry))->Blink = _EX_ListHead;\
+    _W_PTR(LIST_ENTRY, _EX_Flink)->Blink = _VAL(LIST_ENTRY, (Entry));\
+    _W_PTR(LIST_ENTRY, _EX_ListHead)->Flink = _VAL(LIST_ENTRY, (Entry));\
 }
 
 #define PopEntryList(ListHead) \
     (ListHead)->Next;\
     {\
         XboxTypes::PSINGLE_LIST_ENTRY FirstEntry;\
-        FirstEntry = _PTR(SINGLE_LIST_ENTRY, (ListHead))->Next;\
+        FirstEntry = _R_PTR(SINGLE_LIST_ENTRY, (ListHead))->Next;\
         if (FirstEntry != NULL) {\
-            _PTR(SINGLE_LIST_ENTRY, (ListHead))->Next = _PTR(SINGLE_LIST_ENTRY, FirstEntry)->Next;\
+            _W_PTR(SINGLE_LIST_ENTRY, (ListHead))->Next = _R_PTR(SINGLE_LIST_ENTRY, FirstEntry)->Next;\
         }\
     }
 
 #define PushEntryList(ListHead, Entry) \
-    _PTR(SINGLE_LIST_ENTRY, (Entry))->Next = _VAL(SINGLE_LIST_ENTRY, _PTR(SINGLE_LIST_ENTRY, (ListHead))->Next); \
-    _PTR(SINGLE_LIST_ENTRY, (ListHead))->Next = _VAL(SINGLE_LIST_ENTRY, (Entry));
+    _W_PTR(SINGLE_LIST_ENTRY, (Entry))->Next = _R_PTR(SINGLE_LIST_ENTRY, (ListHead))->Next; \
+    _W_PTR(SINGLE_LIST_ENTRY, (ListHead))->Next = _VAL(SINGLE_LIST_ENTRY, (Entry));
 
 
 /**
