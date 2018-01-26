@@ -315,6 +315,11 @@ int Xbox::Run()
         // log_debug("Video update took %lld ms\n", t.GetMillisecondsElapsed());
     }
 
+	if (LOG_LEVEL >= LOG_LEVEL_DEBUG) {
+		log_debug("CPU registers at the end of execution:\n");
+		m_cpu->PrintRegisters();
+	}
+
     m_video->Cleanup();
 #if ENABLE_GDB_SERVER
     m_gdb->Shutdown();
