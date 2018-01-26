@@ -361,7 +361,7 @@ int Video::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, v
 
     // SDL_LockMutex(inst->m_nv2a->io_lock);
     
-    log_debug("Video::EventHandler! %08x\n", event->addr);
+    log_spew("Video::EventHandler! %08x\n", event->addr);
 
     const NV2ABlockInfo *block = NULL;
 
@@ -375,37 +375,37 @@ int Video::EventHandler(MemoryRegion *region, struct MemoryRegionEvent *event, v
     }
 
     if (block == NULL) {
-        log_debug("  Could not find block table entry for offset %x!\n", offset);
+		log_spew("  Could not find block table entry for offset %x!\n", offset);
         assert(0);
     }
 
-    log_debug("  Found block table entry %s\n", block->name);
+	log_spew("  Found block table entry %s\n", block->name);
     uint32_t rel_offset = offset - block->offset;
 
     if (event->type == MEM_EVENT_READ) {
         //
         // Handle read events using block handler
         //
-        log_debug("  READ %x\n", rel_offset);
+		log_spew("  READ %x\n", rel_offset);
         if (block->ops.read != NULL) {
             uint64_t val = block->ops.read(inst->m_nv2a, rel_offset, event->size);
-            log_debug("  Got back value %llx\n", val);
+			log_spew("  Got back value %llx\n", val);
             // Update buffer
             memcpy((uint8_t*)region->m_data + offset, &val, event->size);
         } else {
             // No handler provided, pass through to underlying buffer
-            log_debug("  Letting read pass through\n");
+			log_spew("  Letting read pass through\n");
         }
     } else if (event->type == MEM_EVENT_WRITE) {
         //
         // Handle write events using block handler
         //
-        log_debug("  WRITE %x\n", rel_offset);
+		log_spew("  WRITE %x\n", rel_offset);
         if (block->ops.write != NULL) {
             block->ops.write(inst->m_nv2a, rel_offset, event->value, event->size);
         } else {
             // No handler provided, pass through to underlying buffer
-            log_debug("  Letting write pass through\n");
+			log_spew("  Letting write pass through\n");
         }
     } else {
         //
