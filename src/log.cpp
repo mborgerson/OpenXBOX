@@ -6,6 +6,10 @@
  */
 int log_print(int level, char const *fmt, ...)
 {
+	if (level > LOG_LEVEL) {
+		return 0;
+	}
+
     int status;
     va_list args;
 
