@@ -189,8 +189,16 @@ int Xbox::InitializeGDT() {
 	m_cpu->MemWrite(tssNMIAddr, sizeof(TSS), &tss);
 
 	// Fill in basic KPCR data directly in memory
-	XboxTypes::KPCR *kpcr = (XboxTypes::KPCR *) kpcrAddr;
-	// TODO: fill in
+	XboxTypes::KPCR *kpcr = _ADDR_TO_PTR(KPCR, kpcrAddr);
+	memset(kpcr, 0, sizeof(XboxTypes::KPCR));
+	kpcr->SelfPcr = kpcrAddr;
+	kpcr->Prcb = _PTR_TO_VAL(KPCR, &kpcr->PrcbData);
+	kpcr->NtTib.Self = _PTR_TO_VAL(NT_TIB, &kpcr->NtTib);
+	kpcr->NtTib.ExceptionList = EXCEPTION_CHAIN_END;
+	XboxTypes::KPRCB *kprcb = &kpcr->PrcbData;
+	InitializeListHead(&kprcb->DpcListHead);
+	kprcb->DpcRoutineActive = 0;
+	// TODO: fill in just enough data for the emulated code to work properly
 
 	// Fill in GDT table data
 	gdtTable[0].Set(0x00000000, 0x00000, 0x00, 0x0);
