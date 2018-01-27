@@ -151,7 +151,11 @@ int Xbox::LoadXbe(Xbe *xbe)
         offset = m_xbe->m_Header.dwSectionHeadersAddr + section * sizeof(m_xbe->m_SectionHeader[0]) - m_xbe->m_Header.dwBaseAddr;
         log_debug("Loading Section Header 0x%.04X @ %08x...", section, base+offset);
         memcpy(&m_ram[base+offset], &m_xbe->m_SectionHeader[section], sizeof(m_xbe->m_SectionHeader[0]));
-        log_debug("OK\n");
+		// TODO: check Protect flags
+		if (nullptr == m_memmgr->Reserve(base + offset, sizeof(m_xbe->m_SectionHeader[0]), PAGE_EXECUTE_READWRITE)) {
+			log_debug("Could not reserve memory region!");
+		}
+		log_debug("OK\n");
     }
 
     // Copy XBE Section Data
@@ -161,7 +165,11 @@ int Xbox::LoadXbe(Xbe *xbe)
         log_debug("Loading Section 0x%.04X (%s) at %08x...", section, m_xbe->m_szSectionName[section], base+offset);
         if(RawSize > 0) {
             memcpy(&m_ram[base+offset], m_xbe->m_bzSection[section], RawSize);
-        }
+			// TODO: check Protect flags
+			if (nullptr == m_memmgr->Reserve(base + offset, RawSize, PAGE_EXECUTE_READWRITE)) {
+				log_debug("Could not reserve memory region!");
+			}
+		}
         log_debug("OK\n");
 
 #if DUMP_SECTION_CONTENTS
@@ -192,7 +200,7 @@ int Xbox::LoadXbe(Xbe *xbe)
                                             XOR_EP_DEBUG, XOR_EP_RETAIL);
 
     // Create title main thread
-    m_sched->ScheduleThread(new Thread(entry_addr, XBOX_STACK_BASE, XBOX_STACK_SIZE));
+	m_sched->ScheduleThread(CreateThread(entry_addr, XBOX_STACK_SIZE));
 
     return 0;
 }
@@ -214,6 +222,25 @@ uint32_t Xbox::UnscrambleAddress(uint32_t addr, uint32_t debug, uint32_t retail)
     }
 
     return addr ^ debug;
+}
+
+/*!
+ * Creates a new thread, allocating the stack in the main memory.
+ */
+Thread *Xbox::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
+	// TODO: Should probably differentiate between system and user threads
+	log_debug("Creating a thread with entry address 0x%08x and stack size 0x%x\n", entryAddress, stackSize);
+
+	// Allocate memory for the thread stack
+	// TODO: check Protect flags
+	ContiguousMemoryBlock *threadStack = m_memmgr->AllocateContiguous(stackSize, IMAGE_BASE_ADDRESS, ULONG_MAX, PAGE_SIZE, PAGE_READWRITE);
+	if (nullptr == threadStack) {
+		log_debug("Could not allocate memory for the thread stack!\n");
+		return nullptr;
+	}
+	log_debug("...stack allocated at 0x%08x\n", threadStack->BaseAddress());
+	return new Thread(entryAddress, threadStack);
+
 }
 
 /*!

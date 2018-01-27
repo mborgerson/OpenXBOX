@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #include "cpu.h"
+#include "memmgr.h"
 #include <string.h>
 #include <vector>
 
@@ -12,12 +13,11 @@
  */
 class Thread {
 public:
-    uint32_t   m_entry;
-    uint32_t   m_stack_base;
-    size_t     m_stack_size;
+    uint32_t m_entry;
+    ContiguousMemoryBlock *m_stack;
     CpuContext m_context;
 
-    Thread(uint32_t entry, uint32_t stack_base, size_t stack_size);
+    Thread(uint32_t entry, ContiguousMemoryBlock *stack);
     ~Thread();
 };
 

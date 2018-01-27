@@ -61,6 +61,8 @@ public:
     int Run();
     int HandleKernelEntry();
 	void KernelFunctionNotImplemented();
+	// FIXME: is this the best place to put this method?
+	Thread *CreateThread(uint32_t entryAddress, uint32_t stackSize);
 
 	// Generate kernel method prototypes
 	#define KERNEL_IMPORT_NULL(ID)

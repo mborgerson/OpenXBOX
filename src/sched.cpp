@@ -4,11 +4,11 @@
 /*!
  * Constructor
  */
-Thread::Thread(uint32_t entry, uint32_t stack_base, size_t stack_size)
-: m_entry(entry), m_stack_base(stack_base), m_stack_size(stack_size)
+Thread::Thread(uint32_t entry, ContiguousMemoryBlock *stack)
+: m_entry(entry), m_stack(stack)
 {
     m_context.m_regs[REG_EIP] = m_entry;
-    m_context.m_regs[REG_ESP] = m_stack_base + m_stack_size;
+    m_context.m_regs[REG_ESP] = stack->BaseAddress() + stack->Size();
 }
 
 /*!
@@ -16,14 +16,15 @@ Thread::Thread(uint32_t entry, uint32_t stack_base, size_t stack_size)
  */
 Thread::~Thread()
 {
+	m_stack->Free();
 }
 
 /*!
  * Constructor
  */
 Scheduler::Scheduler(Cpu *cpu)
+	: m_cpu(cpu)
 {
-    m_cpu = cpu;
 }
 
 /*!
@@ -41,7 +42,7 @@ int Scheduler::ScheduleThread(Thread *thread)
     m_threads.push_back(thread);
 
     // FIXME: Move this out of here after we support concurrency
-    m_cpu->RegWrite(REG_ESP, thread->m_stack_base + thread->m_stack_size);
+    m_cpu->RegWrite(REG_ESP, thread->m_stack->BaseAddress() + thread->m_stack->Size());
     m_cpu->RegWrite(REG_EIP, thread->m_entry);
 
     return 0;
@@ -65,6 +66,10 @@ int Scheduler::Run()
     if (result) {
         return SCHEDULER_EXIT_ERROR;
     }
+
+	// TODO: When the thread exits:
+	//m_threads.erase(std::find(m_threads.begin(), m_threads.end(), thread));  // FIXME: vectors are not adequate for random removal
+	//delete thread;
 
     // Read the exit instruction pointer
     m_cpu->RegRead(REG_EIP, &reg);

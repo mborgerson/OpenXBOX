@@ -1,23 +1,23 @@
 #include "memmgr.h"
 
-ContiguousMemoryBlock::ContiguousMemoryBlock(uint32_t basePage, uint32_t numPages)
+ContiguousMemoryBlock::ContiguousMemoryBlock(uint32_t basePage, uint32_t numPages, uint32_t actualSize, MemoryManager *memmgr)
 	: m_basePage(basePage)
 	, m_numPages(numPages)
+	, m_actualSize(actualSize)
+	, m_memmgr(memmgr)
 {
 }
 
-// TODO: paged vs. non-paged pools
-// TODO: thread safety
-// take some pointers from Cxbx-Reloaded's VMManager
-// https://github.com/Cxbx-Reloaded/Cxbx-Reloaded/blob/master/src/CxbxKrnl/VMManager.cpp
+bool ContiguousMemoryBlock::Free() {
+	return m_memmgr->FreeContiguous(BaseAddress());
+}
 
 
-// NOTE: 0x20000 bytes removed from the main memory because the topmost region
-// is reserved for something. Thread stacks perhaps?
 MemoryManager::MemoryManager(uint32_t mainMemorySize)
-	: m_mainMemorySize(mainMemorySize - 0x20000)
+	: m_mainMemorySize(mainMemorySize)
 {
-	uint32_t size = m_mainMemorySize >> PAGE_ALIGN_SHIFT;
+	m_usableMemorySize = mainMemorySize - PFN_DATABASE_SIZE;
+	uint32_t size = m_mainMemorySize >> PAGE_SHIFT;
 	m_allocatedPages = new bool[size];
 	memset(m_allocatedPages, 0, size);
 }
@@ -42,38 +42,31 @@ ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t
 		return nullptr;
 	}
 
-	// Cannot allocate less than the minimum size of an Xbox memory page
-	if (align < XBOX_PAGE_SIZE) {
-		align = XBOX_PAGE_SIZE;
+	// Alignment must be at least the size of a memory page
+	if (align < PAGE_SIZE) {
+		align = PAGE_SIZE;
 	}
 	
 	// Calculate number of pages to allocate
 	uint32_t numPages = BYTES_TO_PAGES(size);
 
 	// Convert addresses to pages
-	uint32_t pageAlign = align >> PAGE_ALIGN_SHIFT;
+	uint32_t pageAlign = align >> PAGE_SHIFT;
 	if (pageAlign == 0) {
 		pageAlign = 1;
 	}
 	uint32_t pageAlignMask = ~(pageAlign - 1);
 
-	if (minAcceptableAddress < MIN_ADDRESS) {
-		minAcceptableAddress = MIN_ADDRESS;
+	// Don't allocate memory below the executable image base address
+	if (minAcceptableAddress < IMAGE_BASE_ADDRESS) {
+		minAcceptableAddress = IMAGE_BASE_ADDRESS;
 	}
 
-	uint32_t minAcceptablePageNumber = minAcceptableAddress >> PAGE_ALIGN_SHIFT;
-	uint32_t maxAcceptablePageNumber = maxAcceptableAddress >> PAGE_ALIGN_SHIFT;
+	uint32_t minAcceptablePageNumber = minAcceptableAddress >> PAGE_SHIFT;
+	uint32_t maxAcceptablePageNumber = maxAcceptableAddress >> PAGE_SHIFT;
 
 	// Make sure the requested range is valid
-	// NOTE: It seems that MmAllocateContiguousMemoryEx does not validate these
-	// parameters but instead readjusts them to fit in the main memory range.
-	uint32_t mainMemoryPages = (m_mainMemorySize >> PAGE_ALIGN_SHIFT);
-	/*if (minAcceptablePageNumber > maxAcceptablePageNumber) {
-		return nullptr;
-	}
-	if (minAcceptablePageNumber >= mainMemoryPages || maxAcceptablePageNumber >= mainMemoryPages) {
-		return nullptr;
-	}*/
+	uint32_t mainMemoryPages = (m_usableMemorySize >> PAGE_SHIFT);
 	if (maxAcceptablePageNumber > mainMemoryPages) {
 		maxAcceptablePageNumber = mainMemoryPages;
 	}
@@ -85,7 +78,7 @@ ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t
 	// (in reverse, because of page alignment restrictions)
 	for (uint32_t page = maxAcceptablePageNumber & pageAlignMask; page >= minAcceptablePageNumber; page -= pageAlign) {
 		if (IsRegionUnallocated(page, numPages)) {
-			ContiguousMemoryBlock *block = new ContiguousMemoryBlock(page, numPages);
+			ContiguousMemoryBlock *block = new ContiguousMemoryBlock(page, numPages, size, this);
 			RegisterBlock(block, protect);
 			return block;
 		}
@@ -95,8 +88,23 @@ ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t
 	return nullptr;
 }
 
-bool MemoryManager::FreeContiguous(uint32_t baseAddress)
-{
+ContiguousMemoryBlock *MemoryManager::Reserve(uint32_t baseAddress, uint32_t size, uint32_t protect) {
+	// Convert to pages
+	int basePage = BYTES_TO_PAGES(baseAddress);
+	int numPages = BYTES_TO_PAGES(size);
+
+	// Reserve block
+	if (IsRegionUnallocated(basePage, numPages)) {
+		ContiguousMemoryBlock *block = new ContiguousMemoryBlock(basePage, numPages, size, this);
+		RegisterBlock(block, protect);
+		return block;
+	}
+
+	// Region is already reserved
+	return nullptr;
+}
+
+bool MemoryManager::FreeContiguous(uint32_t baseAddress) {
 	// TODO: what if the address is unaligned?
 	uint32_t page = BYTES_TO_PAGES(baseAddress);
 	if (m_pageToBlock.count(page)) {

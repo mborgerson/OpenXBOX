@@ -7,34 +7,42 @@
 #include "util.h"
 #include "kernel/types.h"
 
-#define MIN_ADDRESS       MiB(16)
-#define XBOX_PAGE_SIZE    KiB(4)
-#define PAGE_ALIGN_SHIFT  12
+#define IMAGE_BASE_ADDRESS  0x10000
+#define PAGE_SIZE           KiB(4)
+#define PAGE_SHIFT          12
+#define PFN_DATABASE_SIZE   0x20000
 
 #define BYTES_TO_PAGES(Size)  \
-	(((Size) >> PAGE_ALIGN_SHIFT) + \
-	(((Size) & (XBOX_PAGE_SIZE - 1)) != 0))
+	(((Size) >> PAGE_SHIFT) + \
+	(((Size) & (PAGE_SIZE - 1)) != 0))
 
+
+class MemoryManager;
 
 class ContiguousMemoryBlock {
 protected:
 	uint32_t m_basePage;
 	uint32_t m_numPages;
+	uint32_t m_actualSize;
+	MemoryManager *m_memmgr;
 public:
-	ContiguousMemoryBlock(uint32_t baseAddress, uint32_t size);
+	ContiguousMemoryBlock(uint32_t basePage, uint32_t numPages, uint32_t actualSize, MemoryManager *memmgr);
 	
 	uint32_t BasePage() const { return m_basePage; }
 	uint32_t NumPages() const { return m_numPages; }
 	uint32_t LastPage() const { return m_basePage + m_numPages - 1; }
 
-	uint32_t BaseAddress() const { return m_basePage << PAGE_ALIGN_SHIFT; }
-	uint32_t Size() const { return m_numPages << PAGE_ALIGN_SHIFT; }
+	uint32_t BaseAddress() const { return m_basePage << PAGE_SHIFT; }
+	uint32_t Size() const { return m_actualSize; }
+
+	bool Free();
 };
 
 
 class MemoryManager {
 protected:
 	uint32_t m_mainMemorySize;
+	uint32_t m_usableMemorySize;
 
 	// Allocated memory blocks
 	std::set<ContiguousMemoryBlock *> m_blocks;
@@ -80,16 +88,22 @@ public:
 	 */
 	ContiguousMemoryBlock *AllocateContiguous(
 		uint32_t size,
-		uint32_t minAcceptableAddress = 0,
+		uint32_t minAcceptableAddress = IMAGE_BASE_ADDRESS,
 		uint32_t maxAcceptableAddress = UINT32_MAX,
-		uint32_t align = XBOX_PAGE_SIZE,
+		uint32_t align = PAGE_SIZE,
 		uint32_t protect = PAGE_READWRITE
 	);
+
+	/*!
+	 * Reserves the specified memory range, disallowing automatic allocation of
+	 * pages within it.
+	 */
+	ContiguousMemoryBlock *Reserve(uint32_t baseAddress, uint32_t size, uint32_t protect);
 	
 	/*!
 	 * Frees the memory allocated at the given address.
 	 * Returns true if the deallocation was successful, which only happens if
-	 * there was a block of memory at the specified base address.
+	 * there was a block of memory allocated at the specified base address.
 	 */
 	bool FreeContiguous(uint32_t baseAddress);
 
