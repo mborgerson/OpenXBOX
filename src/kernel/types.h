@@ -1680,6 +1680,13 @@ typedef struct _ERWLOCK
 
 DEF_POINTER_TYPE(ERWLOCK, PERWLOCK);
 
+typedef enum _EXCEPTION_DISPOSITION {
+	ExceptionContinueExecution,
+	ExceptionContinueSearch,
+	ExceptionNestedException,
+	ExceptionCollidedUnwind
+} EXCEPTION_DISPOSITION;
+
 struct _EXCEPTION_RECORD;
 DEF_POINTER_TYPE(struct _EXCEPTION_RECORD, PEXCEPTION_RECORD);
 
@@ -1727,6 +1734,13 @@ typedef struct _FLOATING_SAVE_AREA
 #endif
 
 DEF_POINTER_TYPE(FLOATING_SAVE_AREA, PFLOATING_SAVE_AREA);
+
+typedef struct _FX_SAVE_AREA {
+	XboxTypes::FLOATING_SAVE_AREA FloatSave;
+	XboxTypes::ULONG Align16Byte[3];
+} FX_SAVE_AREA;
+
+DEF_POINTER_TYPE(FX_SAVE_AREA, PFX_SAVE_AREA);
 
 typedef struct _CONTEXT
 {
@@ -1780,6 +1794,28 @@ typedef struct _HARDWARE_PTE
 } HARDWARE_PTE;
 
 DEF_POINTER_TYPE(HARDWARE_PTE, PHARDWARE_PTE);
+
+#if DUMB_POINTERS
+DEF_POINTER_TYPE(VOID, PEXCEPTION_ROUTINE);
+#else
+typedef EXCEPTION_DISPOSITION(*PEXCEPTION_ROUTINE) (
+	PEXCEPTION_RECORD ExceptionRecord,
+	PVOID EstablisherFrame,
+	PCONTEXT ContextRecord,
+	PVOID DispatcherContext
+	);
+#endif
+
+struct _EXCEPTION_REGISTRATION_RECORD;
+
+DEF_POINTER_TYPE(_EXCEPTION_REGISTRATION_RECORD, PEXCEPTION_REGISTRATION_RECORD);
+
+typedef struct _EXCEPTION_REGISTRATION_RECORD {
+	PEXCEPTION_REGISTRATION_RECORD Next;
+	PEXCEPTION_ROUTINE Handler;
+} EXCEPTION_REGISTRATION_RECORD;
+
+#define EXCEPTION_CHAIN_END (-1)
 
 #if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PPS_APC_ROUTINE);
@@ -1884,6 +1920,59 @@ typedef VOID (*PKKERNEL_ROUTINE) (
     IN OUT PPVOID SystemArgument2
 );
 #endif
+
+typedef struct _KPRCB {
+	PKTHREAD CurrentThread;
+	PKTHREAD NextThread;
+	PKTHREAD IdleThread;
+	PKTHREAD NpxThread;
+	ULONG InterruptCount;
+	ULONG DpcTime;
+	ULONG InterruptTime;
+	ULONG DebugDpcTime;
+	ULONG KeContextSwitches;
+	ULONG DpcInterruptRequested;
+	LIST_ENTRY DpcListHead;
+	ULONG DpcRoutineActive;
+	PVOID DpcStack;
+	ULONG QuantumEnd;
+	FX_SAVE_AREA NpxSaveArea;
+	PVOID DmEnetFunc;
+	PVOID DebugMonitorData;
+	PVOID DebugHaltThread; // Only available on Debug systems
+	PVOID DebugDoubleFault; // Only available on Debug systems
+} KPRCB;
+
+DEF_POINTER_TYPE(KPRCB, PKPRCB);
+
+struct _NT_TIB;
+
+DEF_POINTER_TYPE(_NT_TIB, P_NT_TIB);
+
+typedef struct _NT_TIB {
+	PEXCEPTION_REGISTRATION_RECORD ExceptionList;
+	PVOID StackBase;
+	PVOID StackLimit;
+	PVOID SubSystemTib;
+	union {
+		PVOID FiberData;
+		ULONG Version;
+	};
+	PVOID ArbitraryUserPointer;
+	P_NT_TIB Self;
+} NT_TIB;
+
+struct _KPCR;
+
+DEF_POINTER_TYPE(_KPCR, PKPCR);
+
+typedef struct _KPCR {
+	NT_TIB NtTib;
+	PKPCR SelfPcr;
+	PKPRCB Prcb;
+	KIRQL Irql;
+	KPRCB PrcbData;
+} KPCR;
 
 struct _HAL_SHUTDOWN_REGISTRATION;
 

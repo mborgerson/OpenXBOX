@@ -134,7 +134,6 @@ int Xbox::Initialize()
 }
 
 int Xbox::InitializeGDT() {
-	ContiguousMemoryBlock *block;
 	GDTEntry gdtTable[7];
 
 	log_debug("Initializing GDT\n");
@@ -152,14 +151,19 @@ int Xbox::InitializeGDT() {
 
 	// Allocate memory for the KPCR and TSS data structures
 #define ALLOC(var, size) \
-	block = m_memmgr->AllocateContiguous((size));\
-	if (nullptr == block) {\
-		log_debug("Could not allocate memory for " #var "\n");\
-		return 1;\
-	}\
-	uint32_t var = block->BaseAddress();
-	
-	ALLOC(kpcrAddr, 0x284); // TODO: define KPCR and use it
+	uint32_t var;\
+	uint32_t var##_size;\
+	{\
+		ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous((size));\
+		if (nullptr == block) {\
+			log_debug("Could not allocate memory for " #var "\n");\
+			return 1;\
+		}\
+		var = block->BaseAddress();\
+		var##_size = block->Size();\
+	}
+
+	ALLOC(kpcrAddr, sizeof(XboxTypes::KPCR));
 	ALLOC(tssAddr, sizeof(TSS));
 	ALLOC(tssDFAddr, sizeof(TSS));
 	ALLOC(tssNMIAddr, sizeof(TSS));
@@ -179,10 +183,14 @@ int Xbox::InitializeGDT() {
 	tss.CS = 0x08;
 	tss.FS = 0x20;
 
-	// Write TSS to the addresses
+	// Write TSS to memory
 	m_cpu->MemWrite(tssAddr, sizeof(TSS), &tss);
 	m_cpu->MemWrite(tssDFAddr, sizeof(TSS), &tss);
 	m_cpu->MemWrite(tssNMIAddr, sizeof(TSS), &tss);
+
+	// Fill in basic KPCR data directly in memory
+	XboxTypes::KPCR *kpcr = (XboxTypes::KPCR *) kpcrAddr;
+	// TODO: fill in
 
 	// Fill in GDT table data
 	gdtTable[0].Set(0x00000000, 0x00000, 0x00, 0x0);
@@ -195,10 +203,10 @@ int Xbox::InitializeGDT() {
 
 	// Write GDT to memory
 	m_cpu->MemWrite(gdtAddr, sizeof(gdtTable), gdtTable);
-	m_memmgr->SetProtect(block->BaseAddress(), block->Size(), PAGE_READONLY);
+	m_memmgr->SetProtect(gdtAddr, gdtAddr_size, PAGE_READONLY);
 
 	// Set GDT register
-	m_cpu->SetGDT(block->BaseAddress(), block->Size());
+	m_cpu->SetGDT(gdtAddr, gdtAddr_size);
 
 	// Set segment registers
 	m_cpu->RegWrite(REG_CS, 0x08);
