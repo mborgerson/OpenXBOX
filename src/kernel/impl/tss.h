@@ -5,7 +5,6 @@
 
 // https://wiki.osdev.org/Task_State_Segment
 
-#pragma pack(push, 1)
 typedef struct _TSS {
 	uint16_t link;
 	uint16_t _reserved0;
@@ -47,6 +46,5 @@ typedef struct _TSS {
 	uint16_t IOPBoffset;
 
 } TSS;
-#pragma pack(pop)
 
 #endif

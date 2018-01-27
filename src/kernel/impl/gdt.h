@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#pragma pack(push, 1)
 typedef struct _GDTEntry {
 	union {
 		struct {
@@ -20,6 +19,5 @@ typedef struct _GDTEntry {
 
 	void Set(uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
 } GDTEntry;
-#pragma pack(pop)
 
 #endif
