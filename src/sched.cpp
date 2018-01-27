@@ -57,6 +57,9 @@ int Scheduler::Run()
     int result;
 
 	// TODO: implement proper thread scheduling, context switching, etc.
+	// TODO: run all pending DPCs while switching threads
+	// TODO: keep an XboxTypes::KTHREAD around
+	// TODO: update KPCR info with the KTHREAD
 
     // Get current instruction pointer
     m_cpu->RegRead(REG_EIP, &reg);
