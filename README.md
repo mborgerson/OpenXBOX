@@ -30,8 +30,8 @@ $ cmake .. && make
 $ ./openxbox executable.xbe
 ```
 
-On Windows, you'll need [CMake](https://cmake.org/download/). This method has
-been confirmed to work with [Visual Studio Community 2017](https://www.visualstudio.com/downloads/).
+On Windows, you'll need [CMake 3.8 or later](https://cmake.org/download/). This
+method has been confirmed to work with [Visual Studio Community 2017](https://www.visualstudio.com/downloads/).
 All necessary dependencies are included in the extern folder.
 ```
 > mkdir build
