@@ -3,8 +3,8 @@
 #include "timer.h"
 #include "alloc.h"
 #include "memmgr.h"
-#include "gdt.h"
-#include "tss.h"
+#include "kernel/impl/gdt.h"
+#include "kernel/impl/tss.h"
 
 #define ENABLE_GDB_SERVER     0 // FIXME: Allow enable from cmdline
 #define DUMP_SECTION_CONTENTS 0

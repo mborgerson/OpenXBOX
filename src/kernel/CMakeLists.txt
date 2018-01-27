@@ -1,3 +1,5 @@
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/impl")
+
 file(GLOB DIR_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/*.h
     )

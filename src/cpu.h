@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "mem.h"
-#include "gdt.h"
+#include "kernel/impl/gdt.h"
 
 /*!
  * Enumeration type for standard registers
