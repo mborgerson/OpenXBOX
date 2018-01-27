@@ -56,6 +56,8 @@ int Scheduler::Run()
     uint32_t reg;
     int result;
 
+	// TODO: implement proper thread scheduling, context switching, etc.
+
     // Get current instruction pointer
     m_cpu->RegRead(REG_EIP, &reg);
     log_debug("CPU starting at %x\n", reg);

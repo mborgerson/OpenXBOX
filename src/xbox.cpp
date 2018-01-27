@@ -3,6 +3,7 @@
 #include "timer.h"
 #include "alloc.h"
 #include "memmgr.h"
+#include "gdt.h"
 
 #define ENABLE_GDB_SERVER     1 // FIXME: Allow enable from cmdline
 #define DUMP_SECTION_CONTENTS 0
@@ -101,7 +102,7 @@ int Xbox::Initialize()
     assert(m_cpu != NULL);
     m_cpu->Initialize();
 
-    // Initialize scheduler
+	// Initialize scheduler
     log_debug("Initializing Scheduler\n");
     m_sched = new Scheduler(m_cpu);
     assert(m_sched != NULL);
@@ -115,7 +116,13 @@ int Xbox::Initialize()
     // Allow CPU to update memory map based on device allocation, etc
     m_cpu->MemMap(m_mem);
 
-    // GDB Server
+	// Initialize GDT
+	int gdtStatus = InitializeGDT();
+	if (gdtStatus != 0) {
+		return gdtStatus;
+	}
+
+	// GDB Server
 #if ENABLE_GDB_SERVER
     log_debug("Starting GDB Server\n");
     m_gdb = new GdbServer(m_cpu, "127.0.0.1", 9269);
@@ -125,17 +132,82 @@ int Xbox::Initialize()
     return 0;
 }
 
+int Xbox::InitializeGDT() {
+	ContiguousMemoryBlock *block;
+	GDTEntry gdtTable[7];
+
+	log_debug("Initializing GDT\n");
+
+	// Index  Offset  Description      Segment regs.   Base         Limit     Access              Flags
+	// #0     0x00    unusable         -               0x00000000   0x00000   0b00000000 (0x00)   0b0000 (0x0)
+	// #1     0x08    ring-0 code      CS              0x00000000   0xffffb   0b10011011 (0x9b)   0b1100 (0xc)
+	// #2     0x10    ring-0 data      DS, ES, SS      0x00000000   0xfffff   0b10010011 (0x93)   0b1100 (0xc)
+	// #3     0x18    TSS (?)          -               <&tss1>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	// #4     0x20    KPCR             FS              <&kpcr>      0x00284   0b10010011 (0x93)   0b1100 (0xc)
+	// #5     0x28    TSS (?)          -               <&tss2>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	// #6     0x30    TSS (?)          -               <&tss3>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+
+	// Allocate memory for the KPCR and TSS data structures
+#define ALLOC(var, size) \
+	block = m_memmgr->AllocateContiguous((size));\
+	if (nullptr == block) {\
+		log_debug("Could not allocate memory for " #var "\n");\
+		return 1;\
+	}\
+	uint32_t var = block->BaseAddress();
+	
+	ALLOC(kpcrAddr, 0x284); // TODO: define XboxTypes::KPCR and use it
+	ALLOC(tss1Addr, 0x68);  // TODO: define XboxTypes::TSS and use it
+	ALLOC(tss2Addr, 0x68);  // TODO: define XboxTypes::TSS and use it
+	ALLOC(tss3Addr, 0x68);  // TODO: define XboxTypes::TSS and use it
+	ALLOC(gdtAddr, sizeof(gdtTable));
+#undef ALLOC
+
+	log_debug("  KPCR located at 0x%08x\n", kpcrAddr);
+	log_debug("  TSS1 located at 0x%08x\n", tss1Addr);
+	log_debug("  TSS2 located at 0x%08x\n", tss2Addr);
+	log_debug("  TSS3 located at 0x%08x\n", tss3Addr);
+	log_debug("  GDT table located at 0x%08x\n", gdtAddr);
+
+	// Fill in GDT table data
+	gdtTable[0].Set(0x00000000, 0x00000, 0x00, 0x0);
+	gdtTable[1].Set(0x00000000, 0xffffb, 0x9b, 0xc);
+	gdtTable[2].Set(0x00000000, 0xfffff, 0x93, 0xc);
+	gdtTable[3].Set(tss1Addr  , 0x00068, 0x89, 0x0);
+	gdtTable[4].Set(kpcrAddr  , 0x00284, 0x93, 0xc);
+	gdtTable[5].Set(tss2Addr  , 0x00068, 0x89, 0x0);
+	gdtTable[6].Set(tss3Addr  , 0x00068, 0x89, 0x0);
+
+	// Write GDT to memory
+	m_cpu->MemWrite(gdtAddr, sizeof(gdtTable), gdtTable);
+	m_memmgr->SetProtect(block->BaseAddress(), block->Size(), PAGE_READONLY);
+
+	// Set GDT register
+	m_cpu->SetGDT(block->BaseAddress(), block->Size());
+
+	// Set segment registers
+	m_cpu->RegWrite(REG_CS, 0x08);
+	m_cpu->RegWrite(REG_DS, 0x10);
+	m_cpu->RegWrite(REG_ES, 0x10);
+	m_cpu->RegWrite(REG_SS, 0x10);
+	m_cpu->RegWrite(REG_FS, 0x20);
+	m_cpu->RegWrite(REG_GS, 0x00);
+
+	return 0;
+}
+
 /*!
  * Load an XBE for execution
  */
 int Xbox::LoadXbe(Xbe *xbe)
 {
     // FIXME: Validate XBE virtual addresses!
-    uint32_t base, offset;
+    uint32_t base, offset, maxAddr;
 
     m_xbe = xbe;
     base = m_xbe->m_Header.dwBaseAddr;
     offset = 0;
+	maxAddr = base;
 
     log_debug("XBE Base Address: 0x%08x\n", base);
     assert(base == 0x10000); // FIXME
@@ -145,16 +217,12 @@ int Xbox::LoadXbe(Xbe *xbe)
     memcpy(&m_ram[base+offset], &m_xbe->m_Header, sizeof(m_xbe->m_Header));
     offset += sizeof(m_xbe->m_Header);
     memcpy(&m_ram[base+offset], m_xbe->m_HeaderEx, m_xbe->m_Header.dwSizeofHeaders);
-    
+
     // Copy XBE Section Headers
     for(uint32 section = 0; section < m_xbe->m_Header.dwSections; section++) {
         offset = m_xbe->m_Header.dwSectionHeadersAddr + section * sizeof(m_xbe->m_SectionHeader[0]) - m_xbe->m_Header.dwBaseAddr;
         log_debug("Loading Section Header 0x%.04X @ %08x...", section, base+offset);
         memcpy(&m_ram[base+offset], &m_xbe->m_SectionHeader[section], sizeof(m_xbe->m_SectionHeader[0]));
-		// TODO: check Protect flags
-		if (nullptr == m_memmgr->Reserve(base + offset, sizeof(m_xbe->m_SectionHeader[0]), PAGE_EXECUTE_READWRITE)) {
-			log_debug("Could not reserve memory region!");
-		}
 		log_debug("OK\n");
     }
 
@@ -165,10 +233,7 @@ int Xbox::LoadXbe(Xbe *xbe)
         log_debug("Loading Section 0x%.04X (%s) at %08x...", section, m_xbe->m_szSectionName[section], base+offset);
         if(RawSize > 0) {
             memcpy(&m_ram[base+offset], m_xbe->m_bzSection[section], RawSize);
-			// TODO: check Protect flags
-			if (nullptr == m_memmgr->Reserve(base + offset, RawSize, PAGE_EXECUTE_READWRITE)) {
-				log_debug("Could not reserve memory region!");
-			}
+			maxAddr = max(maxAddr, base + offset + RawSize);
 		}
         log_debug("OK\n");
 
@@ -192,12 +257,22 @@ int Xbox::LoadXbe(Xbe *xbe)
         uint32_t import_num = imports[i] - 0x80000000;
         assert(import_num < 379);
         imports[i] = m_import_addrs[import_num];
-        log_debug("%08x\n", imports[i]);
+        log_debug("%08x  %s\n", imports[i], kKernelFuncImportMap[import_num].name);
     }
 
     // Get unscrambled XBE entry point
     uint32_t entry_addr = UnscrambleAddress(m_xbe->m_Header.dwEntryAddr,
                                             XOR_EP_DEBUG, XOR_EP_RETAIL);
+
+	// Reserve memory region for the entire XBE image
+	// TODO: check Protect flags
+	log_debug("Reserving memory range for XBE image @ 0x%08x - 0x%08x...", base, maxAddr);
+	if (nullptr == m_memmgr->Reserve(base, maxAddr-base, PAGE_EXECUTE_READWRITE)) {
+		log_debug("Could not reserve memory region!\n");
+	}
+	else {
+		log_debug("OK\n");
+	}
 
     // Create title main thread
 	m_sched->ScheduleThread(CreateThread(entry_addr, XBOX_STACK_SIZE));

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "mem.h"
+#include "gdt.h"
 
 /*!
  * Enumeration type for standard registers
@@ -73,6 +74,7 @@ class Cpu {
 public:
     virtual ~Cpu();
     virtual int Initialize() = 0;
+	virtual int SetGDT(uint32_t addr, size_t size) = 0;
     virtual int MemMap(MemoryRegion *mem) = 0;
     virtual int MemRead(uint32_t addr, size_t size, void *value) = 0;
     virtual int MemWrite(uint32_t addr, size_t size, void *value) = 0;

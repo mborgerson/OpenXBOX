@@ -21,6 +21,7 @@ public:
     UnicornCpu();
     ~UnicornCpu();
     int Initialize();
+	int SetGDT(uint32_t addr, size_t size);
     int MemRead(uint32_t addr, size_t size, void *value);
     int MemWrite(uint32_t addr, size_t size, void *value);
     int RegRead(enum CpuReg reg, uint32_t *value);

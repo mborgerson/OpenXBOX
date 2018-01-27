@@ -56,6 +56,7 @@ public:
     Xbox();
     ~Xbox();
     int Initialize();
+	int InitializeGDT();
     int LoadXbe(Xbe *xbe);
     uint32_t UnscrambleAddress(uint32_t addr, uint32_t debug, uint32_t retail);
     int Run();

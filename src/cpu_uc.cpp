@@ -127,6 +127,18 @@ int UnicornCpu::Initialize()
 }
 
 /*!
+ * Set the Global Descriptor Table
+ */
+int UnicornCpu::SetGDT(uint32_t addr, size_t size)
+{
+	uc_x86_mmr gdt;
+	gdt.base = addr;
+	gdt.limit = size - 1;
+	uc_reg_write(m_uc, UC_X86_REG_GDTR, &gdt);
+	return 0;
+}
+
+/*!
  * Read from memory
  */
 int UnicornCpu::MemRead(uint32_t addr, size_t size, void *value)
