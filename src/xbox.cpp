@@ -4,8 +4,9 @@
 #include "alloc.h"
 #include "memmgr.h"
 #include "gdt.h"
+#include "tss.h"
 
-#define ENABLE_GDB_SERVER     1 // FIXME: Allow enable from cmdline
+#define ENABLE_GDB_SERVER     0 // FIXME: Allow enable from cmdline
 #define DUMP_SECTION_CONTENTS 0
 
 // Statically generate a lookup table to quickly find the member function
@@ -138,14 +139,16 @@ int Xbox::InitializeGDT() {
 
 	log_debug("Initializing GDT\n");
 
-	// Index  Offset  Description      Segment regs.   Base         Limit     Access              Flags
-	// #0     0x00    unusable         -               0x00000000   0x00000   0b00000000 (0x00)   0b0000 (0x0)
-	// #1     0x08    ring-0 code      CS              0x00000000   0xffffb   0b10011011 (0x9b)   0b1100 (0xc)
-	// #2     0x10    ring-0 data      DS, ES, SS      0x00000000   0xfffff   0b10010011 (0x93)   0b1100 (0xc)
-	// #3     0x18    TSS (?)          -               <&tss1>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
-	// #4     0x20    KPCR             FS              <&kpcr>      0x00284   0b10010011 (0x93)   0b1100 (0xc)
-	// #5     0x28    TSS (?)          -               <&tss2>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
-	// #6     0x30    TSS (?)          -               <&tss3>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	// Index  Offset  Description          Segment regs.   Base         Limit     Access              Flags
+	// #0     0x00    unusable             -               0x00000000   0x00000   0b00000000 (0x00)   0b0000 (0x0)
+	// #1     0x08    ring-0 code          CS              0x00000000   0xffffb   0b10011011 (0x9b)   0b1100 (0xc)
+	// #2     0x10    ring-0 data          DS, ES, SS      0x00000000   0xfffff   0b10010011 (0x93)   0b1100 (0xc)
+	// #3     0x18    TSS (current task)*  -               <&tss1>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	// #4     0x20    KPCR                 FS              <&kpcr>      0x00284   0b10010011 (0x93)   0b1100 (0xc)
+	// #5     0x28    TSS (double fault)*  -               <&tss2>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	// #6     0x30    TSS (NMI)*           -               <&tss3>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	//
+	// * informed assumptions based on https://www.geoffchappell.com/studies/windows/km/ntoskrnl/structs/kpcr.htm
 
 	// Allocate memory for the KPCR and TSS data structures
 #define ALLOC(var, size) \
@@ -156,27 +159,39 @@ int Xbox::InitializeGDT() {
 	}\
 	uint32_t var = block->BaseAddress();
 	
-	ALLOC(kpcrAddr, 0x284); // TODO: define XboxTypes::KPCR and use it
-	ALLOC(tss1Addr, 0x68);  // TODO: define XboxTypes::TSS and use it
-	ALLOC(tss2Addr, 0x68);  // TODO: define XboxTypes::TSS and use it
-	ALLOC(tss3Addr, 0x68);  // TODO: define XboxTypes::TSS and use it
+	ALLOC(kpcrAddr, 0x284); // TODO: define KPCR and use it
+	ALLOC(tssAddr, sizeof(TSS));
+	ALLOC(tssDFAddr, sizeof(TSS));
+	ALLOC(tssNMIAddr, sizeof(TSS));
 	ALLOC(gdtAddr, sizeof(gdtTable));
 #undef ALLOC
 
 	log_debug("  KPCR located at 0x%08x\n", kpcrAddr);
-	log_debug("  TSS1 located at 0x%08x\n", tss1Addr);
-	log_debug("  TSS2 located at 0x%08x\n", tss2Addr);
-	log_debug("  TSS3 located at 0x%08x\n", tss3Addr);
+	log_debug("  Current Task TSS located at 0x%08x\n", tssAddr);
+	log_debug("  Double Fault TSS located at 0x%08x\n", tssDFAddr);
+	log_debug("  NMI TSS located at 0x%08x\n", tssNMIAddr);
 	log_debug("  GDT table located at 0x%08x\n", gdtAddr);
+
+	// Fill in TSS data with basic values
+	TSS tss;
+	memset(&tss, 0, sizeof(TSS));
+	tss.SS0 = tss.DS = tss.ES = tss.SS = 0x10;
+	tss.CS = 0x08;
+	tss.FS = 0x20;
+
+	// Write TSS to the addresses
+	m_cpu->MemWrite(tssAddr, sizeof(TSS), &tss);
+	m_cpu->MemWrite(tssDFAddr, sizeof(TSS), &tss);
+	m_cpu->MemWrite(tssNMIAddr, sizeof(TSS), &tss);
 
 	// Fill in GDT table data
 	gdtTable[0].Set(0x00000000, 0x00000, 0x00, 0x0);
 	gdtTable[1].Set(0x00000000, 0xffffb, 0x9b, 0xc);
 	gdtTable[2].Set(0x00000000, 0xfffff, 0x93, 0xc);
-	gdtTable[3].Set(tss1Addr  , 0x00068, 0x89, 0x0);
+	gdtTable[3].Set(tssAddr   , 0x00068, 0x89, 0x0);
 	gdtTable[4].Set(kpcrAddr  , 0x00284, 0x93, 0xc);
-	gdtTable[5].Set(tss2Addr  , 0x00068, 0x89, 0x0);
-	gdtTable[6].Set(tss3Addr  , 0x00068, 0x89, 0x0);
+	gdtTable[5].Set(tssDFAddr , 0x00068, 0x89, 0x0);
+	gdtTable[6].Set(tssNMIAddr, 0x00068, 0x89, 0x0);
 
 	// Write GDT to memory
 	m_cpu->MemWrite(gdtAddr, sizeof(gdtTable), gdtTable);
