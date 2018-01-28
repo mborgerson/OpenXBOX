@@ -1,5 +1,4 @@
-#ifndef GDT_H
-#define GDT_H
+#pragma once
 
 #include <stdint.h>
 
@@ -19,5 +18,3 @@ typedef struct _GDTEntry {
 
 	void Set(uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
 } GDTEntry;
-
-#endif

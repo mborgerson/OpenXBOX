@@ -1,5 +1,4 @@
-#ifndef LOG_H
-#define LOG_H
+#pragma once
 
 #include <stdio.h>
 
@@ -29,5 +28,3 @@
 #endif
 
 int log_print(int level, const char *fmt, ...);
-
-#endif

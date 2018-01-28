@@ -1,5 +1,4 @@
-#ifndef XBOX_H
-#define XBOX_H
+#pragma once
 
 #include <assert.h>
 #ifndef _WIN32
@@ -75,5 +74,3 @@ public:
 	#undef KERNEL_IMPORT_DATA
 	#undef KERNEL_IMPORT_FUNC
 };
-
-#endif

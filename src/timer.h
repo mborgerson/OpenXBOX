@@ -1,5 +1,4 @@
-#ifndef TIMER_H
-#define TIMER_H
+#pragma once
 
 #include <stdint.h>
 
@@ -18,5 +17,3 @@ public:
     void Stop();
     uint64_t GetMillisecondsElapsed();
 };
-
-#endif

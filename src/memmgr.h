@@ -1,5 +1,4 @@
-#ifndef MEMMGR_H
-#define MEMMGR_H
+#pragma once
 
 #include <set>
 #include <map>
@@ -130,5 +129,3 @@ public:
 	*/
 	void SetPersist(uint32_t baseAddress, uint32_t size, bool persist);
 };
-
-#endif

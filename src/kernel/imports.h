@@ -1,5 +1,4 @@
-#ifndef IMPORTS_H
-#define IMPORTS_H
+#pragma once
 
 #ifdef _WIN32
 #  undef RtlFillMemory
@@ -392,5 +391,3 @@
 	KERNEL_IMPORT_FUNC(376, MmDbgQueryAvailablePages) \
 	KERNEL_IMPORT_FUNC(377, MmDbgReleaseAddress) \
 	KERNEL_IMPORT_FUNC(378, MmDbgWriteCheck) \
-
-#endif

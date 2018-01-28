@@ -1,5 +1,4 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 #include <stdio.h>
 #include <xbox.h>
@@ -33,5 +32,3 @@
         cc.SetReturnValue(&VAL, sizeof(VAL)); \
         K_EXIT(); \
     } while (0)
-
-#endif

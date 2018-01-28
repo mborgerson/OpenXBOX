@@ -1,5 +1,4 @@
-#ifndef CPU_UNICORN_H
-#define CPU_UNICORN_H
+#pragma once
 
 #include <unicorn/unicorn.h>
 #include "cpu.h"
@@ -30,5 +29,3 @@ public:
     int MemMap(MemoryRegion *mem);
     struct CpuExitInfo *GetExitInfo();
 };
-
-#endif

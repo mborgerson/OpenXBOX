@@ -1,5 +1,4 @@
-#ifndef TSS_H
-#define TSS_H
+#pragma once
 
 #include <stdint.h>
 
@@ -44,7 +43,4 @@ typedef struct _TSS {
 	uint16_t _reserved10;
 	uint16_t _reserved11;
 	uint16_t IOPBoffset;
-
 } TSS;
-
-#endif

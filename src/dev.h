@@ -1,5 +1,4 @@
-#ifndef DEV_H
-#define DEV_H
+#pragma once
 
 #include "mem.h"
 
@@ -11,5 +10,3 @@ protected:
 public:
     Device(MemoryRegion *mem);
 };
-
-#endif

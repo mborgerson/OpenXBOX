@@ -1,5 +1,4 @@
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#pragma once
 
 #include "cpu.h"
 #include "memmgr.h"
@@ -47,5 +46,3 @@ public:
 	bool ChooseNextThread();
 	void SaveCPUContext();
 };
-
-#endif

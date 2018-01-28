@@ -1,5 +1,4 @@
-#ifndef CPU_H
-#define CPU_H
+#pragma once
 
 #include <stdint.h>
 #include <string.h>
@@ -169,5 +168,3 @@ public:
     FastcallHelper(Cpu *cpu);
 	void GetArgument(void *val, size_t size);
 };
-
-#endif

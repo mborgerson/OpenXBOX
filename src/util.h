@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #include <stdint.h>
 #include <SDL.h>
@@ -8,5 +7,3 @@
 #define MiB(x) (x * KiB(1024))
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
-
-#endif

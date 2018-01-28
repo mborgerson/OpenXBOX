@@ -1,5 +1,4 @@
-#ifndef MEM_H
-#define MEM_H
+#pragma once
 
 #include <stdint.h>
 #include <string.h>
@@ -73,5 +72,3 @@ public:
     void SetEventHandler(MemoryRegionEventHandler handler, void *user_data);
     int AddSubRegion(MemoryRegion *region);
 };
-
-#endif

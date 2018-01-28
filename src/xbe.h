@@ -31,8 +31,7 @@
 // *  All rights reserved
 // *
 // ******************************************************************
-#ifndef XBE_H
-#define XBE_H
+#pragma once
 
 #include <stdint.h>
 #include <stdio.h>
@@ -377,5 +376,3 @@ const uint32 XBEIMAGE_MEDIA_TYPE_MEDIA_MASK          = 0x00FFFFFF;
 // OpenXDK logo bitmap (used by cxbe by default)
 extern uint08 OpenXDK[];
 extern uint32 dwSizeOfOpenXDK;
-
-#endif
