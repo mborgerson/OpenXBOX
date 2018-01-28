@@ -32,7 +32,7 @@ int main(int argc, const char *argv[])
     const char *xbe_path;
     const char *usage = "usage: %s <xbe>\n";
 
-    if (argc != 2) {
+    if (argc < 2) {
         printf(usage, basename((char*)argv[0]));
         return 1;
     }
