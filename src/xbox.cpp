@@ -192,8 +192,8 @@ int Xbox::InitializeGDT() {
 	XboxTypes::KPCR *pKPCR = _ADDR_TO_PTR(KPCR, kpcrAddr);
 	memset(pKPCR, 0, sizeof(XboxTypes::KPCR));
 	pKPCR->SelfPcr = kpcrAddr;
-	pKPCR->Prcb = _PTR_TO_VAL(KPCR, &pKPCR->PrcbData);
-	pKPCR->NtTib.Self = _PTR_TO_VAL(NT_TIB, &pKPCR->NtTib);
+	pKPCR->Prcb = _PTR_TO_ADDR(KPCR, &pKPCR->PrcbData);
+	pKPCR->NtTib.Self = _PTR_TO_ADDR(NT_TIB, &pKPCR->NtTib);
 	pKPCR->NtTib.ExceptionList = EXCEPTION_CHAIN_END;
 	XboxTypes::KPRCB *pKPRCB = &pKPCR->PrcbData;
 	InitializeListHead(&pKPRCB->DpcListHead);

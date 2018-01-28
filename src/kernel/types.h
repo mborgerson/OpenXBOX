@@ -59,18 +59,35 @@ extern "C"
 
 typedef uint32_t DWORD;
 
+// The _ADDR_TO_PTR and _PTR_TO_ADDR macros convert pointers between host and
+// guest memory. They facilitate manipulation of emulated data structures while
+// avoiding extraneous copying.
+
+// Guest pointers are addresses into Xbox RAM.
+// Host pointers are pointers into the m_ram array.
+
+// Pointers into m_ram can be used by the emulator to directly manipulate data
+// in the Xbox RAM.
+
+// _ADDR_TO_PTR translates a guest pointer into a host pointer.
+// _PTR_TO_ADDR does the opposite.
+
+// Care must be taken to not write pointers to host memory into the RAM or
+// dereference Xbox pointers so as to not crash the guest or host respectively.
+
+// It's probably a good idea to use dumb pointers because it makes dereferencing
+// Xbox pointers or assigning host pointers to guest data a compilation error.
+// Moreover, host pointers on 64-bit builds are 8 bytes long while Xbox, being
+// a 32-bit machine, uses 4 byte wide pointers.
+
 #if DUMB_POINTERS
 #   define DEF_POINTER_TYPE(TYPE, PTYPE) typedef DWORD PTYPE
-#   define _WR_PTR(type, expr) ((XboxTypes::type *)(expr))
-#   define _RD_PTR(type, expr) ((XboxTypes::type *)((char *)(expr) + m_ram))
 #   define _ADDR_TO_PTR(type, expr) ((XboxTypes::type *)((expr) + m_ram))
-#   define _PTR_TO_VAL(type, expr) ((XboxTypes::P##type)((char *)(expr) - m_ram))
+#   define _PTR_TO_ADDR(type, expr) ((XboxTypes::P##type)((char *)(expr) - m_ram))
 #else
 #   define DEF_POINTER_TYPE(TYPE, PTYPE) typedef TYPE *PTYPE
-#   define _WR_PTR(type, expr) (expr)
-#   define _RD_PTR(type, expr) ((char *)((expr) + m_ram))
 #   define _ADDR_TO_PTR(type, expr) ((char *)((expr) + m_ram))
-#   define _PTR_TO_VAL(type, expr) ((char *)((expr) - m_ram))
+#   define _PTR_TO_ADDR(type, expr) ((char *)((expr) - m_ram))
 #endif
 #define _ADDR_TO_PTR_VAR(type, name) XboxTypes::type *p##name = _ADDR_TO_PTR(type, name);
 
@@ -254,59 +271,59 @@ typedef struct _LIST_ENTRY
 */
 
 #define InitializeListHead(ListHead) \
-	{_WR_PTR(LIST_ENTRY, (ListHead))->Flink = _PTR_TO_VAL(LIST_ENTRY, (ListHead));\
-	 _WR_PTR(LIST_ENTRY, (ListHead))->Blink = _PTR_TO_VAL(LIST_ENTRY, (ListHead));}
+	{(ListHead)->Flink = _PTR_TO_ADDR(LIST_ENTRY, (ListHead));\
+	 (ListHead)->Blink = _PTR_TO_ADDR(LIST_ENTRY, (ListHead));}
 
-#define IsListEmpty(ListHead) (_WR_PTR(LIST_ENTRY, (ListHead))->Flink == _PTR_TO_VAL(LIST_ENTRY, (ListHead)))
+#define IsListEmpty(ListHead) ((ListHead)->Flink == _PTR_TO_ADDR(LIST_ENTRY, (ListHead)))
 
-#define RemoveHeadList(ListHead) _RD_PTR(LIST_ENTRY, (ListHead))->Flink;{RemoveEntryList((ListHead)->Flink)}
+#define RemoveHeadList(ListHead) (ListHead)->Flink;{RemoveEntryList((ListHead)->Flink)}
 
-#define RemoveTailList(ListHead) _RD_PTR(LIST_ENTRY, (ListHead))->Blink;{RemoveEntryList((ListHead)->Blink)}
+#define RemoveTailList(ListHead) (ListHead)->Blink;{RemoveEntryList((ListHead)->Blink)}
 
 #define RemoveEntryList(Entry) {\
     XboxTypes::PLIST_ENTRY _EX_Blink;\
     XboxTypes::PLIST_ENTRY _EX_Flink;\
-    _EX_Flink = _RD_PTR(LIST_ENTRY, (Entry))->Flink;\
-    _EX_Blink = _RD_PTR(LIST_ENTRY, (Entry))->Blink;\
-    _WR_PTR(LIST_ENTRY, _EX_Blink)->Flink = _EX_Flink;\
-    _WR_PTR(LIST_ENTRY, _EX_Flink)->Blink = _EX_Blink;\
+    _EX_Flink = _ADDR_TO_PTR(LIST_ENTRY, (Entry))->Flink;\
+    _EX_Blink = _ADDR_TO_PTR(LIST_ENTRY, (Entry))->Blink;\
+    _ADDR_TO_PTR(LIST_ENTRY, _EX_Blink)->Flink = _EX_Flink;\
+    _ADDR_TO_PTR(LIST_ENTRY, _EX_Flink)->Blink = _EX_Blink;\
 }
 
 #define InsertTailList(ListHead, Entry) {\
     XboxTypes::PLIST_ENTRY _EX_Blink;\
     XboxTypes::PLIST_ENTRY _EX_ListHead;\
-    _EX_ListHead = _PTR_TO_VAL(LIST_ENTRY, (ListHead));\
-    _EX_Blink = _RD_PTR(LIST_ENTRY, _EX_ListHead)->Blink;\
-    _WR_PTR(LIST_ENTRY, (Entry))->Flink = _EX_ListHead;\
-    _WR_PTR(LIST_ENTRY, (Entry))->Blink = _EX_Blink;\
-    _WR_PTR(LIST_ENTRY, _EX_Blink)->Flink = _PTR_TO_VAL(LIST_ENTRY, (Entry));\
-    _WR_PTR(LIST_ENTRY, _EX_ListHead)->Blink = _PTR_TO_VAL(LIST_ENTRY, (Entry));\
+    _EX_ListHead = _PTR_TO_ADDR(LIST_ENTRY, (ListHead));\
+    _EX_Blink = _ADDR_TO_PTR(LIST_ENTRY, _EX_ListHead)->Blink;\
+    (Entry)->Flink = _EX_ListHead;\
+    (Entry)->Blink = _EX_Blink;\
+    _ADDR_TO_PTR(LIST_ENTRY, _EX_Blink)->Flink = _PTR_TO_ADDR(LIST_ENTRY, (Entry));\
+    _ADDR_TO_PTR(LIST_ENTRY, _EX_ListHead)->Blink = _PTR_TO_ADDR(LIST_ENTRY, (Entry));\
 }
 
 #define InsertHeadList(ListHead, Entry) {\
     XboxTypes::PLIST_ENTRY _EX_Flink;\
     XboxTypes::PLIST_ENTRY _EX_ListHead;\
-    _EX_ListHead = _PTR_TO_VAL(LIST_ENTRY, (ListHead));\
-    _EX_Flink = _RD_PTR(LIST_ENTRY, _EX_ListHead)->Flink;\
-    _WR_PTR(LIST_ENTRY, (Entry))->Flink = _EX_Flink;\
-    _WR_PTR(LIST_ENTRY, (Entry))->Blink = _EX_ListHead;\
-    _WR_PTR(LIST_ENTRY, _EX_Flink)->Blink = _PTR_TO_VAL(LIST_ENTRY, (Entry));\
-    _WR_PTR(LIST_ENTRY, _EX_ListHead)->Flink = _PTR_TO_VAL(LIST_ENTRY, (Entry));\
+    _EX_ListHead = _PTR_TO_ADDR(LIST_ENTRY, (ListHead));\
+    _EX_Flink = _ADDR_TO_PTR(LIST_ENTRY, _EX_ListHead)->Flink;\
+    (Entry)->Flink = _EX_Flink;\
+    (Entry)->Blink = _EX_ListHead;\
+    _ADDR_TO_PTR(LIST_ENTRY, _EX_Flink)->Blink = _PTR_TO_ADDR(LIST_ENTRY, (Entry));\
+    _ADDR_TO_PTR(LIST_ENTRY, _EX_ListHead)->Flink = _PTR_TO_ADDR(LIST_ENTRY, (Entry));\
 }
 
 #define PopEntryList(ListHead) \
     (ListHead)->Next;\
     {\
         XboxTypes::PSINGLE_LIST_ENTRY FirstEntry;\
-        FirstEntry = _RD_PTR(SINGLE_LIST_ENTRY, (ListHead))->Next;\
+        FirstEntry = (ListHead)->Next;\
         if (FirstEntry != NULL) {\
-            _WR_PTR(SINGLE_LIST_ENTRY, (ListHead))->Next = _RD_PTR(SINGLE_LIST_ENTRY, FirstEntry)->Next;\
+            (ListHead)->Next = _ADDR_TO_PTR(SINGLE_LIST_ENTRY, FirstEntry)->Next;\
         }\
     }
 
 #define PushEntryList(ListHead, Entry) \
-    _WR_PTR(SINGLE_LIST_ENTRY, (Entry))->Next = _RD_PTR(SINGLE_LIST_ENTRY, (ListHead))->Next; \
-    _WR_PTR(SINGLE_LIST_ENTRY, (ListHead))->Next = _PTR_TO_VAL(SINGLE_LIST_ENTRY, (Entry));
+    (Entry)->Next = (ListHead)->Next; \
+    (ListHead)->Next = _PTR_TO_ADDR(SINGLE_LIST_ENTRY, (Entry));
 
 
 /**
@@ -971,7 +988,7 @@ DEF_POINTER_TYPE(OBJECT_ATTRIBUTES, POBJECT_ATTRIBUTES);
 #define InitializeObjectAttributes(p, n, a, r, s) { \
     (p)->RootDirectory = r; \
     (p)->Attributes = a; \
-    (p)->ObjectName = _PTR_TO_VAL(ANSI_STRING, n); \
+    (p)->ObjectName = _PTR_TO_ADDR(ANSI_STRING, n); \
 }
 
 typedef enum _EVENT_TYPE
