@@ -1022,6 +1022,19 @@ typedef struct _DISPATCHER_HEADER
 	LIST_ENTRY WaitListHead;
 } DISPATCHER_HEADER;
 
+typedef enum _KOBJECTS {
+	MutantObject                = 0x02,
+	QueueObject                 = 0x04,
+	SemaphoreObject             = 0x05,
+	TimerNotificationObject     = 0x08,
+	TimerSynchronizationObject  = 0x09,
+	ApcObject                   = 0x12,
+	DpcObject                   = 0x13,
+	DeviceQueueObject           = 0x14,
+} KOBJECTS;
+
+DEF_POINTER_TYPE(KOBJECTS, PKOBJECTS);
+
 typedef struct _KDPC
 {
 	CSHORT Type;
