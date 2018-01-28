@@ -114,7 +114,6 @@ bool MemoryManager::FreeContiguous(uint32_t baseAddress) {
 		for (uint32_t page = block->BasePage(); page <= block->LastPage(); page++) {
 			m_allocatedPages[page] = false;
 		}
-		delete block;
 		return true;
 	}
 	return false;

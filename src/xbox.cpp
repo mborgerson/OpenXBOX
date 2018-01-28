@@ -346,7 +346,6 @@ Thread *Xbox::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
 	}
 	log_debug("...stack allocated at 0x%08x\n", threadStack->BaseAddress());
 	return new Thread(entryAddress, threadStack);
-
 }
 
 /*!
@@ -417,7 +416,11 @@ int Xbox::Run()
         m_video->FixmeUnlock();
         t.Stop();
         log_debug("CPU Executed for %lld ms\n", t.GetMillisecondsElapsed());
-        if (result != 0) {
+		if (result == SCHEDULER_EXIT_NOTHREADS) {
+			log_debug("Scheduler no longer has threads to execute\n");
+			break;
+		}
+		else if (result != 0) {
             log_error("Error occured\n");
             break;
         }
@@ -442,7 +445,10 @@ int Xbox::Run()
             HandleKernelEntry(); // Did we stop to enter a Kernel function?
         }
 
-        // t.Start();
+		// Let the scheduler save the CPU context
+		m_sched->SaveCPUContext();
+		
+		// t.Start();
         // m_video->Update();
         // t.Stop();
         // log_debug("Video update took %lld ms\n", t.GetMillisecondsElapsed());
