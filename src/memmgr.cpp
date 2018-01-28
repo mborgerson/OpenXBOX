@@ -105,7 +105,6 @@ ContiguousMemoryBlock *MemoryManager::Reserve(uint32_t baseAddress, uint32_t siz
 }
 
 bool MemoryManager::FreeContiguous(uint32_t baseAddress) {
-	// TODO: what if the address is unaligned?
 	uint32_t page = BYTES_TO_PAGES(baseAddress);
 	if (m_pageToBlock.count(page)) {
 		ContiguousMemoryBlock *block = m_pageToBlock[page];
@@ -120,10 +119,9 @@ bool MemoryManager::FreeContiguous(uint32_t baseAddress) {
 }
 
 uint32_t MemoryManager::QueryAllocationSize(uint32_t baseAddress) {
-	// TODO: what if the address is unaligned?
 	uint32_t page = BYTES_TO_PAGES(baseAddress);
 	if (m_pageToBlock.count(page)) {
-		return m_pageToBlock[page]->Size();
+		return m_pageToBlock[page]->NumPages() << PAGE_SHIFT;
 	}
 	return 0;
 }
@@ -134,7 +132,7 @@ void MemoryManager::SetProtect(uint32_t baseAddress, uint32_t size, uint32_t pro
 
 uint32_t MemoryManager::QueryProtect(uint32_t address) {
 	// TODO: implement
-	return 0;
+	return PAGE_READWRITE;
 }
 
 void MemoryManager::SetPersist(uint32_t baseAddress, uint32_t size, bool persist) {
