@@ -11,16 +11,20 @@
 
 #pragma once
 
-/* stop clang from crying */
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wlanguage-extension-token"
+#ifdef __clang__
+	/* stop clang from crying */
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wlanguage-extension-token"
+#endif
 
-/* MSVC-compatibility for structure-packing */
-#pragma ms_struct on
+#ifdef __GNUC_
+	/* MSVC-compatibility for structure-packing */
+	#pragma ms_struct on
+#endif
 
 #ifdef _WIN32
 #  define ATTRIBUTE_PACKED
-#  undef VOID
+#  include "kernel/undef_win.h"
 #else
 #  define ATTRIBUTE_PACKED __attribute__((packed))
 #endif
@@ -31,20 +35,22 @@ extern "C"
 {
 #endif
 
-#define IN
-#define OUT
-#define UNALIGNED
-#define OPTIONAL
-// #define XBAPI __declspec(dllimport)
-#define XBAPI 
-#define NTAPI __attribute__((annotate("stdcall")))
-// #define NTAPI __attribute__((__stdcall__))
-#define CDECL __attribute__((annotate("cdecl")))
-// #define CDECL __attribute__((__cdecl__))
-#define FASTCALL __attribute__((annotate("fastcall")))
-// #define FASTCALL __attribute__((fastcall))
-#define DECLSPEC_NORETURN __attribute__((noreturn))
-#define RESTRICTED_POINTER __restrict__
+#ifndef _WIN32
+	#define IN
+	#define OUT
+	#define UNALIGNED
+	#define OPTIONAL
+	// #define XBAPI __declspec(dllimport)
+	#define XBAPI 
+	#define NTAPI __attribute__((annotate("stdcall")))
+	// #define NTAPI __attribute__((__stdcall__))
+	#define CDECL __attribute__((annotate("cdecl")))
+	// #define CDECL __attribute__((__cdecl__))
+	#define FASTCALL __attribute__((annotate("fastcall")))
+	// #define FASTCALL __attribute__((fastcall))
+	#define DECLSPEC_NORETURN __attribute__((noreturn))
+	#define RESTRICTED_POINTER __restrict__
+#endif
 
 #ifndef NULL
     #define NULL ((PVOID)0)
@@ -2433,6 +2439,11 @@ typedef VOID (* NTAPI PKSYSTEM_ROUTINE) (
 } // namespace
 #endif
 
-#pragma ms_struct reset
 
-#pragma clang diagnostic pop
+#ifdef __GNUC_
+	#pragma ms_struct reset
+#endif
+
+#ifdef __clang__
+	#pragma clang diagnostic pop
+#endif

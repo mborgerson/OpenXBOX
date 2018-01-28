@@ -460,7 +460,7 @@ static void pgraph_method(NV2AState *d,
                           unsigned int method,
                           uint32_t parameter)
 {
-    int i;
+    unsigned int i;
     GraphicsSubchannel *subchannel_data;
     GraphicsObject *object;
 
@@ -584,7 +584,7 @@ static void pgraph_method(NV2AState *d,
 				NV2A_DPRINTF("  - 0x%tx -> 0x%tx\n", source - d->vram_ptr,
 					dest - d->vram_ptr);
 
-				int y;
+				unsigned int y;
 				for (y = 0; y < image_blit->height; y++) {
 					uint8_t *source_row = source
 						+ (image_blit->in_y + y) * context_surfaces->source_pitch
@@ -1794,7 +1794,7 @@ static void pgraph_method(NV2AState *d,
 				/* FIXME: Put these in some lookup table */
 				const float f16_max = 511.9375f;
 				/* FIXME: 7 bits of mantissa unused. maybe use full buffer? */
-				const float f24_max = 3.4027977E38;
+				const float f24_max = 3.4027977E38f;
 
 				switch(pg->surface_shape.zeta_format) {
 				case NV097_SET_SURFACE_FORMAT_ZETA_Z16: {
@@ -2382,13 +2382,13 @@ static void pgraph_method(NV2AState *d,
 				VertexAttribute *attribute = &pg->vertex_attributes[slot];
 				pgraph_allocate_inline_buffer_vertices(pg, slot);
 				/* FIXME: Is mapping to [-1,+1] correct? */
-				attribute->inline_value[0] = ((int16_t)(parameter & 0xFFFF) * 2.0 + 1)
-					/ 65535.0;
-				attribute->inline_value[1] = ((int16_t)(parameter >> 16) * 2.0 + 1)
-					/ 65535.0;
+				attribute->inline_value[0] = ((int16_t)(parameter & 0xFFFF) * 2.0f + 1)
+					/ 65535.0f;
+				attribute->inline_value[1] = ((int16_t)(parameter >> 16) * 2.0f + 1)
+					/ 65535.0f;
 				/* FIXME: Should these really be set to 0.0 and 1.0 ? Conditions? */
-				attribute->inline_value[2] = 0.0;
-				attribute->inline_value[3] = 1.0;
+				attribute->inline_value[2] = 0.0f;
+				attribute->inline_value[3] = 1.0f;
 				if (slot == 0) {
 					pgraph_finish_inline_buffer_vertex(pg);
 					assert(false); /* FIXME: Untested */
@@ -2398,10 +2398,10 @@ static void pgraph_method(NV2AState *d,
 				slot = (method - NV097_SET_VERTEX_DATA4UB) / 4;
 				VertexAttribute *attribute = &pg->vertex_attributes[slot];
 				pgraph_allocate_inline_buffer_vertices(pg, slot);
-				attribute->inline_value[0] = (parameter & 0xFF) / 255.0;
-				attribute->inline_value[1] = ((parameter >> 8) & 0xFF) / 255.0;
-				attribute->inline_value[2] = ((parameter >> 16) & 0xFF) / 255.0;
-				attribute->inline_value[3] = ((parameter >> 24) & 0xFF) / 255.0;
+				attribute->inline_value[0] = (parameter & 0xFF) / 255.0f;
+				attribute->inline_value[1] = ((parameter >> 8) & 0xFF) / 255.0f;
+				attribute->inline_value[2] = ((parameter >> 16) & 0xFF) / 255.0f;
+				attribute->inline_value[3] = ((parameter >> 24) & 0xFF) / 255.0f;
 				if (slot == 0) {
 					pgraph_finish_inline_buffer_vertex(pg);
 					assert(false); /* FIXME: Untested */
@@ -2416,9 +2416,9 @@ static void pgraph_method(NV2AState *d,
 				pgraph_allocate_inline_buffer_vertices(pg, slot);
 				/* FIXME: Is mapping to [-1,+1] correct? */
 				attribute->inline_value[part * 2 + 0] = ((int16_t)(parameter & 0xFFFF)
-					* 2.0 + 1) / 65535.0;
+					* 2.0f + 1) / 65535.0f;
 				attribute->inline_value[part * 2 + 1] = ((int16_t)(parameter >> 16)
-					* 2.0 + 1) / 65535.0;
+					* 2.0f + 1) / 65535.0f;
 				if ((slot == 0) && (part == 1)) {
 					pgraph_finish_inline_buffer_vertex(pg);
 					assert(false); /* FIXME: Untested */
@@ -2522,7 +2522,7 @@ static void pgraph_method_log(unsigned int subchannel,
 static void pgraph_allocate_inline_buffer_vertices(PGRAPHState *pg,
                                                    unsigned int attr)
 {
-    int i;
+    unsigned int i;
     VertexAttribute *attribute = &pg->vertex_attributes[attr];
 
     if (attribute->inline_buffer || pg->inline_buffer_length == 0) {
@@ -2541,7 +2541,7 @@ static void pgraph_allocate_inline_buffer_vertices(PGRAPHState *pg,
 
 static void pgraph_finish_inline_buffer_vertex(PGRAPHState *pg)
 {
-    int i;
+	unsigned int i;
 
     assert(pg->inline_buffer_length < NV2A_MAX_BATCH_LENGTH);
 
@@ -2707,7 +2707,7 @@ static void pgraph_shader_update_constants(PGRAPHState *pg,
     }
     if (binding->alpha_ref_loc != -1) {
         float alpha_ref = GET_MASK(pg->regs[NV_PGRAPH_CONTROL_0],
-                                   NV_PGRAPH_CONTROL_0_ALPHAREF) / 255.0;
+                                   NV_PGRAPH_CONTROL_0_ALPHAREF) / 255.0f;
         glUniform1f(binding->alpha_ref_loc, alpha_ref);
     }
 
@@ -2740,10 +2740,10 @@ static void pgraph_shader_update_constants(PGRAPHState *pg,
     if (binding->fog_color_loc != -1) {
         uint32_t fog_color = pg->regs[NV_PGRAPH_FOGCOLOR];
         glUniform4f(binding->fog_color_loc,
-                    GET_MASK(fog_color, NV_PGRAPH_FOGCOLOR_RED) / 255.0,
-                    GET_MASK(fog_color, NV_PGRAPH_FOGCOLOR_GREEN) / 255.0,
-                    GET_MASK(fog_color, NV_PGRAPH_FOGCOLOR_BLUE) / 255.0,
-                    GET_MASK(fog_color, NV_PGRAPH_FOGCOLOR_ALPHA) / 255.0);
+                    GET_MASK(fog_color, NV_PGRAPH_FOGCOLOR_RED) / 255.0f,
+                    GET_MASK(fog_color, NV_PGRAPH_FOGCOLOR_GREEN) / 255.0f,
+                    GET_MASK(fog_color, NV_PGRAPH_FOGCOLOR_BLUE) / 255.0f,
+                    GET_MASK(fog_color, NV_PGRAPH_FOGCOLOR_ALPHA) / 255.0f);
     }
     if (binding->fog_param_loc[0] != -1) {
         glUniform1f(binding->fog_param_loc[0],
@@ -2810,22 +2810,22 @@ static void pgraph_shader_update_constants(PGRAPHState *pg,
 
         /* estimate the viewport by assuming it matches the surface ... */
         //FIXME: Get surface dimensions?
-        float m11 = 0.5 * pg->surface_shape.clip_width;
-        float m22 = -0.5 * pg->surface_shape.clip_height;
+        float m11 = 0.5f * pg->surface_shape.clip_width;
+        float m22 = -0.5f * pg->surface_shape.clip_height;
         float m33 = zclip_max - zclip_min;
         //float m41 = m11;
         //float m42 = -m22;
         float m43 = zclip_min;
-        //float m44 = 1.0;
+        //float m44 = 1.0f;
 
-        if (m33 == 0.0) {
-            m33 = 1.0;
+        if (m33 == 0.0f) {
+            m33 = 1.0f;
         }
         float invViewport[16] = {
-            1.0/m11, 0, 0, 0,
-            0, 1.0/m22, 0, 0,
-            0, 0, 1.0/m33, 0,
-            -1.0, 1.0, -m43/m33, 1.0
+             1.0f/m11, 0.0f,     0.0f,     0.0f,
+             0.0f,     1.0f/m22, 0.0f,     0.0f,
+             0.0f,     0.0f,     1.0f/m33, 0.0f,
+            -1.0f,     1.0f,     -m43/m33, 1.0f
         };
 
         if (binding->inv_viewport_loc != -1) {
@@ -2860,7 +2860,7 @@ static void pgraph_shader_update_constants(PGRAPHState *pg,
 
 static void pgraph_bind_shaders(PGRAPHState *pg)
 {
-    int i, j;
+	unsigned int i, j;
 
     bool vertex_program = GET_MASK(pg->regs[NV_PGRAPH_CSV0_D],
                                    NV_PGRAPH_CSV0_D_MODE) == 2;
@@ -3570,7 +3570,7 @@ static void pgraph_bind_textures(NV2AState *d)
         } else {
             if (dimensionality >= 2) {
                 unsigned int w = width, h = height;
-                int level;
+                unsigned int level;
                 if (f.gl_format != 0) {
                     for (level = 0; level < levels; level++) {
                         w = MAX(w, 1); h = MAX(h, 1);
@@ -3987,7 +3987,7 @@ static uint8_t* convert_texture_data(const TextureShape s,
     if (s.color_format == NV097_SET_TEXTURE_FORMAT_COLOR_SZ_I8_A8R8G8B8) {
         assert(depth == 1); /* FIXME */
         uint8_t* converted_data = (uint8_t*)g_malloc(width * height * 4);
-        int x, y;
+		unsigned int x, y;
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
                 uint8_t index = data[y * row_pitch + x];
@@ -4000,7 +4000,7 @@ static uint8_t* convert_texture_data(const TextureShape s,
                    == NV097_SET_TEXTURE_FORMAT_COLOR_LC_IMAGE_CR8YB8CB8YA8) {
         assert(depth == 1); /* FIXME */
         uint8_t* converted_data = (uint8_t*)g_malloc(width * height * 4);
-        int x, y;
+		unsigned int x, y;
         for (y = 0; y < height; y++) {
             const uint8_t* line = &data[y * s.width * 2];
             for (x = 0; x < width; x++) {

@@ -166,7 +166,7 @@ int GdbServer::Shutdown()
  */
 int GdbServer::WaitForConnection()
 {
-    int status;
+    SOCKET_T status;
     int val;
 
     /* Wait for an incoming connection */

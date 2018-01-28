@@ -96,7 +96,7 @@ void swizzle_box(
     uint32_t mask_x, mask_y, mask_z;
     generate_swizzle_masks(width, height, depth, &mask_x, &mask_y, &mask_z);
 
-    int x, y, z;
+	unsigned int x, y, z;
     for (z = 0; z < depth; z++) {
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
@@ -125,7 +125,7 @@ void unswizzle_box(
     uint32_t mask_x, mask_y, mask_z;
     generate_swizzle_masks(width, height, depth, &mask_x, &mask_y, &mask_z);
 
-    int x, y, z;
+	unsigned int x, y, z;
     for (z = 0; z < depth; z++) {
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
