@@ -10,7 +10,6 @@
  */
 
 #pragma once
-#define DUMB_POINTERS 1
 
 /* stop clang from crying */
 #pragma clang diagnostic push
@@ -75,20 +74,14 @@ typedef uint32_t DWORD;
 // Care must be taken to not write pointers to host memory into the RAM or
 // dereference Xbox pointers so as to not crash the guest or host respectively.
 
-// It's probably a good idea to use dumb pointers because it makes dereferencing
+// OpenXBOX uses dumb pointers on Xbox structs because it makes dereferencing
 // Xbox pointers or assigning host pointers to guest data a compilation error.
 // Moreover, host pointers on 64-bit builds are 8 bytes long while Xbox, being
 // a 32-bit machine, uses 4 byte wide pointers.
 
-#if DUMB_POINTERS
-#   define DEF_POINTER_TYPE(TYPE, PTYPE) typedef DWORD PTYPE
-#   define _ADDR_TO_PTR(type, expr) ((XboxTypes::type *)((expr) + m_ram))
-#   define _PTR_TO_ADDR(type, expr) ((XboxTypes::P##type)((char *)(expr) - m_ram))
-#else
-#   define DEF_POINTER_TYPE(TYPE, PTYPE) typedef TYPE *PTYPE
-#   define _ADDR_TO_PTR(type, expr) ((char *)((expr) + m_ram))
-#   define _PTR_TO_ADDR(type, expr) ((char *)((expr) - m_ram))
-#endif
+#define DEF_POINTER_TYPE(TYPE, PTYPE) typedef DWORD PTYPE
+#define _ADDR_TO_PTR(type, expr) ((XboxTypes::type *)((expr) + m_ram))
+#define _PTR_TO_ADDR(type, expr) ((XboxTypes::P##type)((char *)(expr) - m_ram))
 #define _ADDR_TO_PTR_VAR(type, name) XboxTypes::type *p##name = _ADDR_TO_PTR(type, name);
 
 #define CONST const
@@ -1284,16 +1277,15 @@ typedef struct _OBJECT_TYPE
 } OBJECT_TYPE;
 DEF_POINTER_TYPE(OBJECT_TYPE, POBJECT_TYPE);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PKDEFERRED_ROUTINE);
-#else
+/*
 typedef NTAPI VOID (*PKDEFERRED_ROUTINE) (
     IN PKDPC Dpc,
     IN PVOID DeferredContext,
     IN PVOID SystemArgument1,
     IN PVOID SystemArgument2
 );
-#endif
+*/
 
 typedef struct _KDEVICE_QUEUE
 {
@@ -1305,13 +1297,12 @@ typedef struct _KDEVICE_QUEUE
 
 DEF_POINTER_TYPE(KDEVICE_QUEUE, PKDEVICE_QUEUE);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PKSTART_ROUTINE);
-#else
+/*
 typedef VOID (*PKSTART_ROUTINE) (
     IN PVOID StartContext
 );
-#endif
+*/
 
 typedef union _FILE_SEGMENT_ELEMENT
 {
@@ -1321,15 +1312,14 @@ typedef union _FILE_SEGMENT_ELEMENT
 
 DEF_POINTER_TYPE(FILE_SEGMENT_ELEMENT, PFILE_SEGMENT_ELEMENT);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PIO_APC_ROUTINE);
-#else
+/*
 typedef VOID (*PIO_APC_ROUTINE) (
     IN PVOID ApcContext,
     IN PIO_STATUS_BLOCK IoStatusBlock,
     IN ULONG Reserved
 );
-#endif
+*/
 
 typedef struct _SEMAPHORE_BASIC_INFORMATION
 {
@@ -1392,15 +1382,14 @@ typedef struct _ETHREAD
 } ETHREAD;
 DEF_POINTER_TYPE(ETHREAD, PETHREAD);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PCREATE_THREAD_NOTIFY_ROUTINE);
-#else
+/*
 typedef VOID (*PCREATE_THREAD_NOTIFY_ROUTINE) (
     IN PETHREAD Thread,
     IN HANDLE ThreadId,
     IN BOOLEAN Create
 );
-#endif
+*/
 
 /**
  * Enumeration type for indicating whether an interrupt is level- or
@@ -1412,14 +1401,13 @@ typedef enum _KINTERRUPT_MODE
     Latched /**< Interrupt is edge-triggered. Used for PCI message-signaled interrupts */
 } KINTERRUPT_MODE;
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PKSERVICE_ROUTINE);
-#else
+/*
 typedef BOOLEAN (* NTAPI PKSERVICE_ROUTINE) (
     IN PKINTERRUPT Interrupt,
     IN PVOID ServiceContext
 );
-#endif
+*/
 
 typedef struct _TIMER_BASIC_INFORMATION
 {
@@ -1429,15 +1417,14 @@ typedef struct _TIMER_BASIC_INFORMATION
 
 DEF_POINTER_TYPE(TIMER_BASIC_INFORMATION, PTIMER_BASIC_INFORMATION);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PTIMER_APC_ROUTINE);
-#else
+/*
 typedef VOID (*PTIMER_APC_ROUTINE) (
     IN PVOID TimerContext,
     IN ULONG TimerLowValue,
     IN LONG TimerHighValue
 );
-#endif
+*/
 
 typedef struct _XBOX_KRNL_VERSION
 {
@@ -1643,39 +1630,35 @@ DEF_POINTER_TYPE(IRP, PIRP);
 
 struct _DEVICE_OBJECT;
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PDRIVER_STARTIO);
-#else
+/*
 typedef VOID (*PDRIVER_STARTIO) (
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP *Irp
 );
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PDRIVER_DELETEDEVICE);
-#else
+/*
 typedef VOID (*PDRIVER_DELETEDEVICE) (
     IN PDEVICE_OBJECT DeviceObject
 );
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PDRIVER_DISMOUNTVOLUME);
-#else
+/*
 typedef NTSTATUS (*PDRIVER_DISMOUNTVOLUME) (
     IN PDEVICE_OBJECT DeviceObject
 );
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PDRIVER_DISPATCH);
-#else
+/*
 typedef NTSTATUS (*PDRIVER_DISPATCH) (
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP Irp
 );
-#endif
+*/
 
 typedef struct _DRIVER_OBJECT
 {
@@ -1837,16 +1820,15 @@ typedef struct _HARDWARE_PTE
 
 DEF_POINTER_TYPE(HARDWARE_PTE, PHARDWARE_PTE);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PEXCEPTION_ROUTINE);
-#else
+/*
 typedef EXCEPTION_DISPOSITION(*PEXCEPTION_ROUTINE) (
 	PEXCEPTION_RECORD ExceptionRecord,
 	PVOID EstablisherFrame,
 	PCONTEXT ContextRecord,
 	PVOID DispatcherContext
 	);
-#endif
+*/
 
 struct _EXCEPTION_REGISTRATION_RECORD;
 
@@ -1859,15 +1841,14 @@ typedef struct _EXCEPTION_REGISTRATION_RECORD {
 
 #define EXCEPTION_CHAIN_END (-1)
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PPS_APC_ROUTINE);
-#else
+/*
 typedef VOID (*PPS_APC_ROUTINE) (
     IN PVOID ApcArgument1,
     IN PVOID ApcArgument2,
     IN PVOID ApcArgument3
 );
-#endif
+*/
 
 typedef enum _KWAIT_REASON
 {
@@ -1925,35 +1906,31 @@ typedef struct _SHARE_ACCESS
 
 DEF_POINTER_TYPE(SHARE_ACCESS, PSHARE_ACCESS);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PKSYNCHRONIZE_ROUTINE);
-#else
+/*
 typedef BOOLEAN (*PKSYNCHRONIZE_ROUTINE) (
     IN PVOID SynchronizeContext
 );
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PKRUNDOWN_ROUTINE);
-#else
+/*
 typedef VOID (*PKRUNDOWN_ROUTINE) (
     IN PKAPC Apc
 );
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PKNORMAL_ROUTINE);
-#else
+/*
 typedef VOID (*PKNORMAL_ROUTINE) (
     IN PVOID NormalContext,
     IN PVOID SystemArgument1,
     IN PVOID SystemArgument2
 );
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PKKERNEL_ROUTINE);
-#else
+/*
 typedef VOID (*PKKERNEL_ROUTINE) (
     IN PKAPC Apc,
     IN OUT PKNORMAL_ROUTINE *NormalRoutine,
@@ -1961,7 +1938,7 @@ typedef VOID (*PKKERNEL_ROUTINE) (
     IN OUT PPVOID SystemArgument1,
     IN OUT PPVOID SystemArgument2
 );
-#endif
+*/
 
 typedef struct _KPRCB {
 	PKTHREAD CurrentThread;
@@ -2018,13 +1995,12 @@ typedef struct _KPCR {
 
 struct _HAL_SHUTDOWN_REGISTRATION;
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PHAL_SHUTDOWN_NOTIFICATION);
-#else
+/*
 typedef VOID (*PHAL_SHUTDOWN_NOTIFICATION) (
     IN struct _HAL_SHUTDOWN_REGISTRATION *ShutdownRegistration
 );
-#endif
+*/
 
 typedef struct _HAL_SHUTDOWN_REGISTRATION
 {
@@ -2035,101 +2011,85 @@ typedef struct _HAL_SHUTDOWN_REGISTRATION
 
 DEF_POINTER_TYPE(HAL_SHUTDOWN_REGISTRATION, PHAL_SHUTDOWN_REGISTRATION);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcSHAInit);
-#else
+/*
 typedef VOID (*pfXcSHAInit) (PUCHAR pbSHAContext);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcSHAUpdate);
-#else
+/*
 typedef VOID (*pfXcSHAUpdate) (PUCHAR pbSHAContext, PUCHAR pbInput, ULONG dwInputLength);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcSHAFinal);
-#else
+/*
 typedef VOID (*pfXcSHAFinal) (PUCHAR pbSHAContext, PUCHAR pbDigest);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcRC4Key);
-#else
+/*
 typedef VOID (*pfXcRC4Key) (PUCHAR pbKeyStruct, ULONG dwKeyLength, PUCHAR pbKey);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcRC4Crypt);
-#else
+/*
 typedef VOID (*pfXcRC4Crypt) (PUCHAR pbKeyStruct, ULONG dwInputLength, PUCHAR pbInput);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcHMAC);
-#else
+/*
 typedef VOID (*pfXcHMAC) (PUCHAR pbKey, ULONG dwKeyLength, PUCHAR pbInput, ULONG dwInputLength, PUCHAR pbInput2, ULONG dwInputLength2, PUCHAR pbDigest);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcPKEncPublic);
-#else
+/*
 typedef ULONG (*pfXcPKEncPublic) (PUCHAR pbPubKey, PUCHAR pbInput, PUCHAR pbOutput);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcPKDecPrivate);
-#else
+/*
 typedef ULONG (*pfXcPKDecPrivate) (PUCHAR pbPrvKey, PUCHAR pbInput, PUCHAR pbOutput);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcPKGetKeyLen);
-#else
+/*
 typedef ULONG (*pfXcPKGetKeyLen) (PUCHAR pbPubKey);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcVerifyPKCS1Signature);
-#else
+/*
 typedef BOOLEAN (*pfXcVerifyPKCS1Signature) (PUCHAR pbSig, PUCHAR pbPubKey, PUCHAR pbDigest);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcModExp);
-#else
+/*
 typedef ULONG (*pfXcModExp) (PULONG pA, PULONG pB, PULONG pC, PULONG pD, ULONG dwN);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcDESKeyParity);
-#else
+/*
 typedef VOID (*pfXcDESKeyParity) (PUCHAR pbKey, ULONG dwKeyLength);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcKeyTable);
-#else
+/*
 typedef VOID (*pfXcKeyTable) (ULONG dwCipher, PUCHAR pbKeyTable, PUCHAR pbKey);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcBlockCrypt);
-#else
+/*
 typedef VOID (*pfXcBlockCrypt) (ULONG dwCipher, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcBlockCryptCBC);
-#else
+/*
 typedef VOID (*pfXcBlockCryptCBC) (ULONG dwCipher, ULONG dwInputLength, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp, PUCHAR pbFeedback);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, pfXcCryptService);
-#else
+/*
 typedef ULONG (*pfXcCryptService) (ULONG dwOp, PVOID pArgs);
-#endif
+*/
 
 
 typedef struct
@@ -2214,14 +2174,13 @@ typedef enum _MMPFN_BUSY_TYPE
     MmMaximumUsage
 } MMPFN_BUSY_TYPE;
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PMMREMOVE_PAGE_ROUTINE);
-#else
+/*
 typedef PFN_NUMBER (FASTCALL *PMMREMOVE_PAGE_ROUTINE) (
     IN MMPFN_BUSY_TYPE BusyType,
     IN PMMPTE TargetPte
 );
-#endif
+*/
 
 typedef struct _MMPTERANGE
 {
@@ -2264,44 +2223,38 @@ typedef struct _MMGLOBALDATA
 
 DEF_POINTER_TYPE(MMGLOBALDATA, PMMGLOBALDATA);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PIDE_INTERRUPT_ROUTINE);
-#else
+/*
 typedef VOID (*PIDE_INTERRUPT_ROUTINE) (void);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PIDE_FINISHIO_ROUTINE);
-#else
+/*
 typedef VOID (*PIDE_FINISHIO_ROUTINE) (void);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PIDE_POLL_RESET_COMPLETE_ROUTINE);
-#else
+/*
 typedef BOOLEAN (*PIDE_POLL_RESET_COMPLETE_ROUTINE) (void);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PIDE_TIMEOUT_EXPIRED_ROUTINE);
-#else
+/*
 typedef VOID (*PIDE_TIMEOUT_EXPIRED_ROUTINE) (void);
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PIDE_START_PACKET_ROUTINE);
-#else
+/*
 typedef VOID (*PIDE_START_PACKET_ROUTINE) (
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP Irp
 );
-#endif
+*/
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PIDE_START_NEXT_PACKET_ROUTINE);
-#else
+/*
 typedef VOID (*PIDE_START_NEXT_PACKET_ROUTINE) (void);
-#endif
+*/
 
 typedef struct _IDE_CHANNEL_OBJECT
 {
@@ -2329,14 +2282,13 @@ typedef struct _IDE_CHANNEL_OBJECT
 
 DEF_POINTER_TYPE(IDE_CHANNEL_OBJECT, PIDE_CHANNEL_OBJECT);
 
-#if DUMB_POINTERS
 DEF_POINTER_TYPE(VOID, PKSYSTEM_ROUTINE);
-#else
+/*
 typedef VOID (* NTAPI PKSYSTEM_ROUTINE) (
     IN PKSTART_ROUTINE StartRoutine OPTIONAL,
     IN PVOID StartContext OPTIONAL
 );
-#endif
+*/
 
 // KPRIORITY values
 #define LOW_PRIORITY 0              // Lowest thread priority level
