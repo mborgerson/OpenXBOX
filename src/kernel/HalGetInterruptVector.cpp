@@ -16,6 +16,14 @@ int Xbox::HalGetInterruptVector()
 	K_INIT_ARG_PTR(KIRQL, Irql);
 	XboxTypes::ULONG rval;
 
+	XboxTypes::ULONG vec = BusInterruptLevel + 0x30;
+	if (vec >= 0x30 && vec <= 0x4a) {
+		*pIrql = (XboxTypes::KIRQL)(0x4a - vec);
+	}
+	else {
+		rval = 0;
+	}
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }
