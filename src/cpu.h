@@ -111,7 +111,7 @@ enum CallingConventionType {
 class CallingConventionHelper {
 protected:
     Cpu      *m_cpu;
-    size_t    m_arg_count;
+    size_t    m_arg_offset;
     size_t    m_stack_cleanup_size;
     uint32_t  m_return_addr;
     uint32_t  m_esp;

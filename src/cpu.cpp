@@ -104,7 +104,7 @@ int Cpu::RestoreContext(CpuContext *context)
 CallingConventionHelper::CallingConventionHelper(Cpu *cpu)
 {
     m_cpu = cpu;
-    m_arg_count = 0;
+    m_arg_offset = 0;
     m_stack_cleanup_size = sizeof(uint32_t); // Always pop the return address
     m_cpu->RegRead(REG_ESP, &m_esp);
     m_cpu->MemRead(m_esp, sizeof(uint32_t), &m_return_addr);
@@ -160,24 +160,18 @@ CdeclHelper::CdeclHelper(Cpu *cpu)
  */
 void CdeclHelper::GetArgument(void *val, size_t size)
 {
-    uint32_t reg;
+	char *reg = new char[size];
 
-    assert(size <= 4); // FIXME: Handle structs and larger values
+	size_t alignedSize = size & ~3;
 
-    // Value is stored on stack
-    m_cpu->MemRead(m_esp + 4 + 4*(m_arg_count), 4, &reg);
+	// Value is stored on stack
+	m_cpu->MemRead(m_esp + 4 + m_arg_offset, alignedSize, reg);
+	m_stack_cleanup_size += alignedSize;
+	m_arg_offset += alignedSize;
 
-    if (size == 1) {
-        *(uint8_t *)val = (uint8_t)reg;
-    } else if (size == 2) {
-        *(uint16_t *)val = (uint16_t)reg;
-    } else if (size == 4) {
-        *(uint32_t *)val = (uint32_t)reg;
-    } else {
-        assert(0); // FIXME
-    }
+	memcpy(val, reg, size);
 
-    m_arg_count += 1;
+	delete[] reg;
 }
 
 /*!
@@ -193,25 +187,18 @@ StdcallHelper::StdcallHelper(Cpu *cpu)
  */
 void StdcallHelper::GetArgument(void *val, size_t size)
 {
-    uint32_t reg;
+    char *reg = new char[size];
 
-    assert(size <= 4); // FIXME: Handle structs and larger values
+	size_t alignedSize = size & ~3;
 
     // Value is stored on stack
-    m_cpu->MemRead(m_esp + 4 + 4*(m_arg_count), 4, &reg);
-    m_stack_cleanup_size += 4;
+    m_cpu->MemRead(m_esp + 4 + m_arg_offset, alignedSize, reg);
+    m_stack_cleanup_size += alignedSize;
+	m_arg_offset += alignedSize;
 
-    if (size == 1) {
-        *(uint8_t *)val = (uint8_t)reg;
-    } else if (size == 2) {
-        *(uint16_t *)val = (uint16_t)reg;
-    } else if (size == 4) {
-        *(uint32_t *)val = (uint32_t)reg;
-    } else {
-        assert(0); // FIXME
-    }
+	memcpy(val, reg, size);
 
-    m_arg_count += 1;
+	delete[] reg;
 }
 
 /*!
@@ -229,33 +216,33 @@ FastcallHelper::FastcallHelper(Cpu *cpu)
  */
 void FastcallHelper::GetArgument(void *val, size_t size)
 {
-    uint32_t reg;
+	char *reg = new char[size];
 
-    assert(size <= 4); // FIXME: Handle structs and larger values
+	size_t alignedSize = size & ~3;
 
-    if (m_arg_pass_thru_reg_count == 0) {
-        // Value is stored in register ECX
-        m_cpu->RegRead(REG_ECX, &reg);
-        m_arg_pass_thru_reg_count += 1;
-    } else if (m_arg_pass_thru_reg_count == 1) {
-        // Value is stored in register EDX
-        m_cpu->RegRead(REG_EDX, &reg);
-        m_arg_pass_thru_reg_count += 1;
-    } else {
-        // Value is stored on stack
-        m_cpu->MemRead(m_esp + 4 + 4*(m_arg_count - m_arg_pass_thru_reg_count), 4, &reg);
-        m_stack_cleanup_size += 4;
-    }
+	bool passthrough = false;
+	if (size <= 4) {
+		if (m_arg_pass_thru_reg_count == 0) {
+			// Value is stored in register ECX
+			m_cpu->RegRead(REG_ECX, (uint32_t *)reg);
+			m_arg_pass_thru_reg_count += 1;
+			passthrough = true;
+		}
+		else if (m_arg_pass_thru_reg_count == 1) {
+			// Value is stored in register EDX
+			m_cpu->RegRead(REG_EDX, (uint32_t *)reg);
+			m_arg_pass_thru_reg_count += 1;
+			passthrough = true;
+		}
+	}
+	if (!passthrough) {
+		// Value is stored on stack
+		m_cpu->MemRead(m_esp + 4 + m_arg_offset, alignedSize, reg);
+		m_stack_cleanup_size += alignedSize;
+		m_arg_offset += alignedSize;
+	}
 
-    if (size == 1) {
-        *(uint8_t *)val = (uint8_t)reg;
-    } else if (size == 2) {
-        *(uint16_t *)val = (uint16_t)reg;
-    } else if (size == 4) {
-        *(uint32_t *)val = (uint32_t)reg;
-    } else {
-        assert(0); // FIXME
-    }
+	memcpy(val, reg, size);
 
-    m_arg_count += 1;
+	delete[] reg;
 }
