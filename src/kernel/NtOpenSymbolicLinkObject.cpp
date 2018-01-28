@@ -12,10 +12,10 @@
 int Xbox::NtOpenSymbolicLinkObject()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PHANDLE,            LinkHandle);
-	K_INIT_ARG(XboxTypes::POBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG_PTR(HANDLE,            LinkHandle);
+	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

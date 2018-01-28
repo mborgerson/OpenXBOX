@@ -12,9 +12,12 @@
 int Xbox::KeInitializeMutant()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PRKMUTANT, Mutant);
-	K_INIT_ARG(XboxTypes::BOOLEAN,   InitialOwner);
+	K_INIT_ARG_RPT(KMUTANT, Mutant);
+	K_INIT_ARG_VAL(BOOLEAN, InitialOwner);
+
+	// FIXME: let the object manager initialize this
+
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

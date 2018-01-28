@@ -13,10 +13,18 @@
 int Xbox::RtlFillMemoryUlong()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,  Destination);
-	K_INIT_ARG(XboxTypes::SIZE_T, Length);
-	K_INIT_ARG(XboxTypes::ULONG,  Pattern);
+	K_INIT_ARG_PTR(VOID,   Destination);
+	K_INIT_ARG_VAL(SIZE_T, Length);
+	K_INIT_ARG_VAL(ULONG,  Pattern);
+
+	// Fill 32 bits at a time
+	// Any extra bytes are ignored
+	uint32_t numDwords = Length >> 2;
+	uint32_t *lastAddr = (uint32_t *)pDestination + numDwords;
+	for (uint32_t *p = (uint32_t *)pDestination; p < lastAddr; p++) {
+		*p = Pattern;
+	}
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

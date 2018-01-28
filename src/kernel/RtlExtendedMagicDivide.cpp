@@ -13,11 +13,11 @@
 int Xbox::RtlExtendedMagicDivide()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::LARGE_INTEGER, Dividend);
-	K_INIT_ARG(XboxTypes::LARGE_INTEGER, MagicDivisor);
-	K_INIT_ARG(XboxTypes::CCHAR,         ShiftCount);
+	K_INIT_ARG_VAL(LARGE_INTEGER, Dividend);
+	K_INIT_ARG_VAL(LARGE_INTEGER, MagicDivisor);
+	K_INIT_ARG_VAL(CCHAR,         ShiftCount);
 	XboxTypes::LARGE_INTEGER rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

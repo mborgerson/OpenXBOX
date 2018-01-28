@@ -13,10 +13,10 @@
 int Xbox::XcSHAUpdate()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PUCHAR, pbSHAContext);
-	K_INIT_ARG(XboxTypes::PUCHAR, pbInput);
-	K_INIT_ARG(XboxTypes::ULONG,  dwInputLength);
+	K_INIT_ARG_PTR(UCHAR, pbSHAContext);
+	K_INIT_ARG_PTR(UCHAR, pbInput);
+	K_INIT_ARG_VAL(ULONG, dwInputLength);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

@@ -11,9 +11,9 @@
 int Xbox::MmQueryStatistics()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PMM_STATISTICS, MemoryStatistics);
+	K_INIT_ARG_PTR(MM_STATISTICS, MemoryStatistics);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

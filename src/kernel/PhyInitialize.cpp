@@ -12,10 +12,10 @@
 int Xbox::PhyInitialize()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::BOOLEAN, forceReset);
-	K_INIT_ARG(XboxTypes::PVOID,   param);
+	K_INIT_ARG_VAL(BOOLEAN, forceReset);
+	K_INIT_ARG_PTR(VOID,    param);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

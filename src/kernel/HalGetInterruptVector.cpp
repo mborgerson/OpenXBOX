@@ -12,10 +12,10 @@
 int Xbox::HalGetInterruptVector()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG,  BusInterruptLevel);
-	K_INIT_ARG(XboxTypes::PKIRQL, Irql);
+	K_INIT_ARG_VAL(ULONG, BusInterruptLevel);
+	K_INIT_ARG_PTR(KIRQL, Irql);
 	XboxTypes::ULONG rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

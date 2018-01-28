@@ -13,11 +13,11 @@
 int Xbox::KeInsertQueueDpc()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PRKDPC, Dpc);
-	K_INIT_ARG(XboxTypes::PVOID,  SystemArgument1);
-	K_INIT_ARG(XboxTypes::PVOID,  SystemArgument2);
+	K_INIT_ARG_RPT(KDPC, Dpc);
+	K_INIT_ARG_PTR(VOID, SystemArgument1);
+	K_INIT_ARG_PTR(VOID, SystemArgument2);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

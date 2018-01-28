@@ -14,14 +14,14 @@
 int Xbox::NtCreateEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PHANDLE,            EventHandle);
-	K_INIT_ARG(XboxTypes::POBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG(XboxTypes::EVENT_TYPE,         EventType);
-	K_INIT_ARG(XboxTypes::BOOLEAN,            InitialState);
+	K_INIT_ARG_PTR(HANDLE,            EventHandle);
+	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG_VAL(EVENT_TYPE,        EventType);
+	K_INIT_ARG_VAL(BOOLEAN,           InitialState);
 	XboxTypes::NTSTATUS rval;
 
 	// FIXME: These events need to be handled in the scheduler.
 
 	K_EXIT_WITH_VALUE(rval);
-	return 0;
+	return KF_WARN_FAKE_IMPL;
 }

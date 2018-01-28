@@ -16,14 +16,14 @@
 int Xbox::NtQueryDirectoryObject()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::HANDLE,  DirectoryHandle);
-	K_INIT_ARG(XboxTypes::PVOID,   Buffer);
-	K_INIT_ARG(XboxTypes::ULONG,   Length);
-	K_INIT_ARG(XboxTypes::BOOLEAN, RestartScan);
-	K_INIT_ARG(XboxTypes::PULONG,  Context);
-	K_INIT_ARG(XboxTypes::PULONG,  ReturnLength);
+	K_INIT_ARG_VAL(HANDLE,  DirectoryHandle);
+	K_INIT_ARG_PTR(VOID,    Buffer);
+	K_INIT_ARG_VAL(ULONG,   Length);
+	K_INIT_ARG_VAL(BOOLEAN, RestartScan);
+	K_INIT_ARG_PTR(ULONG,   Context);
+	K_INIT_ARG_PTR(ULONG,   ReturnLength);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

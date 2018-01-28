@@ -13,10 +13,16 @@
 int Xbox::KeInitializeEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PRKEVENT,   Event);
-	K_INIT_ARG(XboxTypes::EVENT_TYPE, Type);
-	K_INIT_ARG(XboxTypes::BOOLEAN,    State);
+	K_INIT_ARG_RPT(KEVENT,     Event);
+	K_INIT_ARG_VAL(EVENT_TYPE, Type);
+	K_INIT_ARG_VAL(BOOLEAN,    State);
+
+	// FIXME: let the object manager initialize this
+	pEvent->Header.Size = sizeof(XboxTypes::KEVENT) / sizeof(XboxTypes::LONG);
+	pEvent->Header.Type = (XboxTypes::UCHAR)Type;
+	pEvent->Header.SignalState = State;
+	InitializeListHead(&pEvent->Header.WaitListHead);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

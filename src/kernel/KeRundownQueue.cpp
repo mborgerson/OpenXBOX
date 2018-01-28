@@ -11,9 +11,9 @@
 int Xbox::KeRundownQueue()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PRKQUEUE, Queue);
+	K_INIT_ARG_RPT(KQUEUE, Queue);
 	XboxTypes::PLIST_ENTRY rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

@@ -17,14 +17,14 @@
 int Xbox::XcBlockCryptCBC()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG,  dwCipher);
-	K_INIT_ARG(XboxTypes::ULONG,  dwInputLength);
-	K_INIT_ARG(XboxTypes::PUCHAR, pbOutput);
-	K_INIT_ARG(XboxTypes::PUCHAR, pbInput);
-	K_INIT_ARG(XboxTypes::PUCHAR, pbKeyTable);
-	K_INIT_ARG(XboxTypes::ULONG,  dwOp);
-	K_INIT_ARG(XboxTypes::PUCHAR, pbFeedback);
+	K_INIT_ARG_VAL(ULONG, dwCipher);
+	K_INIT_ARG_VAL(ULONG, dwInputLength);
+	K_INIT_ARG_PTR(UCHAR, pbOutput);
+	K_INIT_ARG_PTR(UCHAR, pbInput);
+	K_INIT_ARG_PTR(UCHAR, pbKeyTable);
+	K_INIT_ARG_VAL(ULONG, dwOp);
+	K_INIT_ARG_PTR(UCHAR, pbFeedback);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

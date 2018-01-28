@@ -61,9 +61,9 @@ typedef uint32_t DWORD;
 
 #if DUMB_POINTERS
 #   define DEF_POINTER_TYPE(TYPE, PTYPE) typedef DWORD PTYPE
-#   define _WR_PTR(type, expr) ((XboxTypes::##type *)(expr))
-#   define _RD_PTR(type, expr) ((XboxTypes::##type *)((char *)(expr) + m_ram))
-#   define _ADDR_TO_PTR(type, expr) ((XboxTypes::##type *)((expr) + m_ram))
+#   define _WR_PTR(type, expr) ((XboxTypes::type *)(expr))
+#   define _RD_PTR(type, expr) ((XboxTypes::type *)((char *)(expr) + m_ram))
+#   define _ADDR_TO_PTR(type, expr) ((XboxTypes::type *)((expr) + m_ram))
 #   define _PTR_TO_VAL(type, expr) ((XboxTypes::P##type)((char *)(expr) - m_ram))
 #else
 #   define DEF_POINTER_TYPE(TYPE, PTYPE) typedef TYPE *PTYPE
@@ -72,6 +72,7 @@ typedef uint32_t DWORD;
 #   define _ADDR_TO_PTR(type, expr) ((char *)((expr) + m_ram))
 #   define _PTR_TO_VAL(type, expr) ((char *)((expr) - m_ram))
 #endif
+#define _ADDR_TO_PTR_VAR(type, name) XboxTypes::type *p##name = _ADDR_TO_PTR(type, name);
 
 #define CONST const
 
@@ -82,7 +83,7 @@ DEF_POINTER_TYPE(VOID, PVOID);
 DEF_POINTER_TYPE(VOID, LPVOID);
 DEF_POINTER_TYPE(PVOID, PPVOID);
 DEF_POINTER_TYPE(PPVOID, PPPVOID);
-typedef char CHAR, CCHAR, OCHAR;
+typedef char CHAR, CCHAR, OCHAR, CH;
 DEF_POINTER_TYPE(CHAR, POCHAR);
 DEF_POINTER_TYPE(CHAR, PCHAR);
 DEF_POINTER_TYPE(CHAR, PCH);
@@ -177,16 +178,21 @@ typedef LONG KPRIORITY;
 typedef ULONG DEVICE_TYPE;
 typedef ULONG LOGICAL;
 
+typedef char *SZ;
+typedef const char *CSZ, CSTR;
+typedef WCHAR *WSTR;
+typedef CONST WCHAR *CWSTR;
+
 DEF_POINTER_TYPE(WCHAR, PWSTR);
 DEF_POINTER_TYPE(DWORD, PDWORD);
 DEF_POINTER_TYPE(DWORD, LPDWORD);
-DEF_POINTER_TYPE(const char, PCSZ);
-DEF_POINTER_TYPE(const char, PCSTR);
-DEF_POINTER_TYPE(const char, LPCSTR);
+DEF_POINTER_TYPE(CSZ, PCSZ);
+DEF_POINTER_TYPE(CSTR, PCSTR);
+DEF_POINTER_TYPE(CSTR, LPCSTR);
 DEF_POINTER_TYPE(CHAR, PSZ);
 DEF_POINTER_TYPE(CHAR, PSTR);
-DEF_POINTER_TYPE(CONST WCHAR, LPCWSTR);
-DEF_POINTER_TYPE(CONST WCHAR, PCWSTR);
+DEF_POINTER_TYPE(CWSTR, LPCWSTR);
+DEF_POINTER_TYPE(CWSTR, PCWSTR);
 
 typedef ULONG ACCESS_MASK;
 DEF_POINTER_TYPE(ACCESS_MASK, PACCESS_MASK);
@@ -222,7 +228,9 @@ typedef struct _UNICODE_STRING
     PWSTR Buffer;         /**< Pointer to the buffer used for the character-string */
 } UNICODE_STRING;
 
-DEF_POINTER_TYPE(CONST UNICODE_STRING, PCUNICODE_STRING);
+typedef CONST UNICODE_STRING CUNICODE_STRING;
+
+DEF_POINTER_TYPE(CUNICODE_STRING, PCUNICODE_STRING);
 DEF_POINTER_TYPE(UNICODE_STRING, PUNICODE_STRING);
 
 /**
@@ -1023,6 +1031,8 @@ typedef struct _DISPATCHER_HEADER
 } DISPATCHER_HEADER;
 
 typedef enum _KOBJECTS {
+	EventNotificationObject     = 0x00,
+	EventSynchronizationObject  = 0x01,
 	MutantObject                = 0x02,
 	QueueObject                 = 0x04,
 	SemaphoreObject             = 0x05,

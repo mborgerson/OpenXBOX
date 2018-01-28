@@ -11,8 +11,8 @@
 int Xbox::XcSHAInit()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PUCHAR, pbSHAContext);
+	K_INIT_ARG_PTR(UCHAR, pbSHAContext);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

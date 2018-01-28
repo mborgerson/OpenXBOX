@@ -11,9 +11,9 @@
 int Xbox::XeUnloadSection()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PXBEIMAGE_SECTION, Section);
+	K_INIT_ARG_PTR(XBEIMAGE_SECTION, Section);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

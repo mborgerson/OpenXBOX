@@ -12,9 +12,9 @@
 int Xbox::IoStartNextPacketByKey()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PDEVICE_OBJECT, DeviceObject);
-	K_INIT_ARG(XboxTypes::ULONG,          Key);
+	K_INIT_ARG_PTR(DEVICE_OBJECT, DeviceObject);
+	K_INIT_ARG_VAL(ULONG,         Key);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

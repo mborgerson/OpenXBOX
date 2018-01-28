@@ -13,11 +13,23 @@
 int Xbox::RtlCompareMemoryUlong()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,  Source);
-	K_INIT_ARG(XboxTypes::SIZE_T, Length);
-	K_INIT_ARG(XboxTypes::ULONG,  Pattern);
+	K_INIT_ARG_PTR(VOID,   Source);
+	K_INIT_ARG_VAL(SIZE_T, Length);
+	K_INIT_ARG_VAL(ULONG,  Pattern);
 	XboxTypes::SIZE_T rval;
 
+	// Compare 32 bits at a time
+	// Any extra bytes are ignored
+	uint32_t numDwords = Length >> 2;
+	uint32_t *pDwords = (uint32_t *)pSource;
+	rval = Length;
+	for (uint32_t i = 0; i < numDwords; i++) {
+		if (pDwords[i] != Pattern) {
+			rval = i;
+			break;
+		}
+	}
+
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

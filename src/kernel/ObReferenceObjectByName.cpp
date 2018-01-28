@@ -15,13 +15,13 @@
 int Xbox::ObReferenceObjectByName()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::POBJECT_STRING, ObjectName);
-	K_INIT_ARG(XboxTypes::ULONG,          Attributes);
-	K_INIT_ARG(XboxTypes::POBJECT_TYPE,   ObjectType);
-	K_INIT_ARG(XboxTypes::PVOID,          ParseContext);
-	K_INIT_ARG(XboxTypes::PPVOID,         Object);
+	K_INIT_ARG_PTR(OBJECT_STRING, ObjectName);
+	K_INIT_ARG_VAL(ULONG,         Attributes);
+	K_INIT_ARG_PTR(OBJECT_TYPE,   ObjectType);
+	K_INIT_ARG_PTR(VOID,          ParseContext);
+	K_INIT_ARG_PTR(PVOID,         Object);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

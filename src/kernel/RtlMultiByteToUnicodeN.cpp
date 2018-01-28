@@ -15,13 +15,13 @@
 int Xbox::RtlMultiByteToUnicodeN()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PWSTR,  UnicodeString);
-	K_INIT_ARG(XboxTypes::ULONG,  MaxBytesInUnicodeString);
-	K_INIT_ARG(XboxTypes::PULONG, BytesInUnicodeString);
-	K_INIT_ARG(XboxTypes::PCHAR,  MultiByteString);
-	K_INIT_ARG(XboxTypes::ULONG,  BytesInMultiByteString);
+	K_INIT_ARG_PTR(WSTR,  UnicodeString);
+	K_INIT_ARG_VAL(ULONG, MaxBytesInUnicodeString);
+	K_INIT_ARG_PTR(ULONG, BytesInUnicodeString);
+	K_INIT_ARG_PTR(CHAR,  MultiByteString);
+	K_INIT_ARG_VAL(ULONG, BytesInMultiByteString);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

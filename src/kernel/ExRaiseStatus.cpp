@@ -11,8 +11,8 @@
 int Xbox::ExRaiseStatus()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::NTSTATUS, Status);
+	K_INIT_ARG_VAL(NTSTATUS, Status);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

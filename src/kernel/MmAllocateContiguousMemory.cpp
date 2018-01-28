@@ -11,7 +11,7 @@
 int Xbox::MmAllocateContiguousMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::SIZE_T, NumberOfBytes);
+	K_INIT_ARG_VAL(SIZE_T, NumberOfBytes);
 	XboxTypes::PVOID rval;
 
 	printf("NumberOfBytes            = %x\n", NumberOfBytes);
@@ -27,5 +27,5 @@ int Xbox::MmAllocateContiguousMemory()
 	}
 
 	K_EXIT_WITH_VALUE(rval);
-	return 0;
+	return KF_WARN_PARTIAL_IMPL;
 }

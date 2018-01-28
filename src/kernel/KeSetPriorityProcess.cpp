@@ -12,10 +12,10 @@
 int Xbox::KeSetPriorityProcess()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PKPROCESS, Process);
-	K_INIT_ARG(XboxTypes::KPRIORITY, BasePriority);
+	K_INIT_ARG_PTR(KPROCESS,  Process);
+	K_INIT_ARG_VAL(KPRIORITY, BasePriority);
 	XboxTypes::KPRIORITY rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

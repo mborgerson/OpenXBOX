@@ -11,9 +11,9 @@
 int Xbox::KeRestoreFloatingPointState()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PKFLOATING_SAVE, FloatSave);
+	K_INIT_ARG_PTR(KFLOATING_SAVE, FloatSave);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

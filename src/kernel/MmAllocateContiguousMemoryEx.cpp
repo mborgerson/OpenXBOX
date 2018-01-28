@@ -15,11 +15,11 @@
 int Xbox::MmAllocateContiguousMemoryEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::SIZE_T,    NumberOfBytes);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, LowestAcceptableAddress);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, HighestAcceptableAddress);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, Alignment);
-	K_INIT_ARG(XboxTypes::ULONG,     Protect);
+	K_INIT_ARG_VAL(SIZE_T,    NumberOfBytes);
+	K_INIT_ARG_VAL(ULONG_PTR, LowestAcceptableAddress);
+	K_INIT_ARG_VAL(ULONG_PTR, HighestAcceptableAddress);
+	K_INIT_ARG_VAL(ULONG_PTR, Alignment);
+	K_INIT_ARG_VAL(ULONG,     Protect);
 	XboxTypes::PVOID rval;
 
 	printf("NumberOfBytes            = %x\n", NumberOfBytes);
@@ -39,5 +39,5 @@ int Xbox::MmAllocateContiguousMemoryEx()
 	}
 
 	K_EXIT_WITH_VALUE(rval);
-	return 0;
+	return KF_WARN_PARTIAL_IMPL;
 }

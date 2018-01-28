@@ -11,9 +11,9 @@
 int Xbox::KeQueryBasePriorityThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PKTHREAD, Thread);
+	K_INIT_ARG_PTR(KTHREAD, Thread);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

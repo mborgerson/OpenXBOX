@@ -15,13 +15,13 @@
 int Xbox::NtQueueApcThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::HANDLE,          ThreadHandle);
-	K_INIT_ARG(XboxTypes::PPS_APC_ROUTINE, ApcRoutine);
-	K_INIT_ARG(XboxTypes::PVOID,           ApcArgument1);
-	K_INIT_ARG(XboxTypes::PVOID,           ApcArgument2);
-	K_INIT_ARG(XboxTypes::PVOID,           ApcArgument3);
+	K_INIT_ARG_VAL(HANDLE,          ThreadHandle);
+	K_INIT_ARG_VAL(PPS_APC_ROUTINE, ApcRoutine);
+	K_INIT_ARG_PTR(VOID,            ApcArgument1);
+	K_INIT_ARG_PTR(VOID,            ApcArgument2);
+	K_INIT_ARG_PTR(VOID,            ApcArgument3);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

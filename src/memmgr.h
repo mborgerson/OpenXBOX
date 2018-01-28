@@ -30,6 +30,7 @@ public:
 	uint32_t BasePage() const { return m_basePage; }
 	uint32_t NumPages() const { return m_numPages; }
 	uint32_t LastPage() const { return m_basePage + m_numPages - 1; }
+	uint32_t TotalSize() const { return m_numPages * PAGE_SIZE; }
 
 	uint32_t BaseAddress() const { return m_basePage << PAGE_SHIFT; }
 	uint32_t Size() const { return m_actualSize; }

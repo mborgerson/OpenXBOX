@@ -11,8 +11,8 @@
 int Xbox::RtlFreeUnicodeString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PUNICODE_STRING, UnicodeString);
+	K_INIT_ARG_PTR(UNICODE_STRING, UnicodeString);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

@@ -11,8 +11,8 @@
 int Xbox::KeBugCheck()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG, BugCheckCode);
+	K_INIT_ARG_VAL(ULONG, BugCheckCode);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

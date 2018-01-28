@@ -12,10 +12,10 @@
 int Xbox::KeSetPriorityThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PKTHREAD,  Thread);
-	K_INIT_ARG(XboxTypes::KPRIORITY, Priority);
+	K_INIT_ARG_PTR(KTHREAD,   Thread);
+	K_INIT_ARG_VAL(KPRIORITY, Priority);
 	XboxTypes::KPRIORITY rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

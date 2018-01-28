@@ -13,10 +13,10 @@
 int Xbox::IoInitializeIrp()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PIRP,   Irp);
-	K_INIT_ARG(XboxTypes::USHORT, PacketSize);
-	K_INIT_ARG(XboxTypes::CCHAR,  StackSize);
+	K_INIT_ARG_PTR(IRP,    Irp);
+	K_INIT_ARG_VAL(USHORT, PacketSize);
+	K_INIT_ARG_VAL(CCHAR,  StackSize);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

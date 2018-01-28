@@ -12,9 +12,9 @@
 int Xbox::RtlCopyUnicodeString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PUNICODE_STRING, DestinationString);
-	K_INIT_ARG(XboxTypes::PUNICODE_STRING, SourceString);
+	K_INIT_ARG_PTR(UNICODE_STRING, DestinationString);
+	K_INIT_ARG_PTR(UNICODE_STRING, SourceString);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

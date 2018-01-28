@@ -12,10 +12,10 @@
 int Xbox::ObReferenceObjectByPointer()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,        Object);
-	K_INIT_ARG(XboxTypes::POBJECT_TYPE, ObjectType);
+	K_INIT_ARG_PTR(VOID,        Object);
+	K_INIT_ARG_PTR(OBJECT_TYPE, ObjectType);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

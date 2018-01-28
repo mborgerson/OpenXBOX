@@ -11,8 +11,8 @@
 int Xbox::ObfReferenceObject()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG(XboxTypes::PVOID, Object);
+	K_INIT_ARG_PTR(VOID, Object);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

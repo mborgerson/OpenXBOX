@@ -15,13 +15,13 @@
 int Xbox::NtQueryInformationFile()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::HANDLE,                 FileHandle);
-	K_INIT_ARG(XboxTypes::PIO_STATUS_BLOCK,       IoStatusBlock);
-	K_INIT_ARG(XboxTypes::PVOID,                  FileInformation);
-	K_INIT_ARG(XboxTypes::ULONG,                  Length);
-	K_INIT_ARG(XboxTypes::FILE_INFORMATION_CLASS, FileInformationClass);
+	K_INIT_ARG_VAL(HANDLE,                 FileHandle);
+	K_INIT_ARG_PTR(IO_STATUS_BLOCK,        IoStatusBlock);
+	K_INIT_ARG_PTR(VOID,                   FileInformation);
+	K_INIT_ARG_VAL(ULONG,                  Length);
+	K_INIT_ARG_VAL(FILE_INFORMATION_CLASS, FileInformationClass);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

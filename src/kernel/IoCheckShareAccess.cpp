@@ -15,13 +15,13 @@
 int Xbox::IoCheckShareAccess()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ACCESS_MASK,   DesiredAccess);
-	K_INIT_ARG(XboxTypes::ULONG,         DesiredShareAccess);
-	K_INIT_ARG(XboxTypes::PFILE_OBJECT,  FileObject);
-	K_INIT_ARG(XboxTypes::PSHARE_ACCESS, ShareAccess);
-	K_INIT_ARG(XboxTypes::BOOLEAN,       Update);
+	K_INIT_ARG_VAL(ACCESS_MASK,  DesiredAccess);
+	K_INIT_ARG_VAL(ULONG,        DesiredShareAccess);
+	K_INIT_ARG_PTR(FILE_OBJECT,  FileObject);
+	K_INIT_ARG_PTR(SHARE_ACCESS, ShareAccess);
+	K_INIT_ARG_VAL(BOOLEAN,      Update);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

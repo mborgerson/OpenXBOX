@@ -15,13 +15,13 @@
 int Xbox::NtRemoveIoCompletion()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::HANDLE,           IoCompletionHandle);
-	K_INIT_ARG(XboxTypes::PPVOID,           KeyContext);
-	K_INIT_ARG(XboxTypes::PPVOID,           ApcContext);
-	K_INIT_ARG(XboxTypes::PIO_STATUS_BLOCK, IoStatusBlock);
-	K_INIT_ARG(XboxTypes::PLARGE_INTEGER,   Timeout);
+	K_INIT_ARG_VAL(HANDLE,          IoCompletionHandle);
+	K_INIT_ARG_PTR(PVOID,           KeyContext);
+	K_INIT_ARG_PTR(PVOID,           ApcContext);
+	K_INIT_ARG_PTR(IO_STATUS_BLOCK, IoStatusBlock);
+	K_INIT_ARG_PTR(LARGE_INTEGER,   Timeout);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

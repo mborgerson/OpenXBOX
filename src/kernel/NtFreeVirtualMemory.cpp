@@ -13,11 +13,11 @@
 int Xbox::NtFreeVirtualMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PPVOID,  BaseAddress);
-	K_INIT_ARG(XboxTypes::PSIZE_T, RegionSize);
-	K_INIT_ARG(XboxTypes::ULONG,   FreeType);
+	K_INIT_ARG_PTR(PVOID,  BaseAddress);
+	K_INIT_ARG_PTR(SIZE_T, RegionSize);
+	K_INIT_ARG_VAL(ULONG,  FreeType);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

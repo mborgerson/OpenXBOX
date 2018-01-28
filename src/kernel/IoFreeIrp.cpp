@@ -11,8 +11,8 @@
 int Xbox::IoFreeIrp()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PIRP, Irp);
+	K_INIT_ARG_PTR(IRP, Irp);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

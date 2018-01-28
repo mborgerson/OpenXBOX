@@ -12,10 +12,10 @@
 int Xbox::InterlockedExchange()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG(XboxTypes::PLONG, Target);
-	K_INIT_ARG(XboxTypes::LONG,  Value);
+	K_INIT_ARG_PTR(LONG, Target);
+	K_INIT_ARG_VAL(LONG, Value);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

@@ -13,5 +13,5 @@ int Xbox::KeGetCurrentThread()
 	XboxTypes::PKTHREAD rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

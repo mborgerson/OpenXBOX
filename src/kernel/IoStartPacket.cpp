@@ -13,10 +13,10 @@
 int Xbox::IoStartPacket()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PDEVICE_OBJECT, DeviceObject);
-	K_INIT_ARG(XboxTypes::PIRP,           Irp);
-	K_INIT_ARG(XboxTypes::PULONG,         Key);
+	K_INIT_ARG_PTR(DEVICE_OBJECT, DeviceObject);
+	K_INIT_ARG_PTR(IRP,           Irp);
+	K_INIT_ARG_PTR(ULONG,         Key);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

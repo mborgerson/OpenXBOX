@@ -12,9 +12,11 @@
 int Xbox::RtlZeroMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,  Destination);
-	K_INIT_ARG(XboxTypes::SIZE_T, Length);
+	K_INIT_ARG_PTR(VOID,   Destination);
+	K_INIT_ARG_VAL(SIZE_T, Length);
+
+	memset(pDestination, 0, Length);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

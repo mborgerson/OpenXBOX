@@ -13,10 +13,10 @@
 int Xbox::DbgUnLoadImageSymbols()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PSTRING,   FileName);
-	K_INIT_ARG(XboxTypes::PVOID,     ImageBase);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, ProcessId);
+	K_INIT_ARG_PTR(STRING,    FileName);
+	K_INIT_ARG_PTR(VOID,      ImageBase);
+	K_INIT_ARG_VAL(ULONG_PTR, ProcessId);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

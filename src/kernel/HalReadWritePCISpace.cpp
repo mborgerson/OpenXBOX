@@ -16,13 +16,13 @@
 int Xbox::HalReadWritePCISpace()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG,   BusNumber);
-	K_INIT_ARG(XboxTypes::ULONG,   SlotNumber);
-	K_INIT_ARG(XboxTypes::ULONG,   RegisterNumber);
-	K_INIT_ARG(XboxTypes::PVOID,   Buffer);
-	K_INIT_ARG(XboxTypes::ULONG,   Length);
-	K_INIT_ARG(XboxTypes::BOOLEAN, WritePCISpace);
+	K_INIT_ARG_VAL(ULONG,   BusNumber);
+	K_INIT_ARG_VAL(ULONG,   SlotNumber);
+	K_INIT_ARG_VAL(ULONG,   RegisterNumber);
+	K_INIT_ARG_PTR(VOID,    Buffer);
+	K_INIT_ARG_VAL(ULONG,   Length);
+	K_INIT_ARG_VAL(BOOLEAN, WritePCISpace);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

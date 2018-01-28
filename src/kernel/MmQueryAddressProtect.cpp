@@ -11,11 +11,11 @@
 int Xbox::MmQueryAddressProtect()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID, VirtualAddress);
+	K_INIT_ARG_PTR(VOID, VirtualAddress);
 	XboxTypes::ULONG rval;
 
 	rval = m_memmgr->QueryProtect(VirtualAddress);
 
 	K_EXIT_WITH_VALUE(rval);
-	return 0;
+	return KF_WARN_FAKE_IMPL;
 }

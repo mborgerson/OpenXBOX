@@ -12,10 +12,10 @@
 int Xbox::RtlTimeFieldsToTime()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PTIME_FIELDS,   TimeFields);
-	K_INIT_ARG(XboxTypes::PLARGE_INTEGER, Time);
+	K_INIT_ARG_PTR(TIME_FIELDS,   TimeFields);
+	K_INIT_ARG_PTR(LARGE_INTEGER, Time);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

@@ -20,18 +20,18 @@
 int Xbox::NtDeviceIoControlFile()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::HANDLE,           FileHandle);
-	K_INIT_ARG(XboxTypes::HANDLE,           Event);
-	K_INIT_ARG(XboxTypes::PIO_APC_ROUTINE,  ApcRoutine);
-	K_INIT_ARG(XboxTypes::PVOID,            ApcContext);
-	K_INIT_ARG(XboxTypes::PIO_STATUS_BLOCK, IoStatusBlock);
-	K_INIT_ARG(XboxTypes::ULONG,            IoControlCode);
-	K_INIT_ARG(XboxTypes::PVOID,            InputBuffer);
-	K_INIT_ARG(XboxTypes::ULONG,            InputBufferLength);
-	K_INIT_ARG(XboxTypes::PVOID,            OutputBuffer);
-	K_INIT_ARG(XboxTypes::ULONG,            OutputBufferLength);
+	K_INIT_ARG_VAL(HANDLE,          FileHandle);
+	K_INIT_ARG_VAL(HANDLE,          Event);
+	K_INIT_ARG_VAL(PIO_APC_ROUTINE, ApcRoutine);
+	K_INIT_ARG_PTR(VOID,            ApcContext);
+	K_INIT_ARG_PTR(IO_STATUS_BLOCK, IoStatusBlock);
+	K_INIT_ARG_VAL(ULONG,           IoControlCode);
+	K_INIT_ARG_PTR(VOID,            InputBuffer);
+	K_INIT_ARG_VAL(ULONG,           InputBufferLength);
+	K_INIT_ARG_PTR(VOID,            OutputBuffer);
+	K_INIT_ARG_VAL(ULONG,           OutputBufferLength);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

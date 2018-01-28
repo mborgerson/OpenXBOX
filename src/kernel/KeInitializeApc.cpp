@@ -17,14 +17,31 @@
 int Xbox::KeInitializeApc()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PRKAPC,            Apc);
-	K_INIT_ARG(XboxTypes::PRKTHREAD,         Thread);
-	K_INIT_ARG(XboxTypes::PKKERNEL_ROUTINE,  KernelRoutine);
-	K_INIT_ARG(XboxTypes::PKRUNDOWN_ROUTINE, RundownRoutine);
-	K_INIT_ARG(XboxTypes::PKNORMAL_ROUTINE,  NormalRoutine);
-	K_INIT_ARG(XboxTypes::KPROCESSOR_MODE,   ProcessorMode);
-	K_INIT_ARG(XboxTypes::PVOID,             NormalContext);
+	K_INIT_ARG_RPT(KAPC,              Apc);
+	K_INIT_ARG_RPT(KTHREAD,           Thread);
+	K_INIT_ARG_VAL(PKKERNEL_ROUTINE,  KernelRoutine);
+	K_INIT_ARG_VAL(PKRUNDOWN_ROUTINE, RundownRoutine);
+	K_INIT_ARG_VAL(PKNORMAL_ROUTINE,  NormalRoutine);
+	K_INIT_ARG_VAL(KPROCESSOR_MODE,   ProcessorMode);
+	K_INIT_ARG_PTR(VOID,              NormalContext);
+
+	// FIXME: let the object manager initialize this
+	pApc->Type = XboxTypes::ApcObject;
+	pApc->Inserted = FALSE;
+	pApc->Thread = Thread;
+
+	pApc->KernelRoutine = KernelRoutine;
+	pApc->RundownRoutine = RundownRoutine;
+	pApc->NormalRoutine = NormalRoutine;
+	if (NULL != NormalRoutine) {
+		pApc->ApcMode = ProcessorMode;
+		pApc->NormalContext = NormalContext;
+	}
+	else {
+		pApc->ApcMode = XboxTypes::KernelMode;
+		pApc->NormalContext = NULL;
+	}
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

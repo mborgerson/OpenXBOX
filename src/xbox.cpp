@@ -189,15 +189,15 @@ int Xbox::InitializeGDT() {
 	m_cpu->MemWrite(tssNMIAddr, sizeof(TSS), &tss);
 
 	// Fill in basic KPCR data directly in memory
-	XboxTypes::KPCR *kpcr = _ADDR_TO_PTR(KPCR, kpcrAddr);
-	memset(kpcr, 0, sizeof(XboxTypes::KPCR));
-	kpcr->SelfPcr = kpcrAddr;
-	kpcr->Prcb = _PTR_TO_VAL(KPCR, &kpcr->PrcbData);
-	kpcr->NtTib.Self = _PTR_TO_VAL(NT_TIB, &kpcr->NtTib);
-	kpcr->NtTib.ExceptionList = EXCEPTION_CHAIN_END;
-	XboxTypes::KPRCB *kprcb = &kpcr->PrcbData;
-	InitializeListHead(&kprcb->DpcListHead);
-	kprcb->DpcRoutineActive = 0;
+	XboxTypes::KPCR *pKPCR = _ADDR_TO_PTR(KPCR, kpcrAddr);
+	memset(pKPCR, 0, sizeof(XboxTypes::KPCR));
+	pKPCR->SelfPcr = kpcrAddr;
+	pKPCR->Prcb = _PTR_TO_VAL(KPCR, &pKPCR->PrcbData);
+	pKPCR->NtTib.Self = _PTR_TO_VAL(NT_TIB, &pKPCR->NtTib);
+	pKPCR->NtTib.ExceptionList = EXCEPTION_CHAIN_END;
+	XboxTypes::KPRCB *pKPRCB = &pKPCR->PrcbData;
+	InitializeListHead(&pKPRCB->DpcListHead);
+	pKPRCB->DpcRoutineActive = 0;
 	// TODO: fill in just enough data for the emulated code to work properly
 
 	// Fill in GDT table data
@@ -380,10 +380,16 @@ int Xbox::HandleKernelEntry()
         assert(0);
     }
     result = (this->*handler)();
-    if (result == ERROR_NOT_IMPLEMENTED) {
+    if (result == KF_ERROR_NOT_IMPLEMENTED) {
         log_error("Kernel function has not yet been implemented! Cannot continue.\n");
         m_should_run = false;
     }
+	else if (result == KF_WARN_FAKE_IMPL) {
+		log_debug("Kernel function has a fake implementation.\n");
+	}
+	else if (result == KF_WARN_PARTIAL_IMPL) {
+		log_debug("Kernel function is partially implemented.\n");
+	}
 
     return 0;
 }

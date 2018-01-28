@@ -11,9 +11,9 @@
 int Xbox::PsQueryStatistics()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PPS_STATISTICS, ProcessStatistics);
+	K_INIT_ARG_PTR(PS_STATISTICS, ProcessStatistics);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

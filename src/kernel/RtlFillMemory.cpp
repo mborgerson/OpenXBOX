@@ -13,10 +13,12 @@
 int Xbox::RtlFillMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID, Destination);
-	K_INIT_ARG(XboxTypes::ULONG, Length);
-	K_INIT_ARG(XboxTypes::UCHAR, Fill);
+	K_INIT_ARG_PTR(VOID, Destination);
+	K_INIT_ARG_VAL(ULONG, Length);
+	K_INIT_ARG_VAL(UCHAR, Fill);
+
+	memset(pDestination, Fill, Length);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

@@ -13,11 +13,19 @@
 int Xbox::KeSetTimer()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PKTIMER,       Timer);
-	K_INIT_ARG(XboxTypes::LARGE_INTEGER, DueTime);
-	K_INIT_ARG(XboxTypes::PKDPC,         Dpc);
+	K_INIT_ARG_PTR(KTIMER,        Timer);
+	K_INIT_ARG_VAL(LARGE_INTEGER, DueTime);
+	K_INIT_ARG_PTR(KDPC,          Dpc);
 	XboxTypes::BOOLEAN rval;
 
+	pTimer->Header.SignalState = FALSE;
+	pTimer->Header.Inserted = TRUE;
+	pTimer->Header.Absolute = FALSE;
+	pTimer->Dpc = Dpc;
+	pTimer->Period = 0;
+	pTimer->DueTime.QuadPart = DueTime.QuadPart;
+	rval = TRUE;
+
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_PARTIAL_IMPL;
 }

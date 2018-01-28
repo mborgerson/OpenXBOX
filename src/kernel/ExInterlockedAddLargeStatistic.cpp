@@ -12,9 +12,9 @@
 int Xbox::ExInterlockedAddLargeStatistic()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG(XboxTypes::PLARGE_INTEGER, Addend);
-	K_INIT_ARG(XboxTypes::ULONG,          Increment);
+	K_INIT_ARG_PTR(LARGE_INTEGER, Addend);
+	K_INIT_ARG_VAL(ULONG,         Increment);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

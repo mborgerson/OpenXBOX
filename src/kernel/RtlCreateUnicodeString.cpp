@@ -12,10 +12,10 @@
 int Xbox::RtlCreateUnicodeString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PUNICODE_STRING, DestinationString);
-	K_INIT_ARG(XboxTypes::PCWSTR,          SourceString);
+	K_INIT_ARG_PTR(UNICODE_STRING, DestinationString);
+	K_INIT_ARG_PTR(CWSTR,          SourceString);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

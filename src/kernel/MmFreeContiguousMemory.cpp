@@ -11,7 +11,7 @@
 int Xbox::MmFreeContiguousMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID, BaseAddress);
+	K_INIT_ARG_PTR(VOID, BaseAddress);
 
 	if (m_memmgr->FreeContiguous(BaseAddress)) {
 		printf("Free at %x\n", BaseAddress);
@@ -22,5 +22,5 @@ int Xbox::MmFreeContiguousMemory()
 	}
 
 	K_EXIT();
-	return 0;
+	return KF_WARN_PARTIAL_IMPL;
 }

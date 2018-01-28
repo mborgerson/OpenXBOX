@@ -11,8 +11,8 @@
 int Xbox::DbgBreakPointWithStatus()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG, Status);
+	K_INIT_ARG_VAL(ULONG, Status);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

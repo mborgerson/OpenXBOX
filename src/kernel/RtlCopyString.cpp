@@ -12,9 +12,9 @@
 int Xbox::RtlCopyString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PSTRING, DestinationString);
-	K_INIT_ARG(XboxTypes::PSTRING, SourceString);
+	K_INIT_ARG_PTR(STRING, DestinationString);
+	K_INIT_ARG_PTR(STRING, SourceString);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

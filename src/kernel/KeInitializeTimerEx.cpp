@@ -12,18 +12,18 @@
 int Xbox::KeInitializeTimerEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PKTIMER,    Timer);
-	K_INIT_ARG(XboxTypes::TIMER_TYPE, Type);
+	K_INIT_ARG_PTR(KTIMER,     Timer);
+	K_INIT_ARG_VAL(TIMER_TYPE, Type);
 
-	XboxTypes::KTIMER *timer = _ADDR_TO_PTR(KTIMER, Timer);
-	timer->Header.Size = sizeof(XboxTypes::KTIMER) / sizeof(LONG);
-	timer->Header.Type = XboxTypes::TimerNotificationObject + Type;
-	timer->Header.Inserted = FALSE;
-	timer->Header.SignalState = FALSE;
-	timer->DueTime.QuadPart = 0;
-	timer->Period = 0;
-	InitializeListHead(&timer->TimerListEntry);
+	// FIXME: let the object manager initialize this
+	pTimer->Header.Size = sizeof(XboxTypes::KTIMER) / sizeof(XboxTypes::LONG);
+	pTimer->Header.Type = XboxTypes::TimerNotificationObject + Type;
+	pTimer->Header.Inserted = FALSE;
+	pTimer->Header.SignalState = FALSE;
+	pTimer->DueTime.QuadPart = 0;
+	pTimer->Period = 0;
+	InitializeListHead(&pTimer->TimerListEntry);
 
 	K_EXIT();
-	return 0;
+	return KF_OK;
 }

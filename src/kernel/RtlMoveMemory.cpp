@@ -13,10 +13,12 @@
 int Xbox::RtlMoveMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,  Destination);
-	K_INIT_ARG(XboxTypes::PPVOID, Source);
-	K_INIT_ARG(XboxTypes::ULONG,  Length);
+	K_INIT_ARG_PTR(VOID,  Destination);
+	K_INIT_ARG_PTR(PVOID, Source);
+	K_INIT_ARG_VAL(ULONG, Length);
+
+	memmove(pDestination, pSource, Length);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

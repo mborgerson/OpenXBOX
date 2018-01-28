@@ -17,15 +17,15 @@
 int Xbox::IoBuildSynchronousFsdRequest()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG,            MajorFunction);
-	K_INIT_ARG(XboxTypes::PDEVICE_OBJECT,   DeviceObject);
-	K_INIT_ARG(XboxTypes::PVOID,            Buffer);
-	K_INIT_ARG(XboxTypes::ULONG,            Length);
-	K_INIT_ARG(XboxTypes::PLARGE_INTEGER,   StartingOffset);
-	K_INIT_ARG(XboxTypes::PKEVENT,          Event);
-	K_INIT_ARG(XboxTypes::PIO_STATUS_BLOCK, IoStatusBlock);
+	K_INIT_ARG_VAL(ULONG,           MajorFunction);
+	K_INIT_ARG_PTR(DEVICE_OBJECT,   DeviceObject);
+	K_INIT_ARG_PTR(VOID,            Buffer);
+	K_INIT_ARG_VAL(ULONG,           Length);
+	K_INIT_ARG_PTR(LARGE_INTEGER,   StartingOffset);
+	K_INIT_ARG_PTR(KEVENT,          Event);
+	K_INIT_ARG_PTR(IO_STATUS_BLOCK, IoStatusBlock);
 	XboxTypes::PIRP rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

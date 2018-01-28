@@ -14,10 +14,10 @@
 int Xbox::AvSendTVEncoderOption()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,  RegisterBase);
-	K_INIT_ARG(XboxTypes::ULONG,  Option);
-	K_INIT_ARG(XboxTypes::ULONG,  Param);
-	K_INIT_ARG(XboxTypes::PULONG, Result);
+	K_INIT_ARG_PTR(VOID,  RegisterBase);
+	K_INIT_ARG_VAL(ULONG, Option);
+	K_INIT_ARG_VAL(ULONG, Param);
+	K_INIT_ARG_PTR(ULONG, Result);
 
 	log_debug("%s(%08x, %x, %x, %08x)\n",
 		__func__,
@@ -42,5 +42,5 @@ int Xbox::AvSendTVEncoderOption()
 	}
 
 	K_EXIT();
-	return 0;
+	return KF_WARN_PARTIAL_IMPL;
 }

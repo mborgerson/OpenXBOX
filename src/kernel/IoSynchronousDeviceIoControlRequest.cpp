@@ -18,16 +18,16 @@
 int Xbox::IoSynchronousDeviceIoControlRequest()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG,          IoControlCode);
-	K_INIT_ARG(XboxTypes::PDEVICE_OBJECT, DeviceObject);
-	K_INIT_ARG(XboxTypes::PVOID,          InputBuffer);
-	K_INIT_ARG(XboxTypes::ULONG,          InputBufferLength);
-	K_INIT_ARG(XboxTypes::PVOID,          OutputBuffer);
-	K_INIT_ARG(XboxTypes::ULONG,          OutputBufferLength);
-	K_INIT_ARG(XboxTypes::PULONG,         ReturnedOutputBufferLength);
-	K_INIT_ARG(XboxTypes::BOOLEAN,        InternalDeviceIoControl);
+	K_INIT_ARG_VAL(ULONG,         IoControlCode);
+	K_INIT_ARG_PTR(DEVICE_OBJECT, DeviceObject);
+	K_INIT_ARG_PTR(VOID,          InputBuffer);
+	K_INIT_ARG_VAL(ULONG,         InputBufferLength);
+	K_INIT_ARG_PTR(VOID,          OutputBuffer);
+	K_INIT_ARG_VAL(ULONG,         OutputBufferLength);
+	K_INIT_ARG_PTR(ULONG,         ReturnedOutputBufferLength);
+	K_INIT_ARG_VAL(BOOLEAN,       InternalDeviceIoControl);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

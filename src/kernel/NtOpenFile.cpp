@@ -16,14 +16,14 @@
 int Xbox::NtOpenFile()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PHANDLE,            FileHandle);
-	K_INIT_ARG(XboxTypes::ACCESS_MASK,        DesiredAccess);
-	K_INIT_ARG(XboxTypes::POBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG(XboxTypes::PIO_STATUS_BLOCK,   IoStatusBlock);
-	K_INIT_ARG(XboxTypes::ULONG,              ShareAccess);
-	K_INIT_ARG(XboxTypes::ULONG,              OpenOptions);
+	K_INIT_ARG_PTR(HANDLE,            FileHandle);
+	K_INIT_ARG_VAL(ACCESS_MASK,       DesiredAccess);
+	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG_PTR(IO_STATUS_BLOCK,   IoStatusBlock);
+	K_INIT_ARG_VAL(ULONG,             ShareAccess);
+	K_INIT_ARG_VAL(ULONG,             OpenOptions);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

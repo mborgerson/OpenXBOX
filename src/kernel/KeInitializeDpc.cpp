@@ -13,16 +13,16 @@
 int Xbox::KeInitializeDpc()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PKDPC,              Dpc);
-	K_INIT_ARG(XboxTypes::PKDEFERRED_ROUTINE, DeferredRoutine);
-	K_INIT_ARG(XboxTypes::PVOID,              DeferredContext);
+	K_INIT_ARG_PTR(KDPC,               Dpc);
+	K_INIT_ARG_VAL(PKDEFERRED_ROUTINE, DeferredRoutine);
+	K_INIT_ARG_PTR(VOID,               DeferredContext);
 
-	XboxTypes::KDPC *dpc = _ADDR_TO_PTR(KDPC, Dpc);
-	dpc->Type = XboxTypes::DpcObject;
-	dpc->DeferredRoutine = DeferredRoutine;
-	dpc->DeferredContext = DeferredContext;
-	dpc->Inserted = FALSE;
+	// FIXME: let the object manager initialize this
+	pDpc->Type = XboxTypes::DpcObject;
+	pDpc->DeferredRoutine = DeferredRoutine;
+	pDpc->DeferredContext = DeferredContext;
+	pDpc->Inserted = FALSE;
 
 	K_EXIT();
-	return 0;
+	return KF_OK;
 }

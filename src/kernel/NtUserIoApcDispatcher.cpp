@@ -13,10 +13,10 @@
 int Xbox::NtUserIoApcDispatcher()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,            ApcContext);
-	K_INIT_ARG(XboxTypes::PIO_STATUS_BLOCK, IoStatusBlock);
-	K_INIT_ARG(XboxTypes::ULONG,            Reserved);
+	K_INIT_ARG_PTR(VOID,            ApcContext);
+	K_INIT_ARG_PTR(IO_STATUS_BLOCK, IoStatusBlock);
+	K_INIT_ARG_VAL(ULONG,           Reserved);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

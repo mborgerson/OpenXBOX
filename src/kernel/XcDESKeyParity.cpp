@@ -12,9 +12,9 @@
 int Xbox::XcDESKeyParity()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PUCHAR, pbKey);
-	K_INIT_ARG(XboxTypes::ULONG,  dwKeyLength);
+	K_INIT_ARG_PTR(UCHAR, pbKey);
+	K_INIT_ARG_VAL(ULONG, dwKeyLength);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

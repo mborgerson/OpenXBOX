@@ -15,12 +15,12 @@
 int Xbox::KeBugCheckEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG,     BugCheckCode);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, BugCheckParameter1);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, BugCheckParameter2);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, BugCheckParameter3);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, BugCheckParameter4);
+	K_INIT_ARG_VAL(ULONG,     BugCheckCode);
+	K_INIT_ARG_VAL(ULONG_PTR, BugCheckParameter1);
+	K_INIT_ARG_VAL(ULONG_PTR, BugCheckParameter2);
+	K_INIT_ARG_VAL(ULONG_PTR, BugCheckParameter3);
+	K_INIT_ARG_VAL(ULONG_PTR, BugCheckParameter4);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

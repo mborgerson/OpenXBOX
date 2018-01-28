@@ -15,13 +15,24 @@
 int Xbox::NtAllocateVirtualMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PPVOID,    BaseAddress);
-	K_INIT_ARG(XboxTypes::ULONG_PTR, ZeroBits);
-	K_INIT_ARG(XboxTypes::PSIZE_T,   RegionSize);
-	K_INIT_ARG(XboxTypes::ULONG,     AllocationType);
-	K_INIT_ARG(XboxTypes::ULONG,     Protect);
+	K_INIT_ARG_PTR(PVOID,     BaseAddress);
+	K_INIT_ARG_VAL(ULONG_PTR, ZeroBits);
+	K_INIT_ARG_PTR(SIZE_T,    RegionSize);
+	K_INIT_ARG_VAL(ULONG,     AllocationType);
+	K_INIT_ARG_VAL(ULONG,     Protect);
 	XboxTypes::NTSTATUS rval;
 
+	// TODO: need a virtual memory manager on top of the existing memory manager
+	ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous(*pRegionSize);
+	if (nullptr != block) {
+		*pBaseAddress = block->BaseAddress();
+		*pRegionSize = block->TotalSize();
+		rval = 0;
+	}
+	else {
+		rval = STATUS_NO_MEMORY;
+	}
+
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_PARTIAL_IMPL;
 }

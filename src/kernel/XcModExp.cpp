@@ -15,13 +15,13 @@
 int Xbox::XcModExp()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PULONG, pA);
-	K_INIT_ARG(XboxTypes::PULONG, pB);
-	K_INIT_ARG(XboxTypes::PULONG, pC);
-	K_INIT_ARG(XboxTypes::PULONG, pD);
-	K_INIT_ARG(XboxTypes::ULONG,  dwN);
+	K_INIT_ARG_PTR(ULONG, pA);
+	K_INIT_ARG_PTR(ULONG, pB);
+	K_INIT_ARG_PTR(ULONG, pC);
+	K_INIT_ARG_PTR(ULONG, pD);
+	K_INIT_ARG_VAL(ULONG, dwN);
 	XboxTypes::ULONG rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

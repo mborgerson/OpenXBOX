@@ -17,14 +17,17 @@
 int Xbox::KeInitializeInterrupt()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PKINTERRUPT,       Interrupt);
-	K_INIT_ARG(XboxTypes::PKSERVICE_ROUTINE, ServiceRoutine);
-	K_INIT_ARG(XboxTypes::PVOID,             ServiceContext);
-	K_INIT_ARG(XboxTypes::ULONG,             Vector);
-	K_INIT_ARG(XboxTypes::KIRQL,             Irql);
-	K_INIT_ARG(XboxTypes::KINTERRUPT_MODE,   InterruptMode);
-	K_INIT_ARG(XboxTypes::BOOLEAN,           ShareVector);
+	K_INIT_ARG_PTR(KINTERRUPT,        Interrupt);
+	K_INIT_ARG_VAL(PKSERVICE_ROUTINE, ServiceRoutine);
+	K_INIT_ARG_PTR(VOID,              ServiceContext);
+	K_INIT_ARG_VAL(ULONG,             Vector);
+	K_INIT_ARG_VAL(KIRQL,             Irql);
+	K_INIT_ARG_VAL(KINTERRUPT_MODE,   InterruptMode);
+	K_INIT_ARG_VAL(BOOLEAN,           ShareVector);
+
+	// FIXME: let the object manager initialize this
+
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

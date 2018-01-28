@@ -13,10 +13,10 @@
 int Xbox::MmLockUnlockBufferPages()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,   BaseAddress);
-	K_INIT_ARG(XboxTypes::SIZE_T,  NumberOfBytes);
-	K_INIT_ARG(XboxTypes::BOOLEAN, UnlockPages);
+	K_INIT_ARG_PTR(VOID,    BaseAddress);
+	K_INIT_ARG_VAL(SIZE_T,  NumberOfBytes);
+	K_INIT_ARG_VAL(BOOLEAN, UnlockPages);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

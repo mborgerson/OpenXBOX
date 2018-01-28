@@ -16,12 +16,12 @@
 int Xbox::AvSetDisplayMode()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID, RegisterBase);
-	K_INIT_ARG(XboxTypes::ULONG, Step);
-	K_INIT_ARG(XboxTypes::ULONG, DisplayMode);
-	K_INIT_ARG(XboxTypes::ULONG, SourceColorFormat);
-	K_INIT_ARG(XboxTypes::ULONG, Pitch);
-	K_INIT_ARG(XboxTypes::ULONG, FrameBuffer);
+	K_INIT_ARG_PTR(VOID,  RegisterBase);
+	K_INIT_ARG_VAL(ULONG, Step);
+	K_INIT_ARG_VAL(ULONG, DisplayMode);
+	K_INIT_ARG_VAL(ULONG, SourceColorFormat);
+	K_INIT_ARG_VAL(ULONG, Pitch);
+	K_INIT_ARG_VAL(ULONG, FrameBuffer);
 	XboxTypes::ULONG rval;
 
 	log_debug("%s(%08x, %x, %x, %x, %x, %x)\n",
@@ -36,5 +36,5 @@ int Xbox::AvSetDisplayMode()
 	rval = 0;
 
 	K_EXIT_WITH_VALUE(rval);
-	return 0;
+	return KF_WARN_FAKE_IMPL;
 }

@@ -11,8 +11,8 @@
 int Xbox::IoStartNextPacket()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PDEVICE_OBJECT, DeviceObject);
+	K_INIT_ARG_PTR(DEVICE_OBJECT, DeviceObject);
 
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

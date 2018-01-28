@@ -11,7 +11,7 @@
 int Xbox::HalReturnToFirmware()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::FIRMWARE_REENTRY, Routine);
+	K_INIT_ARG_VAL(FIRMWARE_REENTRY, Routine);
 
 	switch (Routine) {
 	case XboxTypes::HalHaltRoutine:
@@ -34,8 +34,9 @@ int Xbox::HalReturnToFirmware()
 		break;
 	}
 
+	// FIXME: should actually reboot or halt the system according to the chosen routine
 	m_should_run = false;
 
 	K_EXIT();
-	return 0;
+	return KF_WARN_PARTIAL_IMPL;
 }

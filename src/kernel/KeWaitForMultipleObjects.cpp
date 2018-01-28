@@ -18,16 +18,16 @@
 int Xbox::KeWaitForMultipleObjects()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG,           Count);
-	K_INIT_ARG(XboxTypes::PVOID,           Object);
-	K_INIT_ARG(XboxTypes::WAIT_TYPE,       WaitType);
-	K_INIT_ARG(XboxTypes::KWAIT_REASON,    WaitReason);
-	K_INIT_ARG(XboxTypes::KPROCESSOR_MODE, WaitMode);
-	K_INIT_ARG(XboxTypes::BOOLEAN,         Alertable);
-	K_INIT_ARG(XboxTypes::PLARGE_INTEGER,  Timeout);
-	K_INIT_ARG(XboxTypes::PKWAIT_BLOCK,    WaitBlockArray);
+	K_INIT_ARG_VAL(ULONG,           Count);
+	K_INIT_ARG_PTR(VOID,            Object);
+	K_INIT_ARG_VAL(WAIT_TYPE,       WaitType);
+	K_INIT_ARG_VAL(KWAIT_REASON,    WaitReason);
+	K_INIT_ARG_VAL(KPROCESSOR_MODE, WaitMode);
+	K_INIT_ARG_VAL(BOOLEAN,         Alertable);
+	K_INIT_ARG_PTR(LARGE_INTEGER,   Timeout);
+	K_INIT_ARG_PTR(KWAIT_BLOCK,     WaitBlockArray);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

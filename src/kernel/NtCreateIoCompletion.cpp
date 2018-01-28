@@ -14,12 +14,12 @@
 int Xbox::NtCreateIoCompletion()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PHANDLE,            IoCompletionHandle);
-	K_INIT_ARG(XboxTypes::ACCESS_MASK,        DesiredAccess);
-	K_INIT_ARG(XboxTypes::POBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG(XboxTypes::ULONG,              Count);
+	K_INIT_ARG_PTR(HANDLE,            IoCompletionHandle);
+	K_INIT_ARG_VAL(ACCESS_MASK,       DesiredAccess);
+	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG_VAL(ULONG,             Count);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

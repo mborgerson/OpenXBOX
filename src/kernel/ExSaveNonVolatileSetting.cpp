@@ -14,12 +14,12 @@
 int Xbox::ExSaveNonVolatileSetting()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::ULONG, ValueIndex);
-	K_INIT_ARG(XboxTypes::ULONG, Type);
-	K_INIT_ARG(XboxTypes::PVOID, Value);
-	K_INIT_ARG(XboxTypes::ULONG, ValueLength);
+	K_INIT_ARG_VAL(ULONG, ValueIndex);
+	K_INIT_ARG_VAL(ULONG, Type);
+	K_INIT_ARG_PTR(VOID,  Value);
+	K_INIT_ARG_VAL(ULONG, ValueLength);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }

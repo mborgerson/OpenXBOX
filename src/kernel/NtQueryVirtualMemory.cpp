@@ -12,10 +12,10 @@
 int Xbox::NtQueryVirtualMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG(XboxTypes::PVOID,                     BaseAddress);
-	K_INIT_ARG(XboxTypes::PMEMORY_BASIC_INFORMATION, MemoryInformation);
+	K_INIT_ARG_PTR(VOID,                     BaseAddress);
+	K_INIT_ARG_PTR(MEMORY_BASIC_INFORMATION, MemoryInformation);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
-	return ERROR_NOT_IMPLEMENTED;
+	return KF_ERROR_NOT_IMPLEMENTED;
 }
