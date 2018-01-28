@@ -38,6 +38,9 @@ enum CpuReg {
     REG_MAX,
 };
 
+// Last register to save in CpuContext
+#define REG_CONTEXT_MAX   ((size_t)(REG_GDT_LIMIT + 1))
+
 /*!
  * CPU execution context
  * 
@@ -45,7 +48,7 @@ enum CpuReg {
  */
 class CpuContext {
 public:
-    uint32_t m_regs[REG_MAX];
+    uint32_t m_regs[REG_CONTEXT_MAX];
     CpuContext();
     ~CpuContext();
 };

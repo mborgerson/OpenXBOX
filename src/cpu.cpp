@@ -8,7 +8,7 @@
  */
 CpuContext::CpuContext()
 {
-    for (int i = 0; i < REG_MAX; i++) {
+    for (int i = 0; i < REG_CONTEXT_MAX; i++) {
         m_regs[i] = 0;
     }
 }
@@ -79,7 +79,7 @@ void Cpu::PrintRegisters()
  */
 int Cpu::SaveContext(CpuContext *context)
 {
-    for (int i = 0; i < REG_MAX; i++) {
+    for (int i = 0; i < REG_CONTEXT_MAX; i++) {
         RegRead((enum CpuReg)i, &context->m_regs[i]);
     }
 
@@ -91,7 +91,7 @@ int Cpu::SaveContext(CpuContext *context)
  */
 int Cpu::RestoreContext(CpuContext *context)
 {
-    for (int i = 0; i < REG_MAX; i++) {
+    for (int i = 0; i < REG_CONTEXT_MAX; i++) {
         RegWrite((enum CpuReg)i, context->m_regs[i]);
     }
 
