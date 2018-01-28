@@ -17,6 +17,12 @@ int Xbox::KeInitializeDpc()
 	K_INIT_ARG(XboxTypes::PKDEFERRED_ROUTINE, DeferredRoutine);
 	K_INIT_ARG(XboxTypes::PVOID,              DeferredContext);
 
+	XboxTypes::KDPC *dpc = _ADDR_TO_PTR(KDPC, Dpc);
+	dpc->Type = XboxTypes::DpcObject;
+	dpc->DeferredRoutine = DeferredRoutine;
+	dpc->DeferredContext = DeferredContext;
+	dpc->Inserted = FALSE;
+
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }

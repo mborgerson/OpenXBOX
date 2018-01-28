@@ -15,6 +15,15 @@ int Xbox::KeInitializeTimerEx()
 	K_INIT_ARG(XboxTypes::PKTIMER,    Timer);
 	K_INIT_ARG(XboxTypes::TIMER_TYPE, Type);
 
+	XboxTypes::KTIMER *timer = _ADDR_TO_PTR(KTIMER, Timer);
+	timer->Header.Size = sizeof(XboxTypes::KTIMER) / sizeof(LONG);
+	timer->Header.Type = XboxTypes::TimerNotificationObject + Type;
+	timer->Header.Inserted = FALSE;
+	timer->Header.SignalState = FALSE;
+	timer->DueTime.QuadPart = 0;
+	timer->Period = 0;
+	InitializeListHead(&timer->TimerListEntry);
+
 	K_EXIT();
-	return ERROR_NOT_IMPLEMENTED;
+	return 0;
 }
