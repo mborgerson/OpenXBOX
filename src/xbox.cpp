@@ -2,7 +2,7 @@
 #include "xbox.h"
 #include "timer.h"
 #include "alloc.h"
-#include "memmgr.h"
+#include "pmemmgr.h"
 #include "kernel/impl/gdt.h"
 #include "kernel/impl/tss.h"
 
@@ -72,7 +72,7 @@ int Xbox::Initialize()
 
 	// Initialize memory manager
 	log_debug("Initializing Memory Manager\n");
-	m_memmgr = new MemoryManager(XBOX_RAM_SIZE);
+	m_pmemmgr = new PhysicalMemoryManager(XBOX_RAM_SIZE);
 
     // Create kernel import function thunk handlers
     log_debug("Initializing Kernel Thunk Handlers\n");
@@ -154,7 +154,7 @@ int Xbox::InitializeGDT() {
 	uint32_t var;\
 	uint32_t var##_size;\
 	{\
-		ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous((size));\
+		PhysicalMemoryBlock *block = m_pmemmgr->AllocateContiguous((size));\
 		if (nullptr == block) {\
 			log_debug("Could not allocate memory for " #var "\n");\
 			return 1;\
@@ -211,7 +211,7 @@ int Xbox::InitializeGDT() {
 
 	// Write GDT to memory
 	m_cpu->MemWrite(gdtAddr, sizeof(gdtTable), gdtTable);
-	m_memmgr->SetProtect(gdtAddr, gdtAddr_size, PAGE_READONLY);
+	m_pmemmgr->SetProtect(gdtAddr, gdtAddr_size, PAGE_READONLY);
 
 	// Set GDT register
 	m_cpu->SetGDT(gdtAddr, gdtAddr_size);
@@ -298,7 +298,7 @@ int Xbox::LoadXbe(Xbe *xbe)
 	// Reserve memory region for the entire XBE image
 	// TODO: check Protect flags
 	log_debug("Reserving memory range for XBE image @ 0x%08x - 0x%08x...", base, maxAddr);
-	if (nullptr == m_memmgr->Reserve(base, maxAddr-base, PAGE_EXECUTE_READWRITE)) {
+	if (nullptr == m_pmemmgr->Reserve(base, maxAddr-base, PAGE_EXECUTE_READWRITE)) {
 		log_debug("Could not reserve memory region!\n");
 	}
 	else {
@@ -339,7 +339,7 @@ Thread *Xbox::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
 
 	// Allocate memory for the thread stack
 	// TODO: check Protect flags
-	ContiguousMemoryBlock *threadStack = m_memmgr->AllocateContiguous(stackSize, IMAGE_BASE_ADDRESS, ULONG_MAX, PAGE_SIZE, PAGE_READWRITE);
+	PhysicalMemoryBlock *threadStack = m_pmemmgr->AllocateContiguous(stackSize, IMAGE_BASE_ADDRESS, ULONG_MAX, PAGE_SIZE, PAGE_READWRITE);
 	if (nullptr == threadStack) {
 		log_debug("Could not allocate memory for the thread stack!\n");
 		return nullptr;

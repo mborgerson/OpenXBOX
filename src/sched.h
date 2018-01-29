@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cpu.h"
-#include "memmgr.h"
+#include "pmemmgr.h"
 #include <string.h>
 #include <vector>
 
@@ -13,11 +13,11 @@
 class Thread {
 public:
     uint32_t m_entry;
-    ContiguousMemoryBlock *m_stack;
+    PhysicalMemoryBlock *m_stack;
     CpuContext m_context;
 	uint32_t m_id;
 
-    Thread(uint32_t entry, ContiguousMemoryBlock *stack);
+    Thread(uint32_t entry, PhysicalMemoryBlock *stack);
     ~Thread();
 };
 

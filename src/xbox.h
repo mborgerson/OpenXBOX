@@ -14,7 +14,7 @@
 #include "gdbserver.h"
 #include "log.h"
 #include "mem.h"
-#include "memmgr.h"
+#include "pmemmgr.h"
 #include "sched.h"
 #include "util.h"
 #include "xbe.h"
@@ -36,18 +36,18 @@
  */
 class Xbox {
 protected:
-    Scheduler	    *m_sched;
-    MemoryRegion    *m_mem;
-	MemoryManager   *m_memmgr;
-    Cpu             *m_cpu;
-    GdbServer       *m_gdb;
-    Xbe             *m_xbe;
-    char            *m_ram;
-    Video           *m_video;
-    uint32_t         m_kthunk_table_size;
-    uint32_t         m_kthunk_table_base;
-    uint32_t         m_import_addrs[379];
-    bool             m_should_run;
+    Scheduler	            *m_sched;
+    MemoryRegion            *m_mem;
+	PhysicalMemoryManager   *m_pmemmgr;
+    Cpu                     *m_cpu;
+    GdbServer               *m_gdb;
+    Xbe                     *m_xbe;
+    char                    *m_ram;
+    Video                   *m_video;
+    uint32_t                 m_kthunk_table_size;
+    uint32_t                 m_kthunk_table_base;
+    uint32_t                 m_import_addrs[379];
+    bool                     m_should_run;
 
     struct KernelVariables *m_kvars; // FIXME: structure isn't correct right
 

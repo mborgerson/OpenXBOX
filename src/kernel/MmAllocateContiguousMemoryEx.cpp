@@ -28,7 +28,7 @@ int Xbox::MmAllocateContiguousMemoryEx()
 	printf("Alignment                = %x\n", Alignment);
 	printf("Protect                  = %x\n", Protect);
 
-	ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment, Protect);
+	PhysicalMemoryBlock *block = m_pmemmgr->AllocateContiguous(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment, Protect);
 	if (block != nullptr) {
 		rval = block->BaseAddress();
 		printf("...allocated at %x\n", rval);

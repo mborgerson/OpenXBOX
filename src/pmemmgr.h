@@ -16,16 +16,16 @@
 	(((Size) & (PAGE_SIZE - 1)) != 0))
 
 
-class MemoryManager;
+class PhysicalMemoryManager;
 
-class ContiguousMemoryBlock {
+class PhysicalMemoryBlock {
 protected:
 	uint32_t m_basePage;
 	uint32_t m_numPages;
 	uint32_t m_actualSize;
-	MemoryManager *m_memmgr;
+	PhysicalMemoryManager *m_memmgr;
 public:
-	ContiguousMemoryBlock(uint32_t basePage, uint32_t numPages, uint32_t actualSize, MemoryManager *memmgr);
+	PhysicalMemoryBlock(uint32_t basePage, uint32_t numPages, uint32_t actualSize, PhysicalMemoryManager *memmgr);
 	
 	uint32_t BasePage() const { return m_basePage; }
 	uint32_t NumPages() const { return m_numPages; }
@@ -39,16 +39,16 @@ public:
 };
 
 
-class MemoryManager {
+class PhysicalMemoryManager {
 protected:
 	uint32_t m_mainMemorySize;
 	uint32_t m_usableMemorySize;
 
 	// Allocated memory blocks
-	std::set<ContiguousMemoryBlock *> m_blocks;
+	std::set<PhysicalMemoryBlock *> m_blocks;
 
 	// Maps base pages to allocated blocks
-	std::map<uint32_t, ContiguousMemoryBlock *> m_pageToBlock;
+	std::map<uint32_t, PhysicalMemoryBlock *> m_pageToBlock;
 
 	// Page allocation bitmap
 	// TODO: Use a bit set
@@ -63,7 +63,7 @@ protected:
 	/*!
 	 * Registers a memory block on the list.
 	 */
-	void RegisterBlock(ContiguousMemoryBlock *block, uint32_t protect) {
+	void RegisterBlock(PhysicalMemoryBlock *block, uint32_t protect) {
 		m_blocks.emplace(block);
 		m_pageToBlock[block->BasePage()] = block;
 		for (uint32_t page = block->BasePage(); page <= block->LastPage(); page++) {
@@ -78,15 +78,15 @@ protected:
 	 */
 	bool IsRegionUnallocated(uint32_t basePage, uint32_t numPages);
 public:
-	MemoryManager(uint32_t mainMemorySize);
-	~MemoryManager();
+	PhysicalMemoryManager(uint32_t mainMemorySize);
+	~PhysicalMemoryManager();
 
 	/*!
 	 * Allocates a contiguous block of memory of the requested size and
 	 * alignment within the specified range.
 	 * If the memory cannot be allocated, the function returns nullptr.
 	 */
-	ContiguousMemoryBlock *AllocateContiguous(
+	PhysicalMemoryBlock *AllocateContiguous(
 		uint32_t size,
 		uint32_t minAcceptableAddress = IMAGE_BASE_ADDRESS,
 		uint32_t maxAcceptableAddress = UINT32_MAX,
@@ -98,7 +98,7 @@ public:
 	 * Reserves the specified memory range, disallowing automatic allocation of
 	 * pages within it.
 	 */
-	ContiguousMemoryBlock *Reserve(uint32_t baseAddress, uint32_t size, uint32_t protect);
+	PhysicalMemoryBlock *Reserve(uint32_t baseAddress, uint32_t size, uint32_t protect);
 	
 	/*!
 	 * Frees the memory allocated at the given address.

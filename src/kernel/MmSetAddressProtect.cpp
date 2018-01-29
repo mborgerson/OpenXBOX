@@ -17,7 +17,7 @@ int Xbox::MmSetAddressProtect()
 	K_INIT_ARG_VAL(ULONG, NumberOfBytes);
 	K_INIT_ARG_VAL(ULONG, NewProtect);
 
-	m_memmgr->SetProtect(BaseAddress, NumberOfBytes, NewProtect);
+	m_pmemmgr->SetProtect(BaseAddress, NumberOfBytes, NewProtect);
 
 	K_EXIT();
 	return KF_WARN_FAKE_IMPL;

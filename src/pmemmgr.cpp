@@ -1,6 +1,6 @@
-#include "memmgr.h"
+#include "pmemmgr.h"
 
-ContiguousMemoryBlock::ContiguousMemoryBlock(uint32_t basePage, uint32_t numPages, uint32_t actualSize, MemoryManager *memmgr)
+PhysicalMemoryBlock::PhysicalMemoryBlock(uint32_t basePage, uint32_t numPages, uint32_t actualSize, PhysicalMemoryManager *memmgr)
 	: m_basePage(basePage)
 	, m_numPages(numPages)
 	, m_actualSize(actualSize)
@@ -8,12 +8,12 @@ ContiguousMemoryBlock::ContiguousMemoryBlock(uint32_t basePage, uint32_t numPage
 {
 }
 
-bool ContiguousMemoryBlock::Free() {
+bool PhysicalMemoryBlock::Free() {
 	return m_memmgr->FreeContiguous(BaseAddress());
 }
 
 
-MemoryManager::MemoryManager(uint32_t mainMemorySize)
+PhysicalMemoryManager::PhysicalMemoryManager(uint32_t mainMemorySize)
 	: m_mainMemorySize(mainMemorySize)
 {
 	m_usableMemorySize = mainMemorySize - PFN_DATABASE_SIZE;
@@ -22,7 +22,7 @@ MemoryManager::MemoryManager(uint32_t mainMemorySize)
 	memset(m_allocatedPages, 0, size);
 }
 
-MemoryManager::~MemoryManager()
+PhysicalMemoryManager::~PhysicalMemoryManager()
 {
 	for (auto it = m_blocks.begin(); it != m_blocks.end(); it++) {
 		delete (*it);
@@ -30,7 +30,7 @@ MemoryManager::~MemoryManager()
 	delete[] m_allocatedPages;
 }
 
-ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t minAcceptableAddress, uint32_t maxAcceptableAddress, uint32_t align, uint32_t protect)
+PhysicalMemoryBlock *PhysicalMemoryManager::AllocateContiguous(uint32_t size, uint32_t minAcceptableAddress, uint32_t maxAcceptableAddress, uint32_t align, uint32_t protect)
 {
 	// Cannot allocate zero length
 	if (size == 0) {
@@ -78,7 +78,7 @@ ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t
 	// (in reverse, because of page alignment restrictions)
 	for (uint32_t page = maxAcceptablePageNumber & pageAlignMask; page >= minAcceptablePageNumber; page -= pageAlign) {
 		if (IsRegionUnallocated(page, numPages)) {
-			ContiguousMemoryBlock *block = new ContiguousMemoryBlock(page, numPages, size, this);
+			PhysicalMemoryBlock *block = new PhysicalMemoryBlock(page, numPages, size, this);
 			RegisterBlock(block, protect);
 			return block;
 		}
@@ -88,14 +88,14 @@ ContiguousMemoryBlock *MemoryManager::AllocateContiguous(uint32_t size, uint32_t
 	return nullptr;
 }
 
-ContiguousMemoryBlock *MemoryManager::Reserve(uint32_t baseAddress, uint32_t size, uint32_t protect) {
+PhysicalMemoryBlock *PhysicalMemoryManager::Reserve(uint32_t baseAddress, uint32_t size, uint32_t protect) {
 	// Convert to pages
 	int basePage = BYTES_TO_PAGES(baseAddress);
 	int numPages = BYTES_TO_PAGES(size);
 
 	// Reserve block
 	if (IsRegionUnallocated(basePage, numPages)) {
-		ContiguousMemoryBlock *block = new ContiguousMemoryBlock(basePage, numPages, size, this);
+		PhysicalMemoryBlock *block = new PhysicalMemoryBlock(basePage, numPages, size, this);
 		RegisterBlock(block, protect);
 		return block;
 	}
@@ -104,10 +104,10 @@ ContiguousMemoryBlock *MemoryManager::Reserve(uint32_t baseAddress, uint32_t siz
 	return nullptr;
 }
 
-bool MemoryManager::FreeContiguous(uint32_t baseAddress) {
+bool PhysicalMemoryManager::FreeContiguous(uint32_t baseAddress) {
 	uint32_t page = BYTES_TO_PAGES(baseAddress);
 	if (m_pageToBlock.count(page)) {
-		ContiguousMemoryBlock *block = m_pageToBlock[page];
+		PhysicalMemoryBlock *block = m_pageToBlock[page];
 		m_pageToBlock.erase(page);
 		m_blocks.erase(block);
 		for (uint32_t page = block->BasePage(); page <= block->LastPage(); page++) {
@@ -118,7 +118,7 @@ bool MemoryManager::FreeContiguous(uint32_t baseAddress) {
 	return false;
 }
 
-uint32_t MemoryManager::QueryAllocationSize(uint32_t baseAddress) {
+uint32_t PhysicalMemoryManager::QueryAllocationSize(uint32_t baseAddress) {
 	uint32_t page = BYTES_TO_PAGES(baseAddress);
 	if (m_pageToBlock.count(page)) {
 		return m_pageToBlock[page]->NumPages() << PAGE_SHIFT;
@@ -126,20 +126,20 @@ uint32_t MemoryManager::QueryAllocationSize(uint32_t baseAddress) {
 	return 0;
 }
 
-void MemoryManager::SetProtect(uint32_t baseAddress, uint32_t size, uint32_t protect) {
+void PhysicalMemoryManager::SetProtect(uint32_t baseAddress, uint32_t size, uint32_t protect) {
 	// TODO: set protection mask and update CPU
 }
 
-uint32_t MemoryManager::QueryProtect(uint32_t address) {
+uint32_t PhysicalMemoryManager::QueryProtect(uint32_t address) {
 	// TODO: implement
 	return PAGE_READWRITE;
 }
 
-void MemoryManager::SetPersist(uint32_t baseAddress, uint32_t size, bool persist) {
+void PhysicalMemoryManager::SetPersist(uint32_t baseAddress, uint32_t size, bool persist) {
 	// TODO: implement
 }
 
-bool MemoryManager::IsRegionUnallocated(uint32_t basePage, uint32_t numPages) {
+bool PhysicalMemoryManager::IsRegionUnallocated(uint32_t basePage, uint32_t numPages) {
 	for (uint32_t page = basePage; page < basePage + numPages; page++) {
 		if (m_allocatedPages[page]) {
 			return false;

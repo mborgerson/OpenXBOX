@@ -14,7 +14,7 @@ int Xbox::MmQueryAddressProtect()
 	K_INIT_ARG_PTR(VOID, VirtualAddress);
 	XboxTypes::ULONG rval;
 
-	rval = m_memmgr->QueryProtect(VirtualAddress);
+	rval = m_pmemmgr->QueryProtect(VirtualAddress);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_FAKE_IMPL;

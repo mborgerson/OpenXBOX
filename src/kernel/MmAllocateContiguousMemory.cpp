@@ -16,7 +16,7 @@ int Xbox::MmAllocateContiguousMemory()
 
 	printf("NumberOfBytes            = %x\n", NumberOfBytes);
 
-	ContiguousMemoryBlock *block = m_memmgr->AllocateContiguous(NumberOfBytes);
+	PhysicalMemoryBlock *block = m_pmemmgr->AllocateContiguous(NumberOfBytes);
 	if (block != nullptr) {
 		rval = block->BaseAddress();
 		printf("...allocated at %x\n", rval);

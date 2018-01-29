@@ -6,7 +6,7 @@ static uint32_t g_threadId = 0;
 /*!
  * Constructor
  */
-Thread::Thread(uint32_t entry, ContiguousMemoryBlock *stack)
+Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack)
 	: m_entry(entry)
 	, m_stack(stack)
 	, m_id(++g_threadId)

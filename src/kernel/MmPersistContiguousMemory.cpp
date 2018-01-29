@@ -17,7 +17,7 @@ int Xbox::MmPersistContiguousMemory()
 	K_INIT_ARG_VAL(SIZE_T,  NumberOfBytes);
 	K_INIT_ARG_VAL(BOOLEAN, Persist);
 
-	m_memmgr->SetPersist(BaseAddress, NumberOfBytes, Persist);
+	m_pmemmgr->SetPersist(BaseAddress, NumberOfBytes, Persist);
 
 	K_EXIT();
 	return KF_WARN_FAKE_IMPL;
