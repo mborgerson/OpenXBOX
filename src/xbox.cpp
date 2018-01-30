@@ -295,7 +295,7 @@ int Xbox::Run()
 
         t.Start();
         m_video->FixmeLock();
-        result = m_kernel->m_sched->Run();
+        result = m_kernel->Run();
         m_video->FixmeUnlock();
         t.Stop();
         log_debug("CPU Executed for %lld ms\n", t.GetMillisecondsElapsed());
@@ -329,7 +329,7 @@ int Xbox::Run()
         }
 
 		// Let the scheduler save the CPU context
-		m_kernel->m_sched->SaveCPUContext();
+		m_kernel->SaveCPUContext();
 		
 		// t.Start();
         // m_video->Update();

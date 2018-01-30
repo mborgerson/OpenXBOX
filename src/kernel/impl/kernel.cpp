@@ -126,6 +126,14 @@ int XboxKernel::InitializeGDT() {
 	return 0;
 }
 
+int XboxKernel::Run() {
+	return m_sched->Run();
+}
+
+void XboxKernel::SaveCPUContext() {
+	m_sched->SaveCPUContext();
+}
+
 /*!
  * Creates a new thread, allocating the stack in the main memory.
  */

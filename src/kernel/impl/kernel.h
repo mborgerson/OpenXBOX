@@ -62,6 +62,9 @@ public:
 
 	int Initialize();
 
+	int Run();
+	void SaveCPUContext();
+
 	Thread *CreateThread(uint32_t entryAddress, uint32_t stackSize);
 	int ScheduleThread(Thread *thread);
 	int ScheduleNewThread(uint32_t entryAddress, uint32_t stackSize);
@@ -69,13 +72,13 @@ public:
 
 	// FIXME: public for now, to get things to compile
 	PhysicalMemoryManager *m_pmemmgr;
-	Scheduler *m_sched;
 
 private:
 	char *m_ram;
 	size_t m_ramSize;
 	Cpu *m_cpu;
-	
+	Scheduler *m_sched;
+
 	/*!
 	 * Initializes the GDT and data structures referenced by it.
 	 */
