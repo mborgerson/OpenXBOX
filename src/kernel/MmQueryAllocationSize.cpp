@@ -14,7 +14,7 @@ int Xbox::MmQueryAllocationSize()
 	K_INIT_ARG_PTR(VOID, BaseAddress);
 	XboxTypes::SIZE_T rval;
 
-	rval = m_pmemmgr->QueryAllocationSize(BaseAddress);
+	rval = m_kernel->m_pmemmgr->QueryAllocationSize(BaseAddress);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_OK;

@@ -23,7 +23,7 @@ int Xbox::NtAllocateVirtualMemory()
 	XboxTypes::NTSTATUS rval;
 
 	// TODO: need a virtual memory manager on top of the existing memory manager
-	PhysicalMemoryBlock *block = m_pmemmgr->AllocateContiguous(*pRegionSize);
+	PhysicalMemoryBlock *block = m_kernel->m_pmemmgr->AllocateContiguous(*pRegionSize);
 	if (nullptr != block) {
 		*pBaseAddress = block->BaseAddress();
 		*pRegionSize = block->TotalSize();

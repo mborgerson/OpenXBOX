@@ -33,7 +33,7 @@ int Xbox::PsCreateSystemThreadEx()
 	XboxTypes::NTSTATUS rval;
 
 	// TODO: this is obviously incomplete
-	m_sched->ScheduleThread(CreateThread(StartRoutine, KernelStackSize));
+	m_kernel->m_sched->ScheduleThread(m_kernel->CreateThread(StartRoutine, KernelStackSize));
 	// TODO: use an object manager to create the thread and obtain the handle
 	*pThreadHandle = 0x4;
 

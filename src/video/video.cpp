@@ -60,11 +60,10 @@ const GLint indicies[] = {
 };
 #endif
 
-Video::Video(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched)
+Video::Video(MemoryRegion *mem, MemoryRegion *ram)
 {
     m_mem   = mem;
     m_ram   = ram;
-    m_sched = sched;
 }
 
 Video::~Video()

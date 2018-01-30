@@ -3,8 +3,6 @@
 #include "timer.h"
 #include "alloc.h"
 #include "pmemmgr.h"
-#include "kernel/impl/gdt.h"
-#include "kernel/impl/tss.h"
 
 #define ENABLE_GDB_SERVER     0 // FIXME: Allow enable from cmdline
 #define DUMP_SECTION_CONTENTS 0
@@ -70,10 +68,6 @@ int Xbox::Initialize()
     assert(rgn != NULL);
     m_mem->AddSubRegion(rgn);
 
-	// Initialize memory manager
-	log_debug("Initializing Memory Manager\n");
-	m_pmemmgr = new PhysicalMemoryManager(XBOX_RAM_SIZE);
-
     // Create kernel import function thunk handlers
     log_debug("Initializing Kernel Thunk Handlers\n");
     m_kthunk_table_base = XBOX_KIMPORT_BASE;
@@ -103,25 +97,20 @@ int Xbox::Initialize()
     assert(m_cpu != NULL);
     m_cpu->Initialize();
 
-	// Initialize scheduler
-    log_debug("Initializing Scheduler\n");
-    m_sched = new Scheduler(m_cpu);
-    assert(m_sched != NULL);
-
     // Initialize Video
     log_debug("Initializing Video\n");
-    m_video = new Video(m_mem, rgn, m_sched);
+    m_video = new Video(m_mem, rgn);
     assert(m_video != NULL);
     m_video->Initialize();
 
     // Allow CPU to update memory map based on device allocation, etc
     m_cpu->MemMap(m_mem);
 
-	// Initialize GDT
-	int gdtStatus = InitializeGDT();
-	if (gdtStatus != 0) {
-		return gdtStatus;
-	}
+	// Initialize Kernel
+	log_debug("Initializing Kernel\n");
+	m_kernel = new XboxKernel(m_ram, XBOX_RAM_SIZE, m_cpu);
+	assert(m_kernel != NULL);
+	m_kernel->Initialize();
 
 	// GDB Server
 #if ENABLE_GDB_SERVER
@@ -131,100 +120,6 @@ int Xbox::Initialize()
 #endif
 
     return 0;
-}
-
-int Xbox::InitializeGDT() {
-	GDTEntry gdtTable[7];
-
-	log_debug("Initializing GDT\n");
-
-	// Index  Offset  Description          Segment regs.   Base         Limit     Access              Flags
-	// #0     0x00    unusable             -               0x00000000   0x00000   0b00000000 (0x00)   0b0000 (0x0)
-	// #1     0x08    ring-0 code          CS              0x00000000   0xffffb   0b10011011 (0x9b)   0b1100 (0xc)
-	// #2     0x10    ring-0 data          DS, ES, SS      0x00000000   0xfffff   0b10010011 (0x93)   0b1100 (0xc)
-	// #3     0x18    TSS (current task)*  -               <&tss>       0x00068   0b10001001 (0x89)   0b0000 (0x0)
-	// #4     0x20    KPCR                 FS              <&kpcr>      0x00284   0b10010011 (0x93)   0b1100 (0xc)
-	// #5     0x28    TSS (double fault)*  -               <&tssDF>     0x00068   0b10001001 (0x89)   0b0000 (0x0)
-	// #6     0x30    TSS (NMI)*           -               <&tssNMI>    0x00068   0b10001001 (0x89)   0b0000 (0x0)
-	//
-	// * informed assumptions based on https://www.geoffchappell.com/studies/windows/km/ntoskrnl/structs/kpcr.htm
-
-	// Allocate memory for the KPCR and TSS data structures
-#define ALLOC(var, size) \
-	uint32_t var;\
-	uint32_t var##_size;\
-	{\
-		PhysicalMemoryBlock *block = m_pmemmgr->AllocateContiguous((size));\
-		if (nullptr == block) {\
-			log_debug("Could not allocate memory for " #var "\n");\
-			return 1;\
-		}\
-		var = block->BaseAddress();\
-		var##_size = block->Size();\
-	}
-
-	ALLOC(kpcrAddr, sizeof(XboxTypes::KPCR));
-	ALLOC(tssAddr, sizeof(TSS));
-	ALLOC(tssDFAddr, sizeof(TSS));
-	ALLOC(tssNMIAddr, sizeof(TSS));
-	ALLOC(gdtAddr, sizeof(gdtTable));
-#undef ALLOC
-
-	log_debug("  KPCR located at 0x%08x\n", kpcrAddr);
-	log_debug("  Current Task TSS located at 0x%08x\n", tssAddr);
-	log_debug("  Double Fault TSS located at 0x%08x\n", tssDFAddr);
-	log_debug("  NMI TSS located at 0x%08x\n", tssNMIAddr);
-	log_debug("  GDT table located at 0x%08x\n", gdtAddr);
-
-	// Fill in TSS data with basic values
-	TSS tss;
-	memset(&tss, 0, sizeof(TSS));
-	tss.SS0 = tss.DS = tss.ES = tss.SS = 0x10;
-	tss.CS = 0x08;
-	tss.FS = 0x20;
-
-	// Write TSS to memory
-	m_cpu->MemWrite(tssAddr, sizeof(TSS), &tss);
-	m_cpu->MemWrite(tssDFAddr, sizeof(TSS), &tss);
-	m_cpu->MemWrite(tssNMIAddr, sizeof(TSS), &tss);
-
-	// Fill in basic KPCR data directly in memory
-	XboxTypes::KPCR *pKPCR = _ADDR_TO_PTR(KPCR, kpcrAddr);
-	memset(pKPCR, 0, sizeof(XboxTypes::KPCR));
-	pKPCR->SelfPcr = kpcrAddr;
-	pKPCR->Prcb = _PTR_TO_ADDR(KPCR, &pKPCR->PrcbData);
-	pKPCR->NtTib.Self = _PTR_TO_ADDR(NT_TIB, &pKPCR->NtTib);
-	pKPCR->NtTib.ExceptionList = EXCEPTION_CHAIN_END;
-	XboxTypes::KPRCB *pKPRCB = &pKPCR->PrcbData;
-	InitializeListHead(&pKPRCB->DpcListHead);
-	pKPRCB->DpcRoutineActive = 0;
-	// TODO: fill in just enough data for the emulated code to work properly
-
-	// Fill in GDT table data
-	gdtTable[0].Set(0x00000000, 0x00000, 0x00, 0x0);
-	gdtTable[1].Set(0x00000000, 0xffffb, 0x9b, 0xc);
-	gdtTable[2].Set(0x00000000, 0xfffff, 0x93, 0xc);
-	gdtTable[3].Set(tssAddr   , 0x00068, 0x89, 0x0);
-	gdtTable[4].Set(kpcrAddr  , 0x00284, 0x93, 0xc);
-	gdtTable[5].Set(tssDFAddr , 0x00068, 0x89, 0x0);
-	gdtTable[6].Set(tssNMIAddr, 0x00068, 0x89, 0x0);
-
-	// Write GDT to memory
-	m_cpu->MemWrite(gdtAddr, sizeof(gdtTable), gdtTable);
-	m_pmemmgr->SetProtect(gdtAddr, gdtAddr_size, PAGE_READONLY);
-
-	// Set GDT register
-	m_cpu->SetGDT(gdtAddr, gdtAddr_size);
-
-	// Set segment registers
-	m_cpu->RegWrite(REG_CS, 0x08);
-	m_cpu->RegWrite(REG_DS, 0x10);
-	m_cpu->RegWrite(REG_ES, 0x10);
-	m_cpu->RegWrite(REG_SS, 0x10);
-	m_cpu->RegWrite(REG_FS, 0x20);
-	m_cpu->RegWrite(REG_GS, 0x00);
-
-	return 0;
 }
 
 /*!
@@ -298,7 +193,7 @@ int Xbox::LoadXbe(Xbe *xbe)
 	// Reserve memory region for the entire XBE image
 	// TODO: check Protect flags
 	log_debug("Reserving memory range for XBE image @ 0x%08x - 0x%08x...", base, maxAddr);
-	if (nullptr == m_pmemmgr->Reserve(base, maxAddr-base, PAGE_EXECUTE_READWRITE)) {
+	if (nullptr == m_kernel->ReserveMemory(base, maxAddr-base, PAGE_EXECUTE_READWRITE)) {
 		log_debug("Could not reserve memory region!\n");
 	}
 	else {
@@ -306,7 +201,7 @@ int Xbox::LoadXbe(Xbe *xbe)
 	}
 
     // Create title main thread
-	m_sched->ScheduleThread(CreateThread(entry_addr, XBOX_STACK_SIZE));
+	m_kernel->ScheduleNewThread(entry_addr, XBOX_STACK_SIZE);
 
     return 0;
 }
@@ -328,24 +223,6 @@ uint32_t Xbox::UnscrambleAddress(uint32_t addr, uint32_t debug, uint32_t retail)
     }
 
     return addr ^ debug;
-}
-
-/*!
- * Creates a new thread, allocating the stack in the main memory.
- */
-Thread *Xbox::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
-	// TODO: Should probably differentiate between system and user threads
-	log_debug("Creating a thread with entry address 0x%08x and stack size 0x%x\n", entryAddress, stackSize);
-
-	// Allocate memory for the thread stack
-	// TODO: check Protect flags
-	PhysicalMemoryBlock *threadStack = m_pmemmgr->AllocateContiguous(stackSize, IMAGE_BASE_ADDRESS, ULONG_MAX, PAGE_SIZE, PAGE_READWRITE);
-	if (nullptr == threadStack) {
-		log_debug("Could not allocate memory for the thread stack!\n");
-		return nullptr;
-	}
-	log_debug("...stack allocated at 0x%08x\n", threadStack->BaseAddress());
-	return new Thread(entryAddress, threadStack);
 }
 
 /*!
@@ -418,7 +295,7 @@ int Xbox::Run()
 
         t.Start();
         m_video->FixmeLock();
-        result = m_sched->Run();
+        result = m_kernel->m_sched->Run();
         m_video->FixmeUnlock();
         t.Stop();
         log_debug("CPU Executed for %lld ms\n", t.GetMillisecondsElapsed());
@@ -452,7 +329,7 @@ int Xbox::Run()
         }
 
 		// Let the scheduler save the CPU context
-		m_sched->SaveCPUContext();
+		m_kernel->m_sched->SaveCPUContext();
 		
 		// t.Start();
         // m_video->Update();

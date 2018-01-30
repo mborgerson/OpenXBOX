@@ -6,12 +6,10 @@
 
 #include <dev.h>
 #include <mem.h>
-#include <sched.h>
 #include "nv2a.h"
 
 class Video {
 protected:
-    Scheduler     *m_sched;
     MemoryRegion  *m_mem;
     MemoryRegion  *m_ram;
     MemoryRegion  *m_mmio;
@@ -29,7 +27,7 @@ protected:
     SDL_Thread    *m_render_thread;
 
 public:
-    Video(MemoryRegion *mem, MemoryRegion *ram, Scheduler *sched);
+    Video(MemoryRegion *mem, MemoryRegion *ram);
     ~Video();
     int Initialize();
     int Cleanup();
