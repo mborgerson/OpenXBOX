@@ -27,6 +27,8 @@ int XboxKernel::Initialize() {
 	if (gdtStatus != 0) {
 		return gdtStatus;
 	}
+
+	return 0;
 }
 
 
