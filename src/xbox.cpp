@@ -142,10 +142,10 @@ int Xbox::InitializeGDT() {
 	// #0     0x00    unusable             -               0x00000000   0x00000   0b00000000 (0x00)   0b0000 (0x0)
 	// #1     0x08    ring-0 code          CS              0x00000000   0xffffb   0b10011011 (0x9b)   0b1100 (0xc)
 	// #2     0x10    ring-0 data          DS, ES, SS      0x00000000   0xfffff   0b10010011 (0x93)   0b1100 (0xc)
-	// #3     0x18    TSS (current task)*  -               <&tss1>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	// #3     0x18    TSS (current task)*  -               <&tss>       0x00068   0b10001001 (0x89)   0b0000 (0x0)
 	// #4     0x20    KPCR                 FS              <&kpcr>      0x00284   0b10010011 (0x93)   0b1100 (0xc)
-	// #5     0x28    TSS (double fault)*  -               <&tss2>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
-	// #6     0x30    TSS (NMI)*           -               <&tss3>      0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	// #5     0x28    TSS (double fault)*  -               <&tssDF>     0x00068   0b10001001 (0x89)   0b0000 (0x0)
+	// #6     0x30    TSS (NMI)*           -               <&tssNMI>    0x00068   0b10001001 (0x89)   0b0000 (0x0)
 	//
 	// * informed assumptions based on https://www.geoffchappell.com/studies/windows/km/ntoskrnl/structs/kpcr.htm
 
