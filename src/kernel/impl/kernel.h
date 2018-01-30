@@ -6,6 +6,45 @@
 #include "cpu.h"
 #include "sched.h"
 
+/*
+ * TODO: deal with pointers in an elegant manner
+ *
+ * I'm still debating on the idea of allowing direct access to structs in RAM
+ * vs. having a layer that copies data between the host and guest systems.
+ * The current approach relies on the usage of dumb pointers in Xbox structs
+ * and involves careful usage of the _PTR_TO_ADDR and _ADDR_TO_PTR macros.
+ * It kind of gets the job done, but has a major flaw: it fails to handle
+ * addresses outside of the physical memory range (0x00000000 - 0x03ffffff).
+ *
+ * As it happens, the official kernel has a tendency to hide internal structs
+ * in the upper half of the virtual memory (0x80000000 and above), so that
+ * approach might not work in all cases. Despite that, kernel structs *are*
+ * stored in physical memory; accessing them directly probably won't cause any
+ * trouble, as long as the game code doesn't decide to provide kernel structs
+ * with pointer addresses outside of the physical range to our functions.
+ *
+ * -----
+ *
+ * Direct access has the advantage of offering maximum performance, since it
+ * completely avoids memory copying. However, it is difficult to deal with
+ * addresses and pointers and so on, especially considering that some of them
+ * might actually be outside of the physical memory range. It requires the use
+ * of dumb pointers and constant translation between pointers to m_ram and
+ * actual memory addresses.
+ *
+ * Copying the data has a big performance penalty and is quite painful to
+ * implement because each and every struct needs to be handled manually,
+ * including copying additional data from pointers to other structs or values,
+ * as well as allocating and freeing the memory for the copies, but once done
+ * the kernel functions can manipulate the data without converting pointers.
+ * After the kernel is done working on them, the pointers need to be translated
+ * back into the corresponding Xbox RAM addresses (which, again, needs to be
+ * done for each and every struct type).
+ *
+ * If copying the data is the approach to be taken, then all the types defined
+ * in types.h will need to be refactored to use actual pointers instead of dumb
+ * pointers.
+ */
 
 /*!
  * A custom implementation of the Xbox kernel that runs on the host machine and
