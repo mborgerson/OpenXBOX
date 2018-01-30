@@ -11,15 +11,9 @@
 int Xbox::MmFreeContiguousMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID, BaseAddress);
+	K_INIT_ARG_VAL(PVOID, BaseAddress);
 
-	if (m_kernel->m_pmemmgr->FreeContiguous(BaseAddress)) {
-		printf("Free at %x\n", BaseAddress);
-	}
-	else {
-		printf("Attempted to free unallocated memory at %x\n", BaseAddress);
-		// TODO: should we stop execution here?
-	}
+	m_kernel->MmFreeContiguousMemory(BaseAddress);
 
 	K_EXIT();
 	return KF_WARN_PARTIAL_IMPL;

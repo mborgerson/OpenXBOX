@@ -70,48 +70,31 @@ public:
 	int ScheduleNewThread(uint32_t entryAddress, uint32_t stackSize);
 	PhysicalMemoryBlock *ReserveMemory(uint32_t baseAddress, uint32_t size, uint32_t protect);
 
-	// FIXME: public for now, to get things to compile
-	PhysicalMemoryManager *m_pmemmgr;
+	// ------------------------------------------------------------------------
+	// Kernel function implementations
+	// ------------------------------------------------------------------------
+
+	// Memory manager (Mm)
+	XboxTypes::PVOID MmAllocateContiguousMemory(XboxTypes::SIZE_T NumberOfBytes);
+	XboxTypes::PVOID MmAllocateContiguousMemoryEx(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::ULONG_PTR LowestAcceptableAddress, XboxTypes::ULONG_PTR HighestAcceptableAddress, XboxTypes::ULONG_PTR Alignment, XboxTypes::ULONG Protect);
+	XboxTypes::VOID MmFreeContiguousMemory(XboxTypes::PVOID BaseAddress);
+	XboxTypes::VOID MmPersistContiguousMemory(XboxTypes::PVOID BaseAddress, XboxTypes::SIZE_T NumberOfBytes, XboxTypes::BOOLEAN Persist);
+	XboxTypes::ULONG MmQueryAddressProtect(XboxTypes::PVOID VirtualAddress);
+	XboxTypes::SIZE_T MmQueryAllocationSize(XboxTypes::PVOID BaseAddress);
+	XboxTypes::VOID MmSetAddressProtect(XboxTypes::PVOID BaseAddress, XboxTypes::ULONG NumberOfBytes, XboxTypes::ULONG NewProtect);
+
+	// NT (Nt)
+	XboxTypes::NTSTATUS NtAllocateVirtualMemory(XboxTypes::PPVOID BaseAddress, XboxTypes::ULONG_PTR ZeroBits, XboxTypes::PSIZE_T RegionSize, XboxTypes::ULONG AllocationType, XboxTypes::ULONG Protect);
 
 private:
 	char *m_ram;
 	size_t m_ramSize;
 	Cpu *m_cpu;
 	Scheduler *m_sched;
+	PhysicalMemoryManager *m_pmemmgr;
 
 	/*!
 	 * Initializes the GDT and data structures referenced by it.
 	 */
 	int InitializeGDT();
-
-	/*!
-	 * Converts an address into a pointer to data in the physical Xbox memory,
-	 * allowing direct manipulation of data.
-	 *
-	 * Returns true if the address points to a valid region in the physical
-	 * memory, updating the pointer to the corresponding address of the data.
-	 */
-	template<class T> bool ToPointer(uint32_t address, T** pointer) {
-		if (address + sizeof(T) <= m_ramSize) {
-			*pointer = (T*)m_ram[address];
-			return true;
-		}
-		return false;
-	}
-
-	/*!
-	 * Converts a a pointer to data in Xbox memory into an address.
-	 *
-	 * Returns true if the pointer is contained within the Xbox memory region,
-	 * updating the contents of the address argument to the value
-	 * corresponding to the physical address of the data in Xbox RAM.
-	 */
-	template<class T> bool ToAddress(T* pointer, uint32_t *address) {
-		char *p = (char *)pointer;
-		if (p >= m_ram && p < m_ram + m_ramSize) {
-			*address = (uint32_t)((char *)pointer - m_ram);
-			return true;
-		}
-		return false;
-	}
 };

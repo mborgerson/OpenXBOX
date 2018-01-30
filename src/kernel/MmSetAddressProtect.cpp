@@ -13,11 +13,11 @@
 int Xbox::MmSetAddressProtect()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,  BaseAddress);
+	K_INIT_ARG_VAL(PVOID, BaseAddress);
 	K_INIT_ARG_VAL(ULONG, NumberOfBytes);
 	K_INIT_ARG_VAL(ULONG, NewProtect);
 
-	m_kernel->m_pmemmgr->SetProtect(BaseAddress, NumberOfBytes, NewProtect);
+	m_kernel->MmSetAddressProtect(BaseAddress, NumberOfBytes, NewProtect);
 
 	K_EXIT();
 	return KF_WARN_FAKE_IMPL;

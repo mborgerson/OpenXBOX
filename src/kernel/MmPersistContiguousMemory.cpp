@@ -13,11 +13,11 @@
 int Xbox::MmPersistContiguousMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,    BaseAddress);
+	K_INIT_ARG_VAL(PVOID,   BaseAddress);
 	K_INIT_ARG_VAL(SIZE_T,  NumberOfBytes);
 	K_INIT_ARG_VAL(BOOLEAN, Persist);
 
-	m_kernel->m_pmemmgr->SetPersist(BaseAddress, NumberOfBytes, Persist);
+	m_kernel->MmPersistContiguousMemory(BaseAddress, NumberOfBytes, Persist);
 
 	K_EXIT();
 	return KF_WARN_FAKE_IMPL;

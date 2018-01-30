@@ -22,21 +22,7 @@ int Xbox::MmAllocateContiguousMemoryEx()
 	K_INIT_ARG_VAL(ULONG,     Protect);
 	XboxTypes::PVOID rval;
 
-	printf("NumberOfBytes            = %x\n", NumberOfBytes);
-	printf("LowestAcceptableAddress  = %x\n", LowestAcceptableAddress);
-	printf("HighestAcceptableAddress = %x\n", HighestAcceptableAddress);
-	printf("Alignment                = %x\n", Alignment);
-	printf("Protect                  = %x\n", Protect);
-
-	PhysicalMemoryBlock *block = m_kernel->m_pmemmgr->AllocateContiguous(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment, Protect);
-	if (block != nullptr) {
-		rval = block->BaseAddress();
-		printf("...allocated at %x\n", rval);
-	}
-	else {
-		rval = 0;
-		printf("...failed to allocate\n");
-	}
+	rval = m_kernel->MmAllocateContiguousMemoryEx(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment, Protect);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_PARTIAL_IMPL;

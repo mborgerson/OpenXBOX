@@ -11,10 +11,10 @@
 int Xbox::MmQueryAddressProtect()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID, VirtualAddress);
+	K_INIT_ARG_VAL(PVOID, VirtualAddress);
 	XboxTypes::ULONG rval;
 
-	rval = m_kernel->m_pmemmgr->QueryProtect(VirtualAddress);
+	rval = m_kernel->MmQueryAddressProtect(VirtualAddress);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_FAKE_IMPL;

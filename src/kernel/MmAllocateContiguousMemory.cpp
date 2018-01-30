@@ -14,18 +14,8 @@ int Xbox::MmAllocateContiguousMemory()
 	K_INIT_ARG_VAL(SIZE_T, NumberOfBytes);
 	XboxTypes::PVOID rval;
 
-	printf("NumberOfBytes            = %x\n", NumberOfBytes);
-
-	PhysicalMemoryBlock *block = m_kernel->m_pmemmgr->AllocateContiguous(NumberOfBytes);
-	if (block != nullptr) {
-		rval = block->BaseAddress();
-		printf("...allocated at %x\n", rval);
-	}
-	else {
-		rval = 0;
-		printf("...failed to allocate\n");
-	}
-
+	rval = m_kernel->MmAllocateContiguousMemory(NumberOfBytes);
+	
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_PARTIAL_IMPL;
 }
