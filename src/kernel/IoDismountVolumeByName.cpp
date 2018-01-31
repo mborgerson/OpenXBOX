@@ -11,7 +11,7 @@
 int Xbox::IoDismountVolumeByName()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(OBJECT_STRING, DeviceName);
+	K_INIT_ARG(POBJECT_STRING, DeviceName);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

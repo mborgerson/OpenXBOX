@@ -12,8 +12,8 @@
 int Xbox::KeInitializeQueue()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PRKQUEUE, Queue);
-	K_INIT_ARG_VAL(ULONG,    Count);
+	K_INIT_ARG(PRKQUEUE, Queue);
+	K_INIT_ARG(ULONG,    Count);
 
 	m_kernel->KeInitializeQueue(Queue, Count);
 

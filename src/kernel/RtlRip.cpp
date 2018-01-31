@@ -13,9 +13,9 @@
 int Xbox::RtlRip()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID, ApiName);
-	K_INIT_ARG_PTR(VOID, Expression);
-	K_INIT_ARG_PTR(VOID, Message);
+	K_INIT_ARG(PVOID, ApiName);
+	K_INIT_ARG(PVOID, Expression);
+	K_INIT_ARG(PVOID, Message);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

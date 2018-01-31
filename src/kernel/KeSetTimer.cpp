@@ -13,9 +13,9 @@
 int Xbox::KeSetTimer()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PKTIMER,       Timer);
-	K_INIT_ARG_VAL(LARGE_INTEGER, DueTime);
-	K_INIT_ARG_VAL(PKDPC,         Dpc);
+	K_INIT_ARG(PKTIMER,       Timer);
+	K_INIT_ARG(LARGE_INTEGER, DueTime);
+	K_INIT_ARG(PKDPC,         Dpc);
 	XboxTypes::BOOLEAN rval;
 
 	rval = m_kernel->KeSetTimer(Timer, DueTime, Dpc);

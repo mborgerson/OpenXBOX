@@ -13,9 +13,9 @@
 int Xbox::RtlMoveMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID, Destination);
-	K_INIT_ARG_VAL(PVOID, Source);
-	K_INIT_ARG_VAL(ULONG, Length);
+	K_INIT_ARG(PVOID, Destination);
+	K_INIT_ARG(PVOID, Source);
+	K_INIT_ARG(ULONG, Length);
 
 	m_kernel->RtlMoveMemory(Destination, Source, Length);
 

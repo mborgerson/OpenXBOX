@@ -11,7 +11,7 @@
 int Xbox::RtlUlongByteSwap()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_VAL(ULONG, Source);
+	K_INIT_ARG(ULONG, Source);
 	XboxTypes::ULONG rval;
 
 	rval = m_kernel->RtlUlongByteSwap(Source);

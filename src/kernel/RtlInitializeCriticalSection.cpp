@@ -11,7 +11,7 @@
 int Xbox::RtlInitializeCriticalSection()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PRTL_CRITICAL_SECTION, CriticalSection);
+	K_INIT_ARG(PRTL_CRITICAL_SECTION, CriticalSection);
 
 	m_kernel->RtlInitializeCriticalSection(CriticalSection);
 

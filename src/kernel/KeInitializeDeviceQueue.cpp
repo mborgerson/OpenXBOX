@@ -11,7 +11,7 @@
 int Xbox::KeInitializeDeviceQueue()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PKDEVICE_QUEUE, DeviceQueue);
+	K_INIT_ARG(PKDEVICE_QUEUE, DeviceQueue);
 
 	m_kernel->KeInitializeDeviceQueue(DeviceQueue);
 

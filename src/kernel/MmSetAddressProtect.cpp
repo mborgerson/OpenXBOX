@@ -13,9 +13,9 @@
 int Xbox::MmSetAddressProtect()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID, BaseAddress);
-	K_INIT_ARG_VAL(ULONG, NumberOfBytes);
-	K_INIT_ARG_VAL(ULONG, NewProtect);
+	K_INIT_ARG(PVOID, BaseAddress);
+	K_INIT_ARG(ULONG, NumberOfBytes);
+	K_INIT_ARG(ULONG, NewProtect);
 
 	m_kernel->MmSetAddressProtect(BaseAddress, NumberOfBytes, NewProtect);
 

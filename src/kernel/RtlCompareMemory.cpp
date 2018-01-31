@@ -13,9 +13,9 @@
 int Xbox::RtlCompareMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID,  Source1);
-	K_INIT_ARG_VAL(PVOID,  Source2);
-	K_INIT_ARG_VAL(SIZE_T, Length);
+	K_INIT_ARG(PVOID,  Source1);
+	K_INIT_ARG(PVOID,  Source2);
+	K_INIT_ARG(SIZE_T, Length);
 	XboxTypes::SIZE_T rval;
 
 	rval = m_kernel->RtlCompareMemory(Source1, Source2, Length);

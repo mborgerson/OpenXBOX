@@ -13,9 +13,9 @@
 int Xbox::KeSetEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KEVENT,    Event);
-	K_INIT_ARG_VAL(KPRIORITY, Increment);
-	K_INIT_ARG_VAL(BOOLEAN,   Wait);
+	K_INIT_ARG(PRKEVENT,  Event);
+	K_INIT_ARG(KPRIORITY, Increment);
+	K_INIT_ARG(BOOLEAN,   Wait);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -15,11 +15,11 @@
 int Xbox::IoQueryFileInformation()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(FILE_OBJECT,            FileObject);
-	K_INIT_ARG_VAL(FILE_INFORMATION_CLASS, FileInformationClass);
-	K_INIT_ARG_VAL(ULONG,                  Length);
-	K_INIT_ARG_PTR(VOID,                   FileInformation);
-	K_INIT_ARG_PTR(ULONG,                  ReturnedLength);
+	K_INIT_ARG(PFILE_OBJECT,           FileObject);
+	K_INIT_ARG(FILE_INFORMATION_CLASS, FileInformationClass);
+	K_INIT_ARG(ULONG,                  Length);
+	K_INIT_ARG(PVOID,                  FileInformation);
+	K_INIT_ARG(PULONG,                 ReturnedLength);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

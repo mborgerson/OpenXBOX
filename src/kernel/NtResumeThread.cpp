@@ -12,8 +12,8 @@
 int Xbox::NtResumeThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE, ThreadHandle);
-	K_INIT_ARG_PTR(ULONG,  PreviousSuspendCount);
+	K_INIT_ARG(HANDLE, ThreadHandle);
+	K_INIT_ARG(PULONG, PreviousSuspendCount);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

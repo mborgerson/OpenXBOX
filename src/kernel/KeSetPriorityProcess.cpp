@@ -12,8 +12,8 @@
 int Xbox::KeSetPriorityProcess()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KPROCESS,  Process);
-	K_INIT_ARG_VAL(KPRIORITY, BasePriority);
+	K_INIT_ARG(PKPROCESS, Process);
+	K_INIT_ARG(KPRIORITY, BasePriority);
 	XboxTypes::KPRIORITY rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -11,7 +11,7 @@
 int Xbox::RtlFreeAnsiString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(ANSI_STRING, AnsiString);
+	K_INIT_ARG(PANSI_STRING, AnsiString);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

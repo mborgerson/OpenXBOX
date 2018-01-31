@@ -11,7 +11,7 @@
 int Xbox::RtlUpcaseUnicodeChar()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(WCHAR, SourceCharacter);
+	K_INIT_ARG(WCHAR, SourceCharacter);
 	XboxTypes::WCHAR rval;
 
 	K_EXIT_WITH_VALUE(rval);

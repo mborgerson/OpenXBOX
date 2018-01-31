@@ -18,14 +18,14 @@
 int Xbox::NtSetTimerEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,             TimerHandle);
-	K_INIT_ARG_PTR(LARGE_INTEGER,      DueTime);
-	K_INIT_ARG_VAL(PTIMER_APC_ROUTINE, TimerApcRoutine);
-	K_INIT_ARG_VAL(KPROCESSOR_MODE,    ApcMode);
-	K_INIT_ARG_PTR(VOID,               TimerContext);
-	K_INIT_ARG_VAL(BOOLEAN,            ResumeTimer);
-	K_INIT_ARG_VAL(LONG,               Period);
-	K_INIT_ARG_PTR(BOOLEAN,            PreviousState);
+	K_INIT_ARG(HANDLE,             TimerHandle);
+	K_INIT_ARG(PLARGE_INTEGER,     DueTime);
+	K_INIT_ARG(PTIMER_APC_ROUTINE, TimerApcRoutine);
+	K_INIT_ARG(KPROCESSOR_MODE,    ApcMode);
+	K_INIT_ARG(PVOID,              TimerContext);
+	K_INIT_ARG(BOOLEAN,            ResumeTimer);
+	K_INIT_ARG(LONG,               Period);
+	K_INIT_ARG(PBOOLEAN,           PreviousState);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

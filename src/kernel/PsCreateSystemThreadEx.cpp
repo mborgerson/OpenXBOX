@@ -20,16 +20,16 @@
 int Xbox::PsCreateSystemThreadEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PHANDLE,          ThreadHandle);
-	K_INIT_ARG_VAL(SIZE_T,           ThreadExtensionSize);
-	K_INIT_ARG_VAL(SIZE_T,           KernelStackSize);
-	K_INIT_ARG_VAL(SIZE_T,           TlsDataSize);
-	K_INIT_ARG_VAL(PHANDLE,          ThreadId);
-	K_INIT_ARG_VAL(PKSTART_ROUTINE,  StartRoutine);
-	K_INIT_ARG_VAL(PVOID,            StartContext);
-	K_INIT_ARG_VAL(BOOLEAN,          CreateSuspended);
-	K_INIT_ARG_VAL(BOOLEAN,          DebuggerThread);
-	K_INIT_ARG_VAL(PKSYSTEM_ROUTINE, SystemRoutine);
+	K_INIT_ARG(PHANDLE,          ThreadHandle);
+	K_INIT_ARG(SIZE_T,           ThreadExtensionSize);
+	K_INIT_ARG(SIZE_T,           KernelStackSize);
+	K_INIT_ARG(SIZE_T,           TlsDataSize);
+	K_INIT_ARG(PHANDLE,          ThreadId);
+	K_INIT_ARG(PKSTART_ROUTINE,  StartRoutine);
+	K_INIT_ARG(PVOID,            StartContext);
+	K_INIT_ARG(BOOLEAN,          CreateSuspended);
+	K_INIT_ARG(BOOLEAN,          DebuggerThread);
+	K_INIT_ARG(PKSYSTEM_ROUTINE, SystemRoutine);
 	XboxTypes::NTSTATUS rval;
 
 	rval = m_kernel->PsCreateSystemThreadEx(ThreadHandle, ThreadExtensionSize, KernelStackSize, TlsDataSize, ThreadId, StartRoutine, StartContext, CreateSuspended, DebuggerThread, SystemRoutine);

@@ -12,8 +12,8 @@
 int Xbox::NtQueryEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,                  EventHandle);
-	K_INIT_ARG_PTR(EVENT_BASIC_INFORMATION, EventInformation);
+	K_INIT_ARG(HANDLE,                   EventHandle);
+	K_INIT_ARG(PEVENT_BASIC_INFORMATION, EventInformation);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

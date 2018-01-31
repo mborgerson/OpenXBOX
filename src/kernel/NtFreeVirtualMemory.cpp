@@ -13,9 +13,9 @@
 int Xbox::NtFreeVirtualMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(PVOID,  BaseAddress);
-	K_INIT_ARG_PTR(SIZE_T, RegionSize);
-	K_INIT_ARG_VAL(ULONG,  FreeType);
+	K_INIT_ARG(PPVOID,  BaseAddress);
+	K_INIT_ARG(PSIZE_T, RegionSize);
+	K_INIT_ARG(ULONG,   FreeType);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -12,8 +12,8 @@
 int Xbox::NtSetSystemTime()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(LARGE_INTEGER, SystemTime);
-	K_INIT_ARG_PTR(LARGE_INTEGER, PreviousTime);
+	K_INIT_ARG(PLARGE_INTEGER, SystemTime);
+	K_INIT_ARG(PLARGE_INTEGER, PreviousTime);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

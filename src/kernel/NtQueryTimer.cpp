@@ -12,8 +12,8 @@
 int Xbox::NtQueryTimer()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,                  TimerHandle);
-	K_INIT_ARG_PTR(TIMER_BASIC_INFORMATION, TimerInformation);
+	K_INIT_ARG(HANDLE,                   TimerHandle);
+	K_INIT_ARG(PTIMER_BASIC_INFORMATION, TimerInformation);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

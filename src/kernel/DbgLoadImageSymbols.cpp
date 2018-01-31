@@ -13,9 +13,9 @@
 int Xbox::DbgLoadImageSymbols()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(STRING,    FileName);
-	K_INIT_ARG_PTR(VOID,      ImageBase);
-	K_INIT_ARG_VAL(ULONG_PTR, ProcessId);
+	K_INIT_ARG(PSTRING,   FileName);
+	K_INIT_ARG(PVOID,     ImageBase);
+	K_INIT_ARG(ULONG_PTR, ProcessId);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

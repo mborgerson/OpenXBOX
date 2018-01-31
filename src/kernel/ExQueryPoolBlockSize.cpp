@@ -11,7 +11,7 @@
 int Xbox::ExQueryPoolBlockSize()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID, PoolBlock);
+	K_INIT_ARG(PVOID, PoolBlock);
 	XboxTypes::ULONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

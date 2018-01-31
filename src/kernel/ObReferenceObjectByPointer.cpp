@@ -12,8 +12,8 @@
 int Xbox::ObReferenceObjectByPointer()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,        Object);
-	K_INIT_ARG_PTR(OBJECT_TYPE, ObjectType);
+	K_INIT_ARG(PVOID,        Object);
+	K_INIT_ARG(POBJECT_TYPE, ObjectType);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

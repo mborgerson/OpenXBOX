@@ -19,15 +19,15 @@
 int Xbox::NtCreateFile()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(HANDLE,            FileHandle);
-	K_INIT_ARG_VAL(ACCESS_MASK,       DesiredAccess);
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG_PTR(IO_STATUS_BLOCK,   IoStatusBlock);
-	K_INIT_ARG_PTR(LARGE_INTEGER,     AllocationSize);
-	K_INIT_ARG_VAL(ULONG,             FileAttributes);
-	K_INIT_ARG_VAL(ULONG,             ShareAccess);
-	K_INIT_ARG_VAL(ULONG,             CreateDisposition);
-	K_INIT_ARG_VAL(ULONG,             CreateOptions);
+	K_INIT_ARG(PHANDLE,            FileHandle);
+	K_INIT_ARG(ACCESS_MASK,        DesiredAccess);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(PIO_STATUS_BLOCK,   IoStatusBlock);
+	K_INIT_ARG(PLARGE_INTEGER,     AllocationSize);
+	K_INIT_ARG(ULONG,              FileAttributes);
+	K_INIT_ARG(ULONG,              ShareAccess);
+	K_INIT_ARG(ULONG,              CreateDisposition);
+	K_INIT_ARG(ULONG,              CreateOptions);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

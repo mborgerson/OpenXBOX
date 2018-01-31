@@ -12,8 +12,8 @@
 int Xbox::XcCryptService()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG, dwOp);
-	K_INIT_ARG_PTR(VOID,  pArgs);
+	K_INIT_ARG(ULONG, dwOp);
+	K_INIT_ARG(PVOID, pArgs);
 	XboxTypes::ULONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -13,9 +13,9 @@
 int Xbox::RtlFillMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID, Destination);
-	K_INIT_ARG_VAL(ULONG, Length);
-	K_INIT_ARG_VAL(UCHAR, Fill);
+	K_INIT_ARG(PVOID, Destination);
+	K_INIT_ARG(ULONG, Length);
+	K_INIT_ARG(UCHAR, Fill);
 
 	m_kernel->RtlFillMemory(Destination, Length, Fill);
 	

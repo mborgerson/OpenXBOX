@@ -15,11 +15,11 @@
 int Xbox::KeWaitForSingleObject()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,            Object);
-	K_INIT_ARG_VAL(KWAIT_REASON,    WaitReason);
-	K_INIT_ARG_VAL(KPROCESSOR_MODE, WaitMode);
-	K_INIT_ARG_VAL(BOOLEAN,         Alertable);
-	K_INIT_ARG_PTR(LARGE_INTEGER,   Timeout);
+	K_INIT_ARG(PVOID,           Object);
+	K_INIT_ARG(KWAIT_REASON,    WaitReason);
+	K_INIT_ARG(KPROCESSOR_MODE, WaitMode);
+	K_INIT_ARG(BOOLEAN,         Alertable);
+	K_INIT_ARG(PLARGE_INTEGER,  Timeout);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

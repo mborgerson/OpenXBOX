@@ -18,14 +18,14 @@
 int Xbox::IoSynchronousDeviceIoControlRequest()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG,         IoControlCode);
-	K_INIT_ARG_PTR(DEVICE_OBJECT, DeviceObject);
-	K_INIT_ARG_PTR(VOID,          InputBuffer);
-	K_INIT_ARG_VAL(ULONG,         InputBufferLength);
-	K_INIT_ARG_PTR(VOID,          OutputBuffer);
-	K_INIT_ARG_VAL(ULONG,         OutputBufferLength);
-	K_INIT_ARG_PTR(ULONG,         ReturnedOutputBufferLength);
-	K_INIT_ARG_VAL(BOOLEAN,       InternalDeviceIoControl);
+	K_INIT_ARG(ULONG,          IoControlCode);
+	K_INIT_ARG(PDEVICE_OBJECT, DeviceObject);
+	K_INIT_ARG(PVOID,          InputBuffer);
+	K_INIT_ARG(ULONG,          InputBufferLength);
+	K_INIT_ARG(PVOID,          OutputBuffer);
+	K_INIT_ARG(ULONG,          OutputBufferLength);
+	K_INIT_ARG(PULONG,         ReturnedOutputBufferLength);
+	K_INIT_ARG(BOOLEAN,        InternalDeviceIoControl);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

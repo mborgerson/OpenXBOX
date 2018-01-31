@@ -14,10 +14,10 @@
 int Xbox::KeSetTimerEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PKTIMER,       Timer);
-	K_INIT_ARG_VAL(LARGE_INTEGER, DueTime);
-	K_INIT_ARG_VAL(LONG,          Period);
-	K_INIT_ARG_VAL(PKDPC,         Dpc);
+	K_INIT_ARG(PKTIMER,       Timer);
+	K_INIT_ARG(LARGE_INTEGER, DueTime);
+	K_INIT_ARG(LONG,          Period);
+	K_INIT_ARG(PKDPC,         Dpc);
 	XboxTypes::BOOLEAN rval;
 
 	rval = m_kernel->KeSetTimerEx(Timer, DueTime, Period, Dpc);

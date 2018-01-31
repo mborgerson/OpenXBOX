@@ -11,7 +11,7 @@
 int Xbox::IoAllocateIrp()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(CCHAR, StackSize);
+	K_INIT_ARG(CCHAR, StackSize);
 	XboxTypes::PIRP rval;
 
 	K_EXIT_WITH_VALUE(rval);

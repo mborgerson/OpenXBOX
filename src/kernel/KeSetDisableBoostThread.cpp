@@ -12,8 +12,8 @@
 int Xbox::KeSetDisableBoostThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KTHREAD, Thread);
-	K_INIT_ARG_VAL(LOGICAL, Disable);
+	K_INIT_ARG(PKTHREAD, Thread);
+	K_INIT_ARG(LOGICAL,  Disable);
 	XboxTypes::LOGICAL rval;
 
 	K_EXIT_WITH_VALUE(rval);

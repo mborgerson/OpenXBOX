@@ -15,11 +15,11 @@
 int Xbox::NtQueueApcThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,          ThreadHandle);
-	K_INIT_ARG_VAL(PPS_APC_ROUTINE, ApcRoutine);
-	K_INIT_ARG_PTR(VOID,            ApcArgument1);
-	K_INIT_ARG_PTR(VOID,            ApcArgument2);
-	K_INIT_ARG_PTR(VOID,            ApcArgument3);
+	K_INIT_ARG(HANDLE,          ThreadHandle);
+	K_INIT_ARG(PPS_APC_ROUTINE, ApcRoutine);
+	K_INIT_ARG(PVOID,           ApcArgument1);
+	K_INIT_ARG(PVOID,           ApcArgument2);
+	K_INIT_ARG(PVOID,           ApcArgument3);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

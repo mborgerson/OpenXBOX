@@ -11,7 +11,7 @@
 int Xbox::MmFreeContiguousMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID, BaseAddress);
+	K_INIT_ARG(PVOID, BaseAddress);
 
 	m_kernel->MmFreeContiguousMemory(BaseAddress);
 

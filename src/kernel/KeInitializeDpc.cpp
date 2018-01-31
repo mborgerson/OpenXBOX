@@ -13,9 +13,9 @@
 int Xbox::KeInitializeDpc()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PKDPC,              Dpc);
-	K_INIT_ARG_VAL(PKDEFERRED_ROUTINE, DeferredRoutine);
-	K_INIT_ARG_VAL(PVOID,              DeferredContext);
+	K_INIT_ARG(PKDPC,              Dpc);
+	K_INIT_ARG(PKDEFERRED_ROUTINE, DeferredRoutine);
+	K_INIT_ARG(PVOID,              DeferredContext);
 
 	m_kernel->KeInitializeDpc(Dpc, DeferredRoutine, DeferredContext);
 

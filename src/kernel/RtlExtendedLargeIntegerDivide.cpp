@@ -13,9 +13,9 @@
 int Xbox::RtlExtendedLargeIntegerDivide()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(LARGE_INTEGER, Dividend);
-	K_INIT_ARG_VAL(ULONG,         Divisor);
-	K_INIT_ARG_PTR(ULONG,         Remainder);
+	K_INIT_ARG(LARGE_INTEGER, Dividend);
+	K_INIT_ARG(ULONG,         Divisor);
+	K_INIT_ARG(PULONG,        Remainder);
 	XboxTypes::LARGE_INTEGER rval;
 
 	K_EXIT_WITH_VALUE(rval);

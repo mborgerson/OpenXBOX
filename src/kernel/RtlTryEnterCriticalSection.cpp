@@ -11,7 +11,7 @@
 int Xbox::RtlTryEnterCriticalSection()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(RTL_CRITICAL_SECTION, CriticalSection);
+	K_INIT_ARG(PRTL_CRITICAL_SECTION, CriticalSection);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

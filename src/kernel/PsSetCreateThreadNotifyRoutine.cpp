@@ -11,7 +11,7 @@
 int Xbox::PsSetCreateThreadNotifyRoutine()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PCREATE_THREAD_NOTIFY_ROUTINE, NotifyRoutine);
+	K_INIT_ARG(PCREATE_THREAD_NOTIFY_ROUTINE, NotifyRoutine);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

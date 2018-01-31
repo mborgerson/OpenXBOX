@@ -11,7 +11,7 @@
 int Xbox::HalClearSoftwareInterrupt()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_VAL(KIRQL, RequestIrql);
+	K_INIT_ARG(KIRQL, RequestIrql);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

@@ -14,9 +14,9 @@
 int Xbox::RtlVsnprintf()
 {
 	K_ENTER_CDECL();
-	K_INIT_ARG_PTR(CHAR,   pszDest);
-	K_INIT_ARG_VAL(SIZE_T, cbDest);
-	K_INIT_ARG_LPT(CSTR,   pszFormat);
+	K_INIT_ARG(PCHAR,  pszDest);
+	K_INIT_ARG(SIZE_T, cbDest);
+	K_INIT_ARG(LPCSTR, pszFormat);
 	// FIXME: VarArgs
 
 	K_EXIT();

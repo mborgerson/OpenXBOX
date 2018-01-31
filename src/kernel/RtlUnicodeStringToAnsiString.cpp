@@ -13,9 +13,9 @@
 int Xbox::RtlUnicodeStringToAnsiString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(STRING,         DestinationString);
-	K_INIT_ARG_PTR(UNICODE_STRING, SourceString);
-	K_INIT_ARG_VAL(BOOLEAN,        AllocateDestinationString);
+	K_INIT_ARG(PSTRING,         DestinationString);
+	K_INIT_ARG(PUNICODE_STRING, SourceString);
+	K_INIT_ARG(BOOLEAN,         AllocateDestinationString);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -14,10 +14,10 @@
 int Xbox::HalWriteSMBusValue()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(UCHAR,   SlaveAddress);
-	K_INIT_ARG_VAL(UCHAR,   CommandCode);
-	K_INIT_ARG_VAL(BOOLEAN, WriteWordValue);
-	K_INIT_ARG_VAL(ULONG,   DataValue);
+	K_INIT_ARG(UCHAR,   SlaveAddress);
+	K_INIT_ARG(UCHAR,   CommandCode);
+	K_INIT_ARG(BOOLEAN, WriteWordValue);
+	K_INIT_ARG(ULONG,   DataValue);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -12,8 +12,8 @@
 int Xbox::NtPulseEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE, EventHandle);
-	K_INIT_ARG_PTR(LONG,   PreviousState);
+	K_INIT_ARG(HANDLE, EventHandle);
+	K_INIT_ARG(PLONG,  PreviousState);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

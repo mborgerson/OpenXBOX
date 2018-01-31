@@ -12,8 +12,8 @@
 int Xbox::RtlGetCallersAddress()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(PVOID, CallersAddress);
-	K_INIT_ARG_PTR(PVOID, CallersCaller);
+	K_INIT_ARG(PPVOID, CallersAddress);
+	K_INIT_ARG(PPVOID, CallersCaller);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

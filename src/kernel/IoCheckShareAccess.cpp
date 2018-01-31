@@ -15,11 +15,11 @@
 int Xbox::IoCheckShareAccess()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ACCESS_MASK,  DesiredAccess);
-	K_INIT_ARG_VAL(ULONG,        DesiredShareAccess);
-	K_INIT_ARG_PTR(FILE_OBJECT,  FileObject);
-	K_INIT_ARG_PTR(SHARE_ACCESS, ShareAccess);
-	K_INIT_ARG_VAL(BOOLEAN,      Update);
+	K_INIT_ARG(ACCESS_MASK,   DesiredAccess);
+	K_INIT_ARG(ULONG,         DesiredShareAccess);
+	K_INIT_ARG(PFILE_OBJECT,  FileObject);
+	K_INIT_ARG(PSHARE_ACCESS, ShareAccess);
+	K_INIT_ARG(BOOLEAN,       Update);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

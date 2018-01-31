@@ -11,7 +11,7 @@
 int Xbox::KeRemoveDeviceQueue()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KDEVICE_QUEUE, DeviceQueue);
+	K_INIT_ARG(PKDEVICE_QUEUE, DeviceQueue);
 	XboxTypes::PKDEVICE_QUEUE_ENTRY rval;
 
 	K_EXIT_WITH_VALUE(rval);

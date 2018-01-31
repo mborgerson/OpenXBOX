@@ -11,7 +11,7 @@
 int Xbox::FscSetCacheSize()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PFN_COUNT, NumberOfCachePages);
+	K_INIT_ARG(PFN_COUNT, NumberOfCachePages);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

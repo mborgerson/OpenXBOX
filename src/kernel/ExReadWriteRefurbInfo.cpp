@@ -13,9 +13,9 @@
 int Xbox::ExReadWriteRefurbInfo()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(XBOX_REFURB_INFO, RefurbInfo);
-	K_INIT_ARG_VAL(ULONG,            ValueLength);
-	K_INIT_ARG_VAL(BOOLEAN,          DoWrite);
+	K_INIT_ARG(PXBOX_REFURB_INFO, RefurbInfo);
+	K_INIT_ARG(ULONG,             ValueLength);
+	K_INIT_ARG(BOOLEAN,           DoWrite);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

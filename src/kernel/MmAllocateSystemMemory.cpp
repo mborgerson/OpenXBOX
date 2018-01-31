@@ -12,8 +12,8 @@
 int Xbox::MmAllocateSystemMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(SIZE_T, NumberOfBytes);
-	K_INIT_ARG_VAL(ULONG,  Protect);
+	K_INIT_ARG(SIZE_T, NumberOfBytes);
+	K_INIT_ARG(ULONG,  Protect);
 	XboxTypes::PVOID rval;
 
 	K_EXIT_WITH_VALUE(rval);

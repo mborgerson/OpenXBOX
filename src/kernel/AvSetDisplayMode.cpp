@@ -16,12 +16,12 @@
 int Xbox::AvSetDisplayMode()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID, RegisterBase);
-	K_INIT_ARG_VAL(ULONG, Step);
-	K_INIT_ARG_VAL(ULONG, DisplayMode);
-	K_INIT_ARG_VAL(ULONG, SourceColorFormat);
-	K_INIT_ARG_VAL(ULONG, Pitch);
-	K_INIT_ARG_VAL(ULONG, FrameBuffer);
+	K_INIT_ARG(PVOID, RegisterBase);
+	K_INIT_ARG(ULONG, Step);
+	K_INIT_ARG(ULONG, DisplayMode);
+	K_INIT_ARG(ULONG, SourceColorFormat);
+	K_INIT_ARG(ULONG, Pitch);
+	K_INIT_ARG(ULONG, FrameBuffer);
 	XboxTypes::ULONG rval;
 
 	rval = m_kernel->AvSetDisplayMode(RegisterBase, Step, DisplayMode, SourceColorFormat, Pitch, FrameBuffer);

@@ -12,8 +12,8 @@
 int Xbox::MmDbgWriteCheck()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,         VirtualAddress);
-	K_INIT_ARG_PTR(HARDWARE_PTE, Opaque);
+	K_INIT_ARG(PVOID,         VirtualAddress);
+	K_INIT_ARG(PHARDWARE_PTE, Opaque);
 	XboxTypes::PVOID rval;
 
 	K_EXIT_WITH_VALUE(rval);

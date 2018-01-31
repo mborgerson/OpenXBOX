@@ -11,7 +11,7 @@
 int Xbox::PhyGetLinkState()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(BOOLEAN, update);
+	K_INIT_ARG(BOOLEAN, update);
 	DWORD rval;
 
 	K_EXIT_WITH_VALUE(rval);

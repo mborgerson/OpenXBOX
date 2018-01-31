@@ -15,11 +15,11 @@
 int Xbox::ObReferenceObjectByName()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(OBJECT_STRING, ObjectName);
-	K_INIT_ARG_VAL(ULONG,         Attributes);
-	K_INIT_ARG_PTR(OBJECT_TYPE,   ObjectType);
-	K_INIT_ARG_PTR(VOID,          ParseContext);
-	K_INIT_ARG_PTR(PVOID,         Object);
+	K_INIT_ARG(POBJECT_STRING, ObjectName);
+	K_INIT_ARG(ULONG,          Attributes);
+	K_INIT_ARG(POBJECT_TYPE,   ObjectType);
+	K_INIT_ARG(PVOID,          ParseContext);
+	K_INIT_ARG(PPVOID,         Object);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

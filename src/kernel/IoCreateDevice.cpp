@@ -16,12 +16,12 @@
 int Xbox::IoCreateDevice()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(DRIVER_OBJECT,  DriverObject);
-	K_INIT_ARG_VAL(ULONG,          DeviceExtensionSize);
-	K_INIT_ARG_PTR(OBJECT_STRING,  DeviceName);
-	K_INIT_ARG_VAL(DEVICE_TYPE,    DeviceType);
-	K_INIT_ARG_VAL(BOOLEAN,        Exclusive);
-	K_INIT_ARG_PTR(PDEVICE_OBJECT, DeviceObject);
+	K_INIT_ARG(PDRIVER_OBJECT,  DriverObject);
+	K_INIT_ARG(ULONG,          DeviceExtensionSize);
+	K_INIT_ARG(POBJECT_STRING,  DeviceName);
+	K_INIT_ARG(DEVICE_TYPE,    DeviceType);
+	K_INIT_ARG(BOOLEAN,        Exclusive);
+	K_INIT_ARG(PPDEVICE_OBJECT, DeviceObject);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

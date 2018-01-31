@@ -13,9 +13,9 @@
 int Xbox::NtCreateMutant()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(HANDLE,            MutantHandle);
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG_VAL(BOOLEAN,           InitialOwner);
+	K_INIT_ARG(PHANDLE,            MutantHandle);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(BOOLEAN,            InitialOwner);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

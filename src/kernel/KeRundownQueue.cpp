@@ -11,7 +11,7 @@
 int Xbox::KeRundownQueue()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KQUEUE, Queue);
+	K_INIT_ARG(PRKQUEUE, Queue);
 	XboxTypes::PLIST_ENTRY rval;
 
 	K_EXIT_WITH_VALUE(rval);

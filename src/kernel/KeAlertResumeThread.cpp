@@ -11,7 +11,7 @@
 int Xbox::KeAlertResumeThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KTHREAD, Thread);
+	K_INIT_ARG(PKTHREAD, Thread);
 	XboxTypes::ULONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

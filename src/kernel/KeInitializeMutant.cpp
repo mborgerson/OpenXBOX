@@ -12,8 +12,8 @@
 int Xbox::KeInitializeMutant()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KMUTANT, Mutant);
-	K_INIT_ARG_VAL(BOOLEAN, InitialOwner);
+	K_INIT_ARG(PRKMUTANT, Mutant);
+	K_INIT_ARG(BOOLEAN,   InitialOwner);
 
 	// FIXME: let the object manager initialize this
 

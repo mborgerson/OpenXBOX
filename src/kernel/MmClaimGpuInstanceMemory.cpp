@@ -12,8 +12,8 @@
 int Xbox::MmClaimGpuInstanceMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(SIZE_T,  NumberOfBytes);
-	K_INIT_ARG_VAL(PSIZE_T, NumberOfPaddingBytes);
+	K_INIT_ARG(SIZE_T,  NumberOfBytes);
+	K_INIT_ARG(PSIZE_T, NumberOfPaddingBytes);
 	XboxTypes::PVOID rval;
 
 	rval = m_kernel->MmClaimGpuInstanceMemory(NumberOfBytes, NumberOfPaddingBytes);

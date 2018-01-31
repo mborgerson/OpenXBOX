@@ -13,9 +13,9 @@
 int Xbox::ExInterlockedCompareExchange64()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_PTR(LONGLONG, Destination);
-	K_INIT_ARG_PTR(LONGLONG, Exchange);
-	K_INIT_ARG_PTR(LONGLONG, Comparand);
+	K_INIT_ARG(PLONGLONG, Destination);
+	K_INIT_ARG(PLONGLONG, Exchange);
+	K_INIT_ARG(PLONGLONG, Comparand);
 	XboxTypes::LONGLONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

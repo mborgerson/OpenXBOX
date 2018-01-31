@@ -12,8 +12,8 @@
 int Xbox::PhyInitialize()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(BOOLEAN, forceReset);
-	K_INIT_ARG_PTR(VOID,    param);
+	K_INIT_ARG(BOOLEAN, forceReset);
+	K_INIT_ARG(PVOID,   param);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

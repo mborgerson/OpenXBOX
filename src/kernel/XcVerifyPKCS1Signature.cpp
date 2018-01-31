@@ -13,9 +13,9 @@
 int Xbox::XcVerifyPKCS1Signature()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(UCHAR, pbSig);
-	K_INIT_ARG_PTR(UCHAR, pbPubKey);
-	K_INIT_ARG_PTR(UCHAR, pbDigest);
+	K_INIT_ARG(PUCHAR, pbSig);
+	K_INIT_ARG(PUCHAR, pbPubKey);
+	K_INIT_ARG(PUCHAR, pbDigest);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

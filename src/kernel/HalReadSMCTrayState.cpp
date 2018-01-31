@@ -12,8 +12,8 @@
 int Xbox::HalReadSMCTrayState()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(ULONG, TrayState);
-	K_INIT_ARG_PTR(ULONG, TrayStateChangeCount);
+	K_INIT_ARG(PULONG, TrayState);
+	K_INIT_ARG(PULONG, TrayStateChangeCount);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

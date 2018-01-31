@@ -17,13 +17,13 @@
 int Xbox::KeInitializeInterrupt()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KINTERRUPT,        Interrupt);
-	K_INIT_ARG_VAL(PKSERVICE_ROUTINE, ServiceRoutine);
-	K_INIT_ARG_PTR(VOID,              ServiceContext);
-	K_INIT_ARG_VAL(ULONG,             Vector);
-	K_INIT_ARG_VAL(KIRQL,             Irql);
-	K_INIT_ARG_VAL(KINTERRUPT_MODE,   InterruptMode);
-	K_INIT_ARG_VAL(BOOLEAN,           ShareVector);
+	K_INIT_ARG(PKINTERRUPT,       Interrupt);
+	K_INIT_ARG(PKSERVICE_ROUTINE, ServiceRoutine);
+	K_INIT_ARG(PVOID,             ServiceContext);
+	K_INIT_ARG(ULONG,             Vector);
+	K_INIT_ARG(KIRQL,             Irql);
+	K_INIT_ARG(KINTERRUPT_MODE,   InterruptMode);
+	K_INIT_ARG(BOOLEAN,           ShareVector);
 
 	// FIXME: let the object manager initialize this
 

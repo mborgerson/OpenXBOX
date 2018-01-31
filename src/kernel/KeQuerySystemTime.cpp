@@ -11,7 +11,7 @@
 int Xbox::KeQuerySystemTime()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(LARGE_INTEGER, CurrentTime);
+	K_INIT_ARG(PLARGE_INTEGER, CurrentTime);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

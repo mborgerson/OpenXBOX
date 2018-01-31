@@ -13,9 +13,9 @@
 int Xbox::RtlCompareMemoryUlong()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID,  Source);
-	K_INIT_ARG_VAL(SIZE_T, Length);
-	K_INIT_ARG_VAL(ULONG,  Pattern);
+	K_INIT_ARG(PVOID,  Source);
+	K_INIT_ARG(SIZE_T, Length);
+	K_INIT_ARG(ULONG,  Pattern);
 	XboxTypes::SIZE_T rval;
 
 	rval = m_kernel->RtlCompareMemoryUlong(Source, Length, Pattern);

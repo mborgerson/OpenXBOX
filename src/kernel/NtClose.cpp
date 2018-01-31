@@ -11,7 +11,7 @@
 int Xbox::NtClose()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE, Handle);
+	K_INIT_ARG(HANDLE, Handle);
 	XboxTypes::NTSTATUS rval;
 
 	rval = m_kernel->NtClose(Handle);

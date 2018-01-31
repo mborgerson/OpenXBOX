@@ -12,8 +12,8 @@
 int Xbox::KeInitializeTimerEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PKTIMER,    Timer);
-	K_INIT_ARG_VAL(TIMER_TYPE, Type);
+	K_INIT_ARG(PKTIMER,    Timer);
+	K_INIT_ARG(TIMER_TYPE, Type);
 
 	m_kernel->KeInitializeTimerEx(Timer, Type);
 

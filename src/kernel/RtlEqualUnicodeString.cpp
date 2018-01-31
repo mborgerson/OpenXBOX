@@ -13,9 +13,9 @@
 int Xbox::RtlEqualUnicodeString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(UNICODE_STRING, String1);
-	K_INIT_ARG_PTR(UNICODE_STRING, String2);
-	K_INIT_ARG_VAL(BOOLEAN,        CaseInSensitive);
+	K_INIT_ARG(PUNICODE_STRING, String1);
+	K_INIT_ARG(PUNICODE_STRING, String2);
+	K_INIT_ARG(BOOLEAN,         CaseInSensitive);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

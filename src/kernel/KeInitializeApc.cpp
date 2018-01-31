@@ -17,13 +17,13 @@
 int Xbox::KeInitializeApc()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PRKAPC,            Apc);
-	K_INIT_ARG_VAL(PRKTHREAD,         Thread);
-	K_INIT_ARG_VAL(PKKERNEL_ROUTINE,  KernelRoutine);
-	K_INIT_ARG_VAL(PKRUNDOWN_ROUTINE, RundownRoutine);
-	K_INIT_ARG_VAL(PKNORMAL_ROUTINE,  NormalRoutine);
-	K_INIT_ARG_VAL(KPROCESSOR_MODE,   ProcessorMode);
-	K_INIT_ARG_VAL(PVOID,             NormalContext);
+	K_INIT_ARG(PRKAPC,            Apc);
+	K_INIT_ARG(PRKTHREAD,         Thread);
+	K_INIT_ARG(PKKERNEL_ROUTINE,  KernelRoutine);
+	K_INIT_ARG(PKRUNDOWN_ROUTINE, RundownRoutine);
+	K_INIT_ARG(PKNORMAL_ROUTINE,  NormalRoutine);
+	K_INIT_ARG(KPROCESSOR_MODE,   ProcessorMode);
+	K_INIT_ARG(PVOID,             NormalContext);
 
 	m_kernel->KeInitializeApc(Apc, Thread, KernelRoutine, RundownRoutine, NormalRoutine, ProcessorMode, NormalContext);
 

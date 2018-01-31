@@ -12,8 +12,8 @@
 int Xbox::RtlExtendedIntegerMultiply()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(LARGE_INTEGER, Multiplicand);
-	K_INIT_ARG_VAL(LONG,          Multiplier);
+	K_INIT_ARG(LARGE_INTEGER, Multiplicand);
+	K_INIT_ARG(LONG,          Multiplier);
 	XboxTypes::LARGE_INTEGER rval;
 
 	K_EXIT_WITH_VALUE(rval);

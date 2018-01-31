@@ -14,10 +14,10 @@
 int Xbox::KeReleaseSemaphore()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KSEMAPHORE, Semaphore);
-	K_INIT_ARG_VAL(KPRIORITY,  Increment);
-	K_INIT_ARG_VAL(LONG,       Adjustment);
-	K_INIT_ARG_VAL(BOOLEAN,    Wait);
+	K_INIT_ARG(PRKSEMAPHORE, Semaphore);
+	K_INIT_ARG(KPRIORITY,    Increment);
+	K_INIT_ARG(LONG,         Adjustment);
+	K_INIT_ARG(BOOLEAN,      Wait);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

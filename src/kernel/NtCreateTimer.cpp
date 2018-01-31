@@ -13,9 +13,9 @@
 int Xbox::NtCreateTimer()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(HANDLE,            TimerHandle);
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG_VAL(TIMER_TYPE,        TimerType);
+	K_INIT_ARG(PHANDLE,            TimerHandle);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(TIMER_TYPE,         TimerType);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -12,8 +12,8 @@
 int Xbox::NtQueryVirtualMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,                     BaseAddress);
-	K_INIT_ARG_PTR(MEMORY_BASIC_INFORMATION, MemoryInformation);
+	K_INIT_ARG(PVOID,                     BaseAddress);
+	K_INIT_ARG(PMEMORY_BASIC_INFORMATION, MemoryInformation);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

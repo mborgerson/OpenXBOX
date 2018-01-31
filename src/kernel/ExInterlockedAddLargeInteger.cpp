@@ -12,8 +12,8 @@
 int Xbox::ExInterlockedAddLargeInteger()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(LARGE_INTEGER, Addend);
-	K_INIT_ARG_VAL(LARGE_INTEGER, Increment);
+	K_INIT_ARG(PLARGE_INTEGER, Addend);
+	K_INIT_ARG(LARGE_INTEGER,  Increment);
 	XboxTypes::LARGE_INTEGER rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -12,8 +12,8 @@
 int Xbox::RtlTimeFieldsToTime()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(TIME_FIELDS,   TimeFields);
-	K_INIT_ARG_PTR(LARGE_INTEGER, Time);
+	K_INIT_ARG(PTIME_FIELDS,   TimeFields);
+	K_INIT_ARG(PLARGE_INTEGER, Time);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

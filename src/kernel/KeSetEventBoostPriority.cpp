@@ -12,8 +12,8 @@
 int Xbox::KeSetEventBoostPriority()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KEVENT,    Event);
-	K_INIT_ARG_PTR(PRKTHREAD, Thread);
+	K_INIT_ARG(PRKEVENT,   Event);
+	K_INIT_ARG(PPRKTHREAD, Thread);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

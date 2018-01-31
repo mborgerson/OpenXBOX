@@ -15,11 +15,11 @@
 int Xbox::NtQueryVolumeInformationFile()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,               FileHandle);
-	K_INIT_ARG_PTR(IO_STATUS_BLOCK,      IoStatusBlock);
-	K_INIT_ARG_PTR(VOID,                 FsInformation);
-	K_INIT_ARG_VAL(ULONG,                Length);
-	K_INIT_ARG_VAL(FS_INFORMATION_CLASS, FsInformationClass);
+	K_INIT_ARG(HANDLE,               FileHandle);
+	K_INIT_ARG(PIO_STATUS_BLOCK,     IoStatusBlock);
+	K_INIT_ARG(PVOID,                FsInformation);
+	K_INIT_ARG(ULONG,                Length);
+	K_INIT_ARG(FS_INFORMATION_CLASS, FsInformationClass);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

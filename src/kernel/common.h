@@ -19,27 +19,9 @@
     StdcallHelper cc(m_cpu);
 
 // Get the argument from the stack frame according to the calling convention
-#define K_INIT_ARG_VAL(TYPE, NAME) \
+#define K_INIT_ARG(TYPE, NAME) \
 	XboxTypes::TYPE NAME; \
 	cc.GetArgument(&NAME, sizeof(XboxTypes::TYPE));
-
-// Get the argument from the stack frame according to the calling convention
-// and make a pointer to RAM
-#define K_INIT_ARG_PTR(TYPE, NAME) \
-	K_INIT_ARG_VAL(P##TYPE, NAME); \
-	_ADDR_TO_PTR_VAR(TYPE, NAME);
-
-// Get the argument from the stack frame according to the calling convention
-// and make a "long" pointer to RAM
-#define K_INIT_ARG_LPT(TYPE, NAME) \
-	K_INIT_ARG_VAL(LP##TYPE, NAME); \
-	_ADDR_TO_PTR_VAR(TYPE, NAME);
-
-// Get the argument from the stack frame according to the calling convention
-// and make a reserved pointer to RAM
-#define K_INIT_ARG_RPT(TYPE, NAME) \
-	K_INIT_ARG_VAL(PR##TYPE, NAME); \
-	_ADDR_TO_PTR_VAR(TYPE, NAME);
 
 // Return from the kernel function
 #define K_EXIT() \

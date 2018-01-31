@@ -11,7 +11,7 @@
 int Xbox::RtlUshortByteSwap()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_VAL(USHORT, Source);
+	K_INIT_ARG(USHORT, Source);
 	XboxTypes::USHORT rval;
 
 	rval = m_kernel->RtlUshortByteSwap(Source);

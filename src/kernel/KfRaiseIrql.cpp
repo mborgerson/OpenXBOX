@@ -11,7 +11,7 @@
 int Xbox::KfRaiseIrql()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_VAL(KIRQL, NewIrql);
+	K_INIT_ARG(KIRQL, NewIrql);
 	XboxTypes::KIRQL rval;
 
 	K_EXIT_WITH_VALUE(rval);

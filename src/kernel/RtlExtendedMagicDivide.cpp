@@ -13,9 +13,9 @@
 int Xbox::RtlExtendedMagicDivide()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(LARGE_INTEGER, Dividend);
-	K_INIT_ARG_VAL(LARGE_INTEGER, MagicDivisor);
-	K_INIT_ARG_VAL(CCHAR,         ShiftCount);
+	K_INIT_ARG(LARGE_INTEGER, Dividend);
+	K_INIT_ARG(LARGE_INTEGER, MagicDivisor);
+	K_INIT_ARG(CCHAR,         ShiftCount);
 	XboxTypes::LARGE_INTEGER rval;
 
 	K_EXIT_WITH_VALUE(rval);

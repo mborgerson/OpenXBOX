@@ -13,9 +13,9 @@
 int Xbox::DbgPrompt()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(CH,    Prompt);
-	K_INIT_ARG_PTR(CH,    Response);
-	K_INIT_ARG_VAL(ULONG, MaximumResponseLength);
+	K_INIT_ARG(PCH,   Prompt);
+	K_INIT_ARG(PCH,   Response);
+	K_INIT_ARG(ULONG, MaximumResponseLength);
 	XboxTypes::ULONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

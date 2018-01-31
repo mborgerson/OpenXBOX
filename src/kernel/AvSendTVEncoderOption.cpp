@@ -14,10 +14,10 @@
 int Xbox::AvSendTVEncoderOption()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID,  RegisterBase);
-	K_INIT_ARG_VAL(ULONG,  Option);
-	K_INIT_ARG_VAL(ULONG,  Param);
-	K_INIT_ARG_VAL(PULONG, Result);
+	K_INIT_ARG(PVOID,  RegisterBase);
+	K_INIT_ARG(ULONG,  Option);
+	K_INIT_ARG(ULONG,  Param);
+	K_INIT_ARG(PULONG, Result);
 
 	m_kernel->AvSendTVEncoderOption(RegisterBase, Option, Param, Result);
 

@@ -11,7 +11,7 @@
 int Xbox::MmQueryAddressProtect()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID, VirtualAddress);
+	K_INIT_ARG(PVOID, VirtualAddress);
 	XboxTypes::ULONG rval;
 
 	rval = m_kernel->MmQueryAddressProtect(VirtualAddress);

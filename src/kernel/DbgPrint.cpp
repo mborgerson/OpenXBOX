@@ -12,7 +12,7 @@
 int Xbox::DbgPrint()
 {
 	K_ENTER_CDECL();
-	K_INIT_ARG_PTR(CH, Format);
+	K_INIT_ARG(PCH, Format);
 	XboxTypes::ULONG rval;
 	// FIXME: VarArgs
 

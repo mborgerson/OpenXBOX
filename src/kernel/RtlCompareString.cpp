@@ -13,9 +13,9 @@
 int Xbox::RtlCompareString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(STRING,  String1);
-	K_INIT_ARG_PTR(STRING,  String2);
-	K_INIT_ARG_VAL(BOOLEAN, CaseInSensitive);
+	K_INIT_ARG(PSTRING, String1);
+	K_INIT_ARG(PSTRING, String2);
+	K_INIT_ARG(BOOLEAN, CaseInSensitive);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

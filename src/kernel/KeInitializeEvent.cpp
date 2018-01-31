@@ -13,9 +13,9 @@
 int Xbox::KeInitializeEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PRKEVENT,   Event);
-	K_INIT_ARG_VAL(EVENT_TYPE, Type);
-	K_INIT_ARG_VAL(BOOLEAN,    State);
+	K_INIT_ARG(PRKEVENT,   Event);
+	K_INIT_ARG(EVENT_TYPE, Type);
+	K_INIT_ARG(BOOLEAN,    State);
 
 	m_kernel->KeInitializeEvent(Event, Type, State);
 

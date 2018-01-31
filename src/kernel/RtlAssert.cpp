@@ -14,10 +14,10 @@
 int Xbox::RtlAssert()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,  FailedAssertion);
-	K_INIT_ARG_PTR(VOID,  FileName);
-	K_INIT_ARG_VAL(ULONG, LineNumber);
-	K_INIT_ARG_PTR(CHAR,  Message);
+	K_INIT_ARG(PVOID, FailedAssertion);
+	K_INIT_ARG(PVOID, FileName);
+	K_INIT_ARG(ULONG, LineNumber);
+	K_INIT_ARG(PCHAR, Message);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

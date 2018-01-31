@@ -13,9 +13,9 @@
 int Xbox::NtReleaseSemaphore()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE, SemaphoreHandle);
-	K_INIT_ARG_VAL(LONG,   ReleaseCount);
-	K_INIT_ARG_PTR(LONG,   PreviousCount);
+	K_INIT_ARG(HANDLE, SemaphoreHandle);
+	K_INIT_ARG(LONG,   ReleaseCount);
+	K_INIT_ARG(PLONG,  PreviousCount);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

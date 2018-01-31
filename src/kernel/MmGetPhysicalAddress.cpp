@@ -11,7 +11,7 @@
 int Xbox::MmGetPhysicalAddress()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID, BaseAddress);
+	K_INIT_ARG(PVOID, BaseAddress);
 	XboxTypes::ULONG_PTR rval;
 
 	K_EXIT_WITH_VALUE(rval);

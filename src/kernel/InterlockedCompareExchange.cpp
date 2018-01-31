@@ -13,9 +13,9 @@
 int Xbox::InterlockedCompareExchange()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_PTR(LONG, Destination);
-	K_INIT_ARG_VAL(LONG, ExChange);
-	K_INIT_ARG_VAL(LONG, Comparand);
+	K_INIT_ARG(PLONG, Destination);
+	K_INIT_ARG(LONG,  ExChange);
+	K_INIT_ARG(LONG,  Comparand);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -16,12 +16,12 @@
 int Xbox::NtWaitForMultipleObjectsEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG,           Count);
-	K_INIT_ARG_VAL(HANDLE,          Handles);
-	K_INIT_ARG_VAL(WAIT_TYPE,       WaitType);
-	K_INIT_ARG_VAL(KPROCESSOR_MODE, WaitMode);
-	K_INIT_ARG_VAL(BOOLEAN,         Alertable);
-	K_INIT_ARG_PTR(LARGE_INTEGER,   Timeout);
+	K_INIT_ARG(ULONG,           Count);
+	K_INIT_ARG(HANDLE,          Handles);
+	K_INIT_ARG(WAIT_TYPE,       WaitType);
+	K_INIT_ARG(KPROCESSOR_MODE, WaitMode);
+	K_INIT_ARG(BOOLEAN,         Alertable);
+	K_INIT_ARG(PLARGE_INTEGER,  Timeout);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

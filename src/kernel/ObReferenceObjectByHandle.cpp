@@ -13,9 +13,9 @@
 int Xbox::ObReferenceObjectByHandle()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,      Handle);
-	K_INIT_ARG_PTR(OBJECT_TYPE, ObjectType);
-	K_INIT_ARG_PTR(PVOID,       ReturnedObject);
+	K_INIT_ARG(HANDLE,       Handle);
+	K_INIT_ARG(POBJECT_TYPE, ObjectType);
+	K_INIT_ARG(PPVOID,       ReturnedObject);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

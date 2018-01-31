@@ -12,8 +12,8 @@
 int Xbox::RtlAppendUnicodeToString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(UNICODE_STRING, Destination);
-	K_INIT_ARG_PTR(CWSTR,          Source);
+	K_INIT_ARG(PUNICODE_STRING, Destination);
+	K_INIT_ARG(PCWSTR,          Source);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -13,9 +13,9 @@
 int Xbox::MmPersistContiguousMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID,   BaseAddress);
-	K_INIT_ARG_VAL(SIZE_T,  NumberOfBytes);
-	K_INIT_ARG_VAL(BOOLEAN, Persist);
+	K_INIT_ARG(PVOID,   BaseAddress);
+	K_INIT_ARG(SIZE_T,  NumberOfBytes);
+	K_INIT_ARG(BOOLEAN, Persist);
 
 	m_kernel->MmPersistContiguousMemory(BaseAddress, NumberOfBytes, Persist);
 

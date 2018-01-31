@@ -11,7 +11,7 @@
 int Xbox::RtlNtStatusToDosError()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(NTSTATUS, Status);
+	K_INIT_ARG(NTSTATUS, Status);
 	XboxTypes::ULONG rval;
 
 	rval = m_kernel->RtlNtStatusToDosError(Status);

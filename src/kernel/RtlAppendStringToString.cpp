@@ -12,8 +12,8 @@
 int Xbox::RtlAppendStringToString()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(STRING, Destination);
-	K_INIT_ARG_PTR(STRING, Source);
+	K_INIT_ARG(PSTRING, Destination);
+	K_INIT_ARG(PSTRING, Source);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

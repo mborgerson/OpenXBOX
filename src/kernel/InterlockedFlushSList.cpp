@@ -11,7 +11,7 @@
 int Xbox::InterlockedFlushSList()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_PTR(SLIST_HEADER, ListHead);
+	K_INIT_ARG(PSLIST_HEADER, ListHead);
 	XboxTypes::PSINGLE_LIST_ENTRY rval;
 
 	K_EXIT_WITH_VALUE(rval);

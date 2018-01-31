@@ -14,10 +14,10 @@
 int Xbox::NtCreateSemaphore()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(HANDLE,            SemaphoreHandle);
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG_VAL(LONG,              InitialCount);
-	K_INIT_ARG_VAL(LONG,              MaximumCount);
+	K_INIT_ARG(PHANDLE,            SemaphoreHandle);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(LONG,               InitialCount);
+	K_INIT_ARG(LONG,               MaximumCount);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

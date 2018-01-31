@@ -13,9 +13,9 @@
 int Xbox::RtlMultiByteToUnicodeSize()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(ULONG, BytesInUnicodeString);
-	K_INIT_ARG_PTR(CHAR,  MultiByteString);
-	K_INIT_ARG_VAL(ULONG, BytesInMultiByteString);
+	K_INIT_ARG(PULONG, BytesInUnicodeString);
+	K_INIT_ARG(PCHAR,  MultiByteString);
+	K_INIT_ARG(ULONG,  BytesInMultiByteString);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

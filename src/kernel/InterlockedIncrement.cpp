@@ -11,7 +11,7 @@
 int Xbox::InterlockedIncrement()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_PTR(LONG, Addend);
+	K_INIT_ARG(PLONG, Addend);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

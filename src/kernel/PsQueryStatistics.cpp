@@ -11,7 +11,7 @@
 int Xbox::PsQueryStatistics()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(PS_STATISTICS, ProcessStatistics);
+	K_INIT_ARG(PPS_STATISTICS, ProcessStatistics);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

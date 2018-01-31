@@ -11,7 +11,7 @@
 int Xbox::NtDeleteFile()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -13,9 +13,9 @@
 int Xbox::KeDelayExecutionThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(KPROCESSOR_MODE, WaitMode);
-	K_INIT_ARG_VAL(BOOLEAN,         Alertable);
-	K_INIT_ARG_PTR(LARGE_INTEGER,   Interval);
+	K_INIT_ARG(KPROCESSOR_MODE, WaitMode);
+	K_INIT_ARG(BOOLEAN,         Alertable);
+	K_INIT_ARG(PLARGE_INTEGER,  Interval);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

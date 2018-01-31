@@ -13,9 +13,9 @@
 int Xbox::KeRemoveQueue()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KQUEUE,          Queue);
-	K_INIT_ARG_VAL(KPROCESSOR_MODE, WaitMode);
-	K_INIT_ARG_PTR(LARGE_INTEGER,   Timeout);
+	K_INIT_ARG(PRKQUEUE,        Queue);
+	K_INIT_ARG(KPROCESSOR_MODE, WaitMode);
+	K_INIT_ARG(PLARGE_INTEGER,  Timeout);
 	XboxTypes::PLIST_ENTRY rval;
 
 	K_EXIT_WITH_VALUE(rval);

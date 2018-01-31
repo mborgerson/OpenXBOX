@@ -13,9 +13,9 @@
 int Xbox::RtlFillMemoryUlong()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PVOID,  Destination);
-	K_INIT_ARG_VAL(SIZE_T, Length);
-	K_INIT_ARG_VAL(ULONG,  Pattern);
+	K_INIT_ARG(PVOID,  Destination);
+	K_INIT_ARG(SIZE_T, Length);
+	K_INIT_ARG(ULONG,  Pattern);
 
 	m_kernel->RtlFillMemoryUlong(Destination, Length, Pattern);
 

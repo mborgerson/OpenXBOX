@@ -14,10 +14,10 @@
 int Xbox::RtlIntegerToChar()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG, Value);
-	K_INIT_ARG_VAL(ULONG, Base);
-	K_INIT_ARG_VAL(LONG,  OutputLength);
-	K_INIT_ARG_PTR(SZ,    String);
+	K_INIT_ARG(ULONG, Value);
+	K_INIT_ARG(ULONG, Base);
+	K_INIT_ARG(LONG,  OutputLength);
+	K_INIT_ARG(PSZ,   String);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

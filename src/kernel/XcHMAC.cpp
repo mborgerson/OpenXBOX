@@ -17,13 +17,13 @@
 int Xbox::XcHMAC()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(UCHAR, pbKey);
-	K_INIT_ARG_VAL(ULONG, dwKeyLength);
-	K_INIT_ARG_PTR(UCHAR, pbInput);
-	K_INIT_ARG_VAL(ULONG, dwInputLength);
-	K_INIT_ARG_PTR(UCHAR, pbInput2);
-	K_INIT_ARG_VAL(ULONG, dwInputLength2);
-	K_INIT_ARG_PTR(UCHAR, pbDigest);
+	K_INIT_ARG(PUCHAR, pbKey);
+	K_INIT_ARG(ULONG, dwKeyLength);
+	K_INIT_ARG(PUCHAR, pbInput);
+	K_INIT_ARG(ULONG, dwInputLength);
+	K_INIT_ARG(PUCHAR, pbInput2);
+	K_INIT_ARG(ULONG, dwInputLength2);
+	K_INIT_ARG(PUCHAR, pbDigest);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

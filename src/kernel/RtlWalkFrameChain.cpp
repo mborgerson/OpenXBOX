@@ -13,9 +13,9 @@
 int Xbox::RtlWalkFrameChain()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(PVOID, Callers);
-	K_INIT_ARG_VAL(ULONG, Count);
-	K_INIT_ARG_VAL(ULONG, Flags);
+	K_INIT_ARG(PPVOID, Callers);
+	K_INIT_ARG(ULONG,  Count);
+	K_INIT_ARG(ULONG,  Flags);
 	XboxTypes::ULONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

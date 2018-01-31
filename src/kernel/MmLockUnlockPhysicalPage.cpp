@@ -12,8 +12,8 @@
 int Xbox::MmLockUnlockPhysicalPage()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG_PTR, PhysicalAddress);
-	K_INIT_ARG_VAL(BOOLEAN,   UnlockPage);
+	K_INIT_ARG(ULONG_PTR, PhysicalAddress);
+	K_INIT_ARG(BOOLEAN,   UnlockPage);
 
 	K_EXIT();
 	return KF_ERROR_NOT_IMPLEMENTED;

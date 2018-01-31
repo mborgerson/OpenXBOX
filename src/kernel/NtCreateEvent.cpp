@@ -14,10 +14,10 @@
 int Xbox::NtCreateEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PHANDLE,            EventHandle);
-	K_INIT_ARG_VAL(POBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG_VAL(EVENT_TYPE,         EventType);
-	K_INIT_ARG_VAL(BOOLEAN,            InitialState);
+	K_INIT_ARG(PHANDLE,            EventHandle);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(EVENT_TYPE,         EventType);
+	K_INIT_ARG(BOOLEAN,            InitialState);
 	XboxTypes::NTSTATUS rval;
 
 	rval = m_kernel->NtCreateEvent(EventHandle, ObjectAttributes, EventType, InitialState);

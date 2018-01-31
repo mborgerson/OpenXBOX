@@ -11,7 +11,7 @@
 int Xbox::KeConnectInterrupt()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KINTERRUPT, Interrupt);
+	K_INIT_ARG(PKINTERRUPT, Interrupt);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

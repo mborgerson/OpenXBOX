@@ -11,7 +11,7 @@
 int Xbox::XcPKGetKeyLen()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(UCHAR, pbPubKey);
+	K_INIT_ARG(PUCHAR, pbPubKey);
 	XboxTypes::ULONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

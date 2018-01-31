@@ -11,7 +11,7 @@
 int Xbox::HalWriteSMCScratchRegister()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG, ScratchRegister);
+	K_INIT_ARG(ULONG, ScratchRegister);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

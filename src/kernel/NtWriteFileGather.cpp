@@ -18,14 +18,14 @@
 int Xbox::NtWriteFileGather()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,               FileHandle);
-	K_INIT_ARG_VAL(HANDLE,               Event);
-	K_INIT_ARG_VAL(PIO_APC_ROUTINE,      ApcRoutine);
-	K_INIT_ARG_PTR(VOID,                 ApcContext);
-	K_INIT_ARG_PTR(IO_STATUS_BLOCK,      IoStatusBlock);
-	K_INIT_ARG_PTR(FILE_SEGMENT_ELEMENT, SegmentArray);
-	K_INIT_ARG_VAL(ULONG,                Length);
-	K_INIT_ARG_PTR(LARGE_INTEGER,        ByteOffset);
+	K_INIT_ARG(HANDLE,                FileHandle);
+	K_INIT_ARG(HANDLE,                Event);
+	K_INIT_ARG(PIO_APC_ROUTINE,       ApcRoutine);
+	K_INIT_ARG(PVOID,                 ApcContext);
+	K_INIT_ARG(PIO_STATUS_BLOCK,      IoStatusBlock);
+	K_INIT_ARG(PFILE_SEGMENT_ELEMENT, SegmentArray);
+	K_INIT_ARG(ULONG,                 Length);
+	K_INIT_ARG(PLARGE_INTEGER,        ByteOffset);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

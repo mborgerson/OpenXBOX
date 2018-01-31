@@ -12,8 +12,8 @@
 int Xbox::NtReleaseMutant()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE, MutantHandle);
-	K_INIT_ARG_PTR(LONG,   PreviousCount);
+	K_INIT_ARG(HANDLE, MutantHandle);
+	K_INIT_ARG(PLONG,  PreviousCount);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

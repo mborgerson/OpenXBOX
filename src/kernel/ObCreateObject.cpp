@@ -14,10 +14,10 @@
 int Xbox::ObCreateObject()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(OBJECT_TYPE,       ObjectType);
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG_VAL(ULONG,             ObjectBodySize);
-	K_INIT_ARG_PTR(PVOID,             Object);
+	K_INIT_ARG(POBJECT_TYPE,       ObjectType);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(ULONG,              ObjectBodySize);
+	K_INIT_ARG(PPVOID,             Object);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

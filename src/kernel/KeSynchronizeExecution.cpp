@@ -13,9 +13,9 @@
 int Xbox::KeSynchronizeExecution()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KINTERRUPT,            Interrupt);
-	K_INIT_ARG_VAL(PKSYNCHRONIZE_ROUTINE, SynchronizeRoutine);
-	K_INIT_ARG_PTR(VOID,                  SynchronizeContext);
+	K_INIT_ARG(PKINTERRUPT,           Interrupt);
+	K_INIT_ARG(PKSYNCHRONIZE_ROUTINE, SynchronizeRoutine);
+	K_INIT_ARG(PVOID,                 SynchronizeContext);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

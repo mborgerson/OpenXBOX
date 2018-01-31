@@ -12,8 +12,8 @@
 int Xbox::NtQueryIoCompletion()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,                          IoCompletionHandle);
-	K_INIT_ARG_PTR(IO_COMPLETION_BASIC_INFORMATION, IoCompletionInformation);
+	K_INIT_ARG(HANDLE,                           IoCompletionHandle);
+	K_INIT_ARG(PIO_COMPLETION_BASIC_INFORMATION, IoCompletionInformation);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

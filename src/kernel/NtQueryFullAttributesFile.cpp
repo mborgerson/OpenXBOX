@@ -12,8 +12,8 @@
 int Xbox::NtQueryFullAttributesFile()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES,             ObjectAttributes);
-	K_INIT_ARG_PTR(FILE_NETWORK_OPEN_INFORMATION, FileInformation);
+	K_INIT_ARG(POBJECT_ATTRIBUTES,             ObjectAttributes);
+	K_INIT_ARG(PFILE_NETWORK_OPEN_INFORMATION, FileInformation);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -12,8 +12,8 @@
 int Xbox::MmCreateKernelStack()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(SIZE_T,  NumberOfBytes);
-	K_INIT_ARG_VAL(BOOLEAN, DebuggerThread);
+	K_INIT_ARG(SIZE_T,  NumberOfBytes);
+	K_INIT_ARG(BOOLEAN, DebuggerThread);
 	XboxTypes::PVOID rval;
 
 	K_EXIT_WITH_VALUE(rval);

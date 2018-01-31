@@ -15,11 +15,11 @@
 int Xbox::MmAllocateContiguousMemoryEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(SIZE_T,    NumberOfBytes);
-	K_INIT_ARG_VAL(ULONG_PTR, LowestAcceptableAddress);
-	K_INIT_ARG_VAL(ULONG_PTR, HighestAcceptableAddress);
-	K_INIT_ARG_VAL(ULONG_PTR, Alignment);
-	K_INIT_ARG_VAL(ULONG,     Protect);
+	K_INIT_ARG(SIZE_T,    NumberOfBytes);
+	K_INIT_ARG(ULONG_PTR, LowestAcceptableAddress);
+	K_INIT_ARG(ULONG_PTR, HighestAcceptableAddress);
+	K_INIT_ARG(ULONG_PTR, Alignment);
+	K_INIT_ARG(ULONG,     Protect);
 	XboxTypes::PVOID rval;
 
 	rval = m_kernel->MmAllocateContiguousMemoryEx(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment, Protect);

@@ -12,8 +12,8 @@
 int Xbox::InterlockedExchange()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_PTR(LONG, Target);
-	K_INIT_ARG_VAL(LONG, Value);
+	K_INIT_ARG(PLONG, Target);
+	K_INIT_ARG(LONG,  Value);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

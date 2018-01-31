@@ -14,10 +14,10 @@
 int Xbox::NtWaitForSingleObjectEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,          Handle);
-	K_INIT_ARG_VAL(KPROCESSOR_MODE, WaitMode);
-	K_INIT_ARG_VAL(BOOLEAN,         Alertable);
-	K_INIT_ARG_PTR(LARGE_INTEGER,   Timeout);
+	K_INIT_ARG(HANDLE,          Handle);
+	K_INIT_ARG(KPROCESSOR_MODE, WaitMode);
+	K_INIT_ARG(BOOLEAN,         Alertable);
+	K_INIT_ARG(PLARGE_INTEGER,  Timeout);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

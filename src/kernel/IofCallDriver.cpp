@@ -12,8 +12,8 @@
 int Xbox::IofCallDriver()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_PTR(DEVICE_OBJECT, DeviceObject);
-	K_INIT_ARG_PTR(IRP,           Irp);
+	K_INIT_ARG(PDEVICE_OBJECT, DeviceObject);
+	K_INIT_ARG(PIRP,           Irp);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

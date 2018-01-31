@@ -12,8 +12,8 @@
 int Xbox::KeSetBasePriorityThread()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KTHREAD, Thread);
-	K_INIT_ARG_VAL(LONG,    Increment);
+	K_INIT_ARG(PKTHREAD, Thread);
+	K_INIT_ARG(LONG,     Increment);
 	XboxTypes::LONG rval;
 
 	K_EXIT_WITH_VALUE(rval);

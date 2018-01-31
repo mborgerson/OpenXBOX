@@ -15,11 +15,11 @@
 int Xbox::IoSetIoCompletion()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,      IoCompletion);
-	K_INIT_ARG_PTR(VOID,      KeyContext);
-	K_INIT_ARG_PTR(VOID,      ApcContext);
-	K_INIT_ARG_VAL(NTSTATUS,  IoStatus);
-	K_INIT_ARG_VAL(ULONG_PTR, IoStatusInformation);
+	K_INIT_ARG(PVOID,     IoCompletion);
+	K_INIT_ARG(PVOID,     KeyContext);
+	K_INIT_ARG(PVOID,     ApcContext);
+	K_INIT_ARG(NTSTATUS,  IoStatus);
+	K_INIT_ARG(ULONG_PTR, IoStatusInformation);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -14,10 +14,10 @@
 int Xbox::RtlCaptureStackBackTrace()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG, FramesToSkip);
-	K_INIT_ARG_VAL(ULONG, FramesToCapture);
-	K_INIT_ARG_PTR(PVOID, BackTrace);
-	K_INIT_ARG_PTR(ULONG, BackTraceHash);
+	K_INIT_ARG(ULONG,  FramesToSkip);
+	K_INIT_ARG(ULONG,  FramesToCapture);
+	K_INIT_ARG(PPVOID, BackTrace);
+	K_INIT_ARG(PULONG, BackTraceHash);
 	XboxTypes::USHORT rval;
 
 	K_EXIT_WITH_VALUE(rval);

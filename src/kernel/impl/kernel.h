@@ -101,7 +101,7 @@ public:
 	XboxTypes::ULONG HalGetInterruptVector(XboxTypes::ULONG BusInterruptLevel, XboxTypes::PKIRQL Irql);
 	XboxTypes::VOID HalReturnToFirmware(XboxTypes::FIRMWARE_REENTRY Routine);
 
-	// I/O manager (Io)
+	// I/O manager (Io/Iof)
 
 	// Kernel core (Ke) and internal kernel functions (Kf/Ki)
 	XboxTypes::VOID KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PRKTHREAD Thread, XboxTypes::PKKERNEL_ROUTINE KernelRoutine, XboxTypes::PKRUNDOWN_ROUTINE RundownRoutine, XboxTypes::PKNORMAL_ROUTINE NormalRoutine, XboxTypes::KPROCESSOR_MODE ProcessorMode, XboxTypes::PVOID NormalContext);
@@ -129,7 +129,7 @@ public:
 	XboxTypes::NTSTATUS NtClose(XboxTypes::HANDLE Handle);
 	XboxTypes::NTSTATUS NtCreateEvent(XboxTypes::PHANDLE EventHandle, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::EVENT_TYPE EventType, XboxTypes::BOOLEAN InitialState);
 
-	// Object manager (Ob)
+	// Object manager (Ob/Obf)
 
 	// Ethernet functions (Phy)
 

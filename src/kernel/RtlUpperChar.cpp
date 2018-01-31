@@ -11,7 +11,7 @@
 int Xbox::RtlUpperChar()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(CHAR, Character);
+	K_INIT_ARG(CHAR, Character);
 	XboxTypes::CHAR rval;
 
 	K_EXIT_WITH_VALUE(rval);

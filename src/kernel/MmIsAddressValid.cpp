@@ -11,7 +11,7 @@
 int Xbox::MmIsAddressValid()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID, VirtualAddress);
+	K_INIT_ARG(PVOID, VirtualAddress);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

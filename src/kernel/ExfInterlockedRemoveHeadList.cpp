@@ -11,7 +11,7 @@
 int Xbox::ExfInterlockedRemoveHeadList()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_PTR(LIST_ENTRY, ListHead);
+	K_INIT_ARG(PLIST_ENTRY, ListHead);
 	XboxTypes::PLIST_ENTRY rval;
 
 	K_EXIT_WITH_VALUE(rval);

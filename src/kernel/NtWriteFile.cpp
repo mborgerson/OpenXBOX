@@ -18,14 +18,14 @@
 int Xbox::NtWriteFile()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,          FileHandle);
-	K_INIT_ARG_VAL(HANDLE,          Event);
-	K_INIT_ARG_VAL(PIO_APC_ROUTINE, ApcRoutine);
-	K_INIT_ARG_PTR(VOID,            ApcContext);
-	K_INIT_ARG_PTR(IO_STATUS_BLOCK, IoStatusBlock);
-	K_INIT_ARG_PTR(VOID,            Buffer);
-	K_INIT_ARG_VAL(ULONG,           Length);
-	K_INIT_ARG_PTR(LARGE_INTEGER,   ByteOffset);
+	K_INIT_ARG(HANDLE,           FileHandle);
+	K_INIT_ARG(HANDLE,           Event);
+	K_INIT_ARG(PIO_APC_ROUTINE,  ApcRoutine);
+	K_INIT_ARG(PVOID,            ApcContext);
+	K_INIT_ARG(PIO_STATUS_BLOCK, IoStatusBlock);
+	K_INIT_ARG(PVOID,            Buffer);
+	K_INIT_ARG(ULONG,            Length);
+	K_INIT_ARG(PLARGE_INTEGER,   ByteOffset);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

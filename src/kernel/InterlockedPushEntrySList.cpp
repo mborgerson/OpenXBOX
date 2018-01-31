@@ -12,8 +12,8 @@
 int Xbox::InterlockedPushEntrySList()
 {
 	K_ENTER_FASTCALL();
-	K_INIT_ARG_PTR(SLIST_HEADER,      ListHead);
-	K_INIT_ARG_PTR(SINGLE_LIST_ENTRY, ListEntry);
+	K_INIT_ARG(PSLIST_HEADER,      ListHead);
+	K_INIT_ARG(PSINGLE_LIST_ENTRY, ListEntry);
 	XboxTypes::PSINGLE_LIST_ENTRY rval;
 
 	K_EXIT_WITH_VALUE(rval);

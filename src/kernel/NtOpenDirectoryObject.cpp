@@ -12,8 +12,8 @@
 int Xbox::NtOpenDirectoryObject()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(HANDLE,            DirectoryHandle);
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(PHANDLE,            DirectoryHandle);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

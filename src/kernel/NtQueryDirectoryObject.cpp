@@ -16,12 +16,12 @@
 int Xbox::NtQueryDirectoryObject()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,  DirectoryHandle);
-	K_INIT_ARG_PTR(VOID,    Buffer);
-	K_INIT_ARG_VAL(ULONG,   Length);
-	K_INIT_ARG_VAL(BOOLEAN, RestartScan);
-	K_INIT_ARG_PTR(ULONG,   Context);
-	K_INIT_ARG_PTR(ULONG,   ReturnLength);
+	K_INIT_ARG(HANDLE,  DirectoryHandle);
+	K_INIT_ARG(PVOID,   Buffer);
+	K_INIT_ARG(ULONG,   Length);
+	K_INIT_ARG(BOOLEAN, RestartScan);
+	K_INIT_ARG(PULONG,  Context);
+	K_INIT_ARG(PULONG,  ReturnLength);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

@@ -15,11 +15,11 @@
 int Xbox::NtAllocateVirtualMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(PPVOID,    BaseAddress);
-	K_INIT_ARG_VAL(ULONG_PTR, ZeroBits);
-	K_INIT_ARG_VAL(PSIZE_T,   RegionSize);
-	K_INIT_ARG_VAL(ULONG,     AllocationType);
-	K_INIT_ARG_VAL(ULONG,     Protect);
+	K_INIT_ARG(PPVOID,    BaseAddress);
+	K_INIT_ARG(ULONG_PTR, ZeroBits);
+	K_INIT_ARG(PSIZE_T,   RegionSize);
+	K_INIT_ARG(ULONG,     AllocationType);
+	K_INIT_ARG(ULONG,     Protect);
 	XboxTypes::NTSTATUS rval;
 
 	rval = m_kernel->NtAllocateVirtualMemory(BaseAddress, ZeroBits, RegionSize, AllocationType, Protect);

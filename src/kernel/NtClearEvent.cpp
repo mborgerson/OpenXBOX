@@ -11,7 +11,7 @@
 int Xbox::NtClearEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE, EventHandle);
+	K_INIT_ARG(HANDLE, EventHandle);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

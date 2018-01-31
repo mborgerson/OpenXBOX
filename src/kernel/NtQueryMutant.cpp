@@ -12,8 +12,8 @@
 int Xbox::NtQueryMutant()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(HANDLE,                   MutantHandle);
-	K_INIT_ARG_PTR(MUTANT_BASIC_INFORMATION, MutantInformation);
+	K_INIT_ARG(HANDLE,                    MutantHandle);
+	K_INIT_ARG(PMUTANT_BASIC_INFORMATION, MutantInformation);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);

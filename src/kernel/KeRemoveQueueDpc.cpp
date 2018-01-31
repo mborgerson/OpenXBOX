@@ -11,7 +11,7 @@
 int Xbox::KeRemoveQueueDpc()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KDPC, Dpc);
+	K_INIT_ARG(PRKDPC, Dpc);
 	XboxTypes::BOOLEAN rval;
 
 	K_EXIT_WITH_VALUE(rval);

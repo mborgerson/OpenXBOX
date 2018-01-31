@@ -14,10 +14,10 @@
 int Xbox::ObOpenObjectByName()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(OBJECT_ATTRIBUTES, ObjectAttributes);
-	K_INIT_ARG_PTR(OBJECT_TYPE,       ObjectType);
-	K_INIT_ARG_PTR(VOID,              ParseContext);
-	K_INIT_ARG_PTR(HANDLE,            Handle);
+	K_INIT_ARG(POBJECT_ATTRIBUTES, ObjectAttributes);
+	K_INIT_ARG(POBJECT_TYPE,       ObjectType);
+	K_INIT_ARG(PVOID,              ParseContext);
+	K_INIT_ARG(PHANDLE,            Handle);
 	XboxTypes::NTSTATUS rval;
 
 	K_EXIT_WITH_VALUE(rval);
