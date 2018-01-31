@@ -25,9 +25,8 @@ int Xbox::KeInitializeInterrupt()
 	K_INIT_ARG(KINTERRUPT_MODE,   InterruptMode);
 	K_INIT_ARG(BOOLEAN,           ShareVector);
 
-	// FIXME: let the object manager initialize this
-
+	m_kernel->KeInitializeInterrupt(Interrupt, ServiceRoutine, ServiceContext, Vector, Irql, InterruptMode, ShareVector);
 
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_PARTIAL_IMPL;
 }

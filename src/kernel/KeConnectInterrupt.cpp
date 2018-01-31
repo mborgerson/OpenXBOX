@@ -14,6 +14,8 @@ int Xbox::KeConnectInterrupt()
 	K_INIT_ARG(PKINTERRUPT, Interrupt);
 	XboxTypes::BOOLEAN rval;
 
+	rval = m_kernel->KeConnectInterrupt(Interrupt);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_FAKE_IMPL;
 }

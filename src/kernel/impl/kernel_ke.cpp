@@ -14,6 +14,18 @@ XboxTypes::VOID XboxKernel::KeBugCheckEx(XboxTypes::ULONG BugCheckCode, XboxType
 	log_fatal("  Parameter 4  : 0x%x\n", BugCheckParameter4);
 }
 
+XboxTypes::BOOLEAN XboxKernel::KeConnectInterrupt(XboxTypes::PKINTERRUPT Interrupt) {
+	XboxTypes::KINTERRUPT *pInterrupt = ToPointer<XboxTypes::KINTERRUPT>(Interrupt);
+	
+	// TODO: implement properly
+	if (!pInterrupt->Connected) {
+		pInterrupt->Connected = TRUE;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 XboxTypes::VOID XboxKernel::KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PRKTHREAD Thread, XboxTypes::PKKERNEL_ROUTINE KernelRoutine, XboxTypes::PKRUNDOWN_ROUTINE RundownRoutine, XboxTypes::PKNORMAL_ROUTINE NormalRoutine, XboxTypes::KPROCESSOR_MODE ProcessorMode, XboxTypes::PVOID NormalContext) {
 	XboxTypes::KAPC *pApc = ToPointer<XboxTypes::KAPC>(Apc);
 
@@ -64,6 +76,18 @@ XboxTypes::VOID XboxKernel::KeInitializeEvent(XboxTypes::PRKEVENT Event, XboxTyp
 	pEvent->Header.SignalState = State;
 	// FIXME: what can we do about pointers to structs within structs?
 	InitializeListHead(&pEvent->Header.WaitListHead);
+}
+
+XboxTypes::VOID XboxKernel::KeInitializeInterrupt(XboxTypes::PKINTERRUPT Interrupt, XboxTypes::PKSERVICE_ROUTINE ServiceRoutine, XboxTypes::PVOID ServiceContext, XboxTypes::ULONG Vector, XboxTypes::KIRQL Irql, XboxTypes::KINTERRUPT_MODE InterruptMode, XboxTypes::BOOLEAN ShareVector) {
+	XboxTypes::KINTERRUPT *pInterrupt = ToPointer<XboxTypes::KINTERRUPT>(Interrupt);
+
+	// FIXME: let the object manager initialize this
+	pInterrupt->ServiceRoutine = ServiceRoutine;
+	pInterrupt->ServiceContext = ServiceContext;
+	pInterrupt->BusInterruptLevel = Vector - 0x30;
+	pInterrupt->Irql = Irql;
+	pInterrupt->Mode = InterruptMode;
+	// TODO: this is incomplete
 }
 
 XboxTypes::VOID XboxKernel::KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count) {

@@ -106,10 +106,12 @@ public:
 	// Kernel core (Ke) and internal kernel functions (Kf/Ki)
 	XboxTypes::VOID KeBugCheck(XboxTypes::ULONG BugCheckCode);
 	XboxTypes::VOID KeBugCheckEx(XboxTypes::ULONG BugCheckCode, XboxTypes::ULONG_PTR BugCheckParameter1, XboxTypes::ULONG_PTR BugCheckParameter2, XboxTypes::ULONG_PTR BugCheckParameter3, XboxTypes::ULONG_PTR BugCheckParameter4);
+	XboxTypes::BOOLEAN KeConnectInterrupt(XboxTypes::PKINTERRUPT Interrupt);
 	XboxTypes::VOID KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PRKTHREAD Thread, XboxTypes::PKKERNEL_ROUTINE KernelRoutine, XboxTypes::PKRUNDOWN_ROUTINE RundownRoutine, XboxTypes::PKNORMAL_ROUTINE NormalRoutine, XboxTypes::KPROCESSOR_MODE ProcessorMode, XboxTypes::PVOID NormalContext);
 	XboxTypes::VOID KeInitializeDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue);
 	XboxTypes::VOID KeInitializeDpc(XboxTypes::PKDPC Dpc, XboxTypes::PKDEFERRED_ROUTINE DeferredRoutine, XboxTypes::PVOID DeferredContext);
 	XboxTypes::VOID KeInitializeEvent(XboxTypes::PRKEVENT Event, XboxTypes::EVENT_TYPE Type, XboxTypes::BOOLEAN State);
+	XboxTypes::VOID KeInitializeInterrupt(XboxTypes::PKINTERRUPT Interrupt, XboxTypes::PKSERVICE_ROUTINE ServiceRoutine, XboxTypes::PVOID ServiceContext, XboxTypes::ULONG Vector, XboxTypes::KIRQL Irql, XboxTypes::KINTERRUPT_MODE InterruptMode, XboxTypes::BOOLEAN ShareVector);
 	XboxTypes::VOID KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count);
 	XboxTypes::VOID KeInitializeSemaphore(XboxTypes::PRKSEMAPHORE Semaphore, XboxTypes::LONG Count, XboxTypes::LONG Limit);
 	XboxTypes::VOID KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::TIMER_TYPE Type);
