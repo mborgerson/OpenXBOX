@@ -21,6 +21,10 @@ int Xbox::KeBugCheckEx()
 	K_INIT_ARG(ULONG_PTR, BugCheckParameter3);
 	K_INIT_ARG(ULONG_PTR, BugCheckParameter4);
 
+	m_kernel->KeBugCheckEx(BugCheckCode, BugCheckParameter1, BugCheckParameter2, BugCheckParameter3, BugCheckParameter4);
+
+	m_should_run = false;
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

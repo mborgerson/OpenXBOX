@@ -1,4 +1,18 @@
 #include "kernel/impl/kernel.h"
+#include "log.h"
+
+XboxTypes::VOID XboxKernel::KeBugCheck(XboxTypes::ULONG BugCheckCode) {
+	KeBugCheckEx(BugCheckCode, 0, 0, 0, 0);
+}
+
+XboxTypes::VOID XboxKernel::KeBugCheckEx(XboxTypes::ULONG BugCheckCode, XboxTypes::ULONG_PTR BugCheckParameter1, XboxTypes::ULONG_PTR BugCheckParameter2, XboxTypes::ULONG_PTR BugCheckParameter3, XboxTypes::ULONG_PTR BugCheckParameter4) {
+	log_fatal("System issued a BugCheck\n");
+	log_fatal("  BugCheck code: 0x%x\n", BugCheckCode);
+	log_fatal("  Parameter 1  : 0x%x\n", BugCheckParameter1);
+	log_fatal("  Parameter 2  : 0x%x\n", BugCheckParameter2);
+	log_fatal("  Parameter 3  : 0x%x\n", BugCheckParameter3);
+	log_fatal("  Parameter 4  : 0x%x\n", BugCheckParameter4);
+}
 
 XboxTypes::VOID XboxKernel::KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PRKTHREAD Thread, XboxTypes::PKKERNEL_ROUTINE KernelRoutine, XboxTypes::PKRUNDOWN_ROUTINE RundownRoutine, XboxTypes::PKNORMAL_ROUTINE NormalRoutine, XboxTypes::KPROCESSOR_MODE ProcessorMode, XboxTypes::PVOID NormalContext) {
 	XboxTypes::KAPC *pApc = ToPointer<XboxTypes::KAPC>(Apc);
