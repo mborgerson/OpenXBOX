@@ -32,6 +32,8 @@ int Xbox::NtDeviceIoControlFile()
 	K_INIT_ARG(ULONG,            OutputBufferLength);
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->NtDeviceIoControlFile(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_FAKE_IMPL;
 }

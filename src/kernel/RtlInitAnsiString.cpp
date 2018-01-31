@@ -15,6 +15,8 @@ int Xbox::RtlInitAnsiString()
 	K_INIT_ARG(PANSI_STRING, DestinationString);
 	K_INIT_ARG(PCSZ,         SourceString);
 
+	m_kernel->RtlInitAnsiString(DestinationString, SourceString);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

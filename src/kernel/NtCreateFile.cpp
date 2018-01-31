@@ -30,6 +30,8 @@ int Xbox::NtCreateFile()
 	K_INIT_ARG(ULONG,              CreateOptions);
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->NtCreateFile(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_FAKE_IMPL;
 }

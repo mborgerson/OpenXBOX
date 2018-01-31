@@ -1,5 +1,6 @@
 #include "kernel/impl/kernel.h"
 #include "kernel/impl/error.h"
+#include <ctype.h>
 
 XboxTypes::SIZE_T XboxKernel::RtlCompareMemory(XboxTypes::PVOID Source1, XboxTypes::PVOID Source2, XboxTypes::SIZE_T Length) {
 	XboxTypes::VOID *pSource1 = ToPointer<XboxTypes::VOID>(Source1);
@@ -34,6 +35,47 @@ XboxTypes::SIZE_T XboxKernel::RtlCompareMemoryUlong(XboxTypes::PVOID Source, Xbo
 	return result;
 }
 
+XboxTypes::BOOLEAN XboxKernel::RtlEqualString(XboxTypes::PSTRING String1, XboxTypes::PSTRING String2, XboxTypes::BOOLEAN CaseInSensitive) {
+	XboxTypes::STRING *pString1 = ToPointer<XboxTypes::STRING>(String1);
+	XboxTypes::STRING *pString2 = ToPointer<XboxTypes::STRING>(String2);
+
+	XboxTypes::USHORT l1 = pString1->Length;
+	XboxTypes::USHORT l2 = pString2->Length;
+	if (l1 != l2) {
+		return FALSE;
+	}
+	
+	XboxTypes::CHAR *p1 = ToPointer<XboxTypes::CHAR>(pString1->Buffer);
+	XboxTypes::CHAR *p2 = ToPointer<XboxTypes::CHAR>(pString2->Buffer);
+	XboxTypes::CHAR *last = p1 + l1;
+
+	if (CaseInSensitive) {
+		while (p1 < last) {
+			XboxTypes::CHAR c1 = *p1++;
+			XboxTypes::CHAR c2 = *p2++;
+			if (c1 != c2) {
+				// TODO: use RtlUpperChar instead of toupper
+				// The issue with RtlUpperChar is that its parameter is a
+				// register parameter, which the calling convention helper
+				// classes cannot handle yet
+				c1 = toupper(c1);
+				c2 = toupper(c2);
+				if (c1 != c2) {
+					return FALSE;
+				}
+			}
+		}
+		return TRUE;
+	}
+
+	while (p1 < last) {
+		if (*p1++ != *p2++) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 XboxTypes::VOID XboxKernel::RtlFillMemory(XboxTypes::PVOID Destination, XboxTypes::ULONG Length, XboxTypes::UCHAR Fill) {
 	XboxTypes::VOID *pDestination = ToPointer<XboxTypes::VOID>(Destination);
 	memset(pDestination, Fill, Length);
@@ -48,6 +90,20 @@ XboxTypes::VOID XboxKernel::RtlFillMemoryUlong(XboxTypes::PVOID Destination, Xbo
 	uint32_t *lastAddr = (uint32_t *)pDestination + numDwords;
 	for (uint32_t *p = (uint32_t *)pDestination; p < lastAddr; p++) {
 		*p = Pattern;
+	}
+}
+
+XboxTypes::VOID XboxKernel::RtlInitAnsiString(XboxTypes::PANSI_STRING DestinationString, XboxTypes::PCSZ SourceString) {
+	XboxTypes::ANSI_STRING *pDestinationString = ToPointer<XboxTypes::ANSI_STRING>(DestinationString);
+
+	pDestinationString->Buffer = SourceString;
+	if (SourceString != NULL) {
+		XboxTypes::CCHAR *pSourceString = ToPointer<XboxTypes::CCHAR>(SourceString);
+		pDestinationString->Length = strlen(pSourceString);
+		pDestinationString->MaximumLength = pDestinationString->Length + 1;
+	}
+	else {
+		pDestinationString->Length = pDestinationString->MaximumLength = 0;
 	}
 }
 

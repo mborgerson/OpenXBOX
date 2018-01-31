@@ -16,6 +16,8 @@ int Xbox::IoCreateSymbolicLink()
 	K_INIT_ARG(POBJECT_STRING, DeviceName);
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->IoCreateSymbolicLink(SymbolicLinkName, DeviceName);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_FAKE_IMPL;
 }

@@ -34,3 +34,51 @@ XboxTypes::NTSTATUS XboxKernel::NtCreateEvent(XboxTypes::PHANDLE EventHandle, Xb
 
 	return STATUS_SUCCESS;
 }
+
+XboxTypes::NTSTATUS XboxKernel::NtCreateFile(XboxTypes::PHANDLE FileHandle, XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PLARGE_INTEGER AllocationSize, XboxTypes::ULONG FileAttributes, XboxTypes::ULONG ShareAccess, XboxTypes::ULONG CreateDisposition, XboxTypes::ULONG CreateOptions) {
+	// FIXME: implement properly
+	XboxTypes::HANDLE *pFileHandle = ToPointer<XboxTypes::HANDLE>(FileHandle);
+
+	*pFileHandle = (XboxTypes::HANDLE) 0xc;
+
+	return STATUS_SUCCESS;
+}
+
+XboxTypes::NTSTATUS XboxKernel::NtDeviceIoControlFile(XboxTypes::HANDLE FileHandle, XboxTypes::HANDLE Event, XboxTypes::PIO_APC_ROUTINE ApcRoutine, XboxTypes::PVOID ApcContext, XboxTypes::PIO_STATUS_BLOCK, XboxTypes::ULONG IoControlCode, XboxTypes::PVOID InputBuffer, XboxTypes::ULONG InputBufferLength, XboxTypes::PVOID OutputBuffer, XboxTypes::ULONG OutputBufferLength) {
+	// FIXME: implement properly
+
+	// Fake just enough to get past DVD authentication
+	XboxTypes::CHAR *data = ToPointer<XboxTypes::CHAR>(InputBuffer);
+	XboxTypes::CHAR *auth = ToPointer<XboxTypes::CHAR>(*(XboxTypes::DWORD *)(data + 0x14));
+	auth[10] = 1;
+	auth[11] = 1;
+	auth[12] = 1;
+	return STATUS_SUCCESS;
+}
+
+XboxTypes::NTSTATUS XboxKernel::NtOpenFile(XboxTypes::PHANDLE FileHandle, XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::ULONG ShareAccess, XboxTypes::ULONG OpenOptions) {
+	// FIXME: implement properly
+	XboxTypes::HANDLE *pFileHandle = ToPointer<XboxTypes::HANDLE>(FileHandle);
+
+	*pFileHandle = (XboxTypes::HANDLE) 0x8;
+
+	return STATUS_SUCCESS;
+}
+
+XboxTypes::NTSTATUS XboxKernel::NtQueryVolumeInformationFile(XboxTypes::HANDLE FileHandle, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PVOID FsInformation, XboxTypes::ULONG Length, XboxTypes::FS_INFORMATION_CLASS FsInformationClass) {
+	// FIXME: implement properly
+
+	switch (FsInformationClass) {
+	case XboxTypes::FileFsSizeInformation: {
+		XboxTypes::FILE_FS_SIZE_INFORMATION *fsSizeInfo = ToPointer<XboxTypes::FILE_FS_SIZE_INFORMATION>(FsInformation);
+		fsSizeInfo->BytesPerSector = 512;
+		fsSizeInfo->SectorsPerAllocationUnit = 32;
+		fsSizeInfo->TotalAllocationUnits.QuadPart = 0x00000000fffffffull;
+		fsSizeInfo->AvailableAllocationUnits.QuadPart = 0x000000007ffffffull;
+
+		break;
+	}
+		// TODO: implement the rest of the types
+	}
+	return STATUS_SUCCESS;
+}

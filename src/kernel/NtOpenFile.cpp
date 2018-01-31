@@ -24,6 +24,8 @@ int Xbox::NtOpenFile()
 	K_INIT_ARG(ULONG,              OpenOptions);
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->NtOpenFile(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_FAKE_IMPL;
 }
