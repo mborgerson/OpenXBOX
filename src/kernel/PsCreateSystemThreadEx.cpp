@@ -20,24 +20,19 @@
 int Xbox::PsCreateSystemThreadEx()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(HANDLE,           ThreadHandle);
+	K_INIT_ARG_VAL(PHANDLE,          ThreadHandle);
 	K_INIT_ARG_VAL(SIZE_T,           ThreadExtensionSize);
 	K_INIT_ARG_VAL(SIZE_T,           KernelStackSize);
 	K_INIT_ARG_VAL(SIZE_T,           TlsDataSize);
-	K_INIT_ARG_PTR(HANDLE,           ThreadId);
+	K_INIT_ARG_VAL(PHANDLE,          ThreadId);
 	K_INIT_ARG_VAL(PKSTART_ROUTINE,  StartRoutine);
-	K_INIT_ARG_PTR(VOID,             StartContext);
+	K_INIT_ARG_VAL(PVOID,            StartContext);
 	K_INIT_ARG_VAL(BOOLEAN,          CreateSuspended);
 	K_INIT_ARG_VAL(BOOLEAN,          DebuggerThread);
 	K_INIT_ARG_VAL(PKSYSTEM_ROUTINE, SystemRoutine);
 	XboxTypes::NTSTATUS rval;
 
-	// TODO: this is obviously incomplete
-	m_kernel->ScheduleNewThread(StartRoutine, KernelStackSize);
-	// TODO: use an object manager to create the thread and obtain the handle
-	*pThreadHandle = 0x4;
-
-	rval = 0;
+	rval = m_kernel->PsCreateSystemThreadEx(ThreadHandle, ThreadExtensionSize, KernelStackSize, TlsDataSize, ThreadId, StartRoutine, StartContext, CreateSuspended, DebuggerThread, SystemRoutine);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_PARTIAL_IMPL;

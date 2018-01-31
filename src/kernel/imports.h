@@ -1,14 +1,7 @@
 #pragma once
 
 #ifdef _WIN32
-#  undef RtlFillMemory
-#  undef RtlMoveMemory
-#  undef RtlZeroMemory
-#  undef InterlockedCompareExchange
-#  undef InterlockedDecrement
-#  undef InterlockedIncrement
-#  undef InterlockedExchange
-#  undef InterlockedExchangeAdd
+#include "kernel\undef_win.h"
 #endif
 
 #define KERNEL_IMPORTS \

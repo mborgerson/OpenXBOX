@@ -1,5 +1,4 @@
 #include "common.h"
-#include "kernel/impl/error.h"
 
 /*
  * RtlNtStatusToDosError
@@ -15,7 +14,7 @@ int Xbox::RtlNtStatusToDosError()
 	K_INIT_ARG_VAL(NTSTATUS, Status);
 	XboxTypes::ULONG rval;
 
-	rval = NTSTATUStoDOSerror(Status);
+	rval = m_kernel->RtlNtStatusToDosError(Status);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_OK;

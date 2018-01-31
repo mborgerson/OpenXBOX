@@ -16,7 +16,7 @@
 int Xbox::AvSetDisplayMode()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(VOID,  RegisterBase);
+	K_INIT_ARG_VAL(PVOID, RegisterBase);
 	K_INIT_ARG_VAL(ULONG, Step);
 	K_INIT_ARG_VAL(ULONG, DisplayMode);
 	K_INIT_ARG_VAL(ULONG, SourceColorFormat);
@@ -24,16 +24,7 @@ int Xbox::AvSetDisplayMode()
 	K_INIT_ARG_VAL(ULONG, FrameBuffer);
 	XboxTypes::ULONG rval;
 
-	log_debug("%s(%08x, %x, %x, %x, %x, %x)\n",
-		__func__,
-		RegisterBase,
-		Step,
-		DisplayMode,
-		SourceColorFormat,
-		Pitch,
-		FrameBuffer);
-
-	rval = 0;
+	rval = m_kernel->AvSetDisplayMode(RegisterBase, Step, DisplayMode, SourceColorFormat, Pitch, FrameBuffer);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_FAKE_IMPL;

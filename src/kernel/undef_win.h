@@ -3,6 +3,14 @@
 // This files undefines several Win32 defines that clash with kernel/types.h
 
 #ifdef _WIN32
+	#undef RtlFillMemory
+	#undef RtlMoveMemory
+	#undef RtlZeroMemory
+	#undef InterlockedCompareExchange
+	#undef InterlockedDecrement
+	#undef InterlockedIncrement
+	#undef InterlockedExchange
+	#undef InterlockedExchangeAdd
 	#undef VOID
 	#undef STATUS_INVALID_PARAMETER
 	#undef ACCESS_SYSTEM_SECURITY

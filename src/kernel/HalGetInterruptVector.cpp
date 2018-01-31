@@ -12,17 +12,11 @@
 int Xbox::HalGetInterruptVector()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG, BusInterruptLevel);
-	K_INIT_ARG_PTR(KIRQL, Irql);
+	K_INIT_ARG_VAL(ULONG,  BusInterruptLevel);
+	K_INIT_ARG_VAL(PKIRQL, Irql);
 	XboxTypes::ULONG rval;
 
-	XboxTypes::ULONG vec = BusInterruptLevel + 0x30;
-	if (vec >= 0x30 && vec <= 0x4a) {
-		*pIrql = (XboxTypes::KIRQL)(0x4a - vec);
-	}
-	else {
-		rval = 0;
-	}
+	rval = m_kernel->HalGetInterruptVector(BusInterruptLevel, Irql);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_OK;

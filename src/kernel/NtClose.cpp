@@ -14,9 +14,8 @@ int Xbox::NtClose()
 	K_INIT_ARG_VAL(HANDLE, Handle);
 	XboxTypes::NTSTATUS rval;
 
-	// TODO: tell the object manager to close the handle
-	rval = 0;
-
+	rval = m_kernel->NtClose(Handle);
+	
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_FAKE_IMPL;
 }

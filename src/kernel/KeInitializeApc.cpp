@@ -17,30 +17,15 @@
 int Xbox::KeInitializeApc()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KAPC,              Apc);
-	K_INIT_ARG_RPT(KTHREAD,           Thread);
+	K_INIT_ARG_VAL(PRKAPC,            Apc);
+	K_INIT_ARG_VAL(PRKTHREAD,         Thread);
 	K_INIT_ARG_VAL(PKKERNEL_ROUTINE,  KernelRoutine);
 	K_INIT_ARG_VAL(PKRUNDOWN_ROUTINE, RundownRoutine);
 	K_INIT_ARG_VAL(PKNORMAL_ROUTINE,  NormalRoutine);
 	K_INIT_ARG_VAL(KPROCESSOR_MODE,   ProcessorMode);
-	K_INIT_ARG_PTR(VOID,              NormalContext);
+	K_INIT_ARG_VAL(PVOID,             NormalContext);
 
-	// FIXME: let the object manager initialize this
-	pApc->Type = XboxTypes::ApcObject;
-	pApc->Inserted = FALSE;
-	pApc->Thread = Thread;
-
-	pApc->KernelRoutine = KernelRoutine;
-	pApc->RundownRoutine = RundownRoutine;
-	pApc->NormalRoutine = NormalRoutine;
-	if (NULL != NormalRoutine) {
-		pApc->ApcMode = ProcessorMode;
-		pApc->NormalContext = NormalContext;
-	}
-	else {
-		pApc->ApcMode = XboxTypes::KernelMode;
-		pApc->NormalContext = NULL;
-	}
+	m_kernel->KeInitializeApc(Apc, Thread, KernelRoutine, RundownRoutine, NormalRoutine, ProcessorMode, NormalContext);
 
 	K_EXIT();
 	return KF_OK;

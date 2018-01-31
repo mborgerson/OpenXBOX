@@ -5,6 +5,9 @@
 #include "pmemmgr.h"
 #include "cpu.h"
 #include "sched.h"
+#ifdef _WIN32
+	#include "kernel/undef_win.h"
+#endif
 
 /*
  * TODO: deal with pointers in an elegant manner
@@ -44,6 +47,15 @@
  * If copying the data is the approach to be taken, then all the types defined
  * in types.h will need to be refactored to use actual pointers instead of dumb
  * pointers.
+ *
+ * -----
+ *
+ * Another (somewhat farfetched) solution is to write x86-32 machine code for
+ * kernel functions that don't need access to host resources (such as files)
+ * directly into the Xbox RAM. We would need to reserve a portion of memory for
+ * that and make modifications to the kernel thunk mapper to not intercept
+ * calls made to those functions, but instead point them to the right spot in
+ * the binary image.
  */
 
 /*!
@@ -63,7 +75,7 @@ public:
 	int Initialize();
 
 	int Run();
-	void SaveCPUContext();
+	void SaveCPUContext(); // FIXME: shouldn't be necessary
 
 	Thread *CreateThread(uint32_t entryAddress, uint32_t stackSize);
 	int ScheduleThread(Thread *thread);
@@ -74,17 +86,84 @@ public:
 	// Kernel function implementations
 	// ------------------------------------------------------------------------
 
+	// Audio and video support functions (Av)
+	XboxTypes::VOID AvSendTVEncoderOption(XboxTypes::PVOID RegisterBase, XboxTypes::ULONG Option, XboxTypes::ULONG Param, XboxTypes::PULONG Result);
+	XboxTypes::ULONG AvSetDisplayMode(XboxTypes::PVOID RegisterBase, XboxTypes::ULONG Step, XboxTypes::ULONG DisplayMode, XboxTypes::ULONG SourceColorFormat, XboxTypes::ULONG Pitch, XboxTypes::ULONG FrameBuffer);
+
+	// Debugger support functions (Dbg)
+
+	// Executive (Ex)
+	XboxTypes::NTSTATUS ExQueryNonVolatileSetting(XboxTypes::ULONG ValueIndex, XboxTypes::PULONG Type, XboxTypes::PVOID Value, XboxTypes::ULONG ValueLength, XboxTypes::PULONG ResultLength);
+
+	// File system cache (Fsc)
+
+	// Hardware abstraction layer (Hal)
+	XboxTypes::ULONG HalGetInterruptVector(XboxTypes::ULONG BusInterruptLevel, XboxTypes::PKIRQL Irql);
+	XboxTypes::VOID HalReturnToFirmware(XboxTypes::FIRMWARE_REENTRY Routine);
+
+	// I/O manager (Io)
+
+	// Kernel core (Ke) and internal kernel functions (Kf/Ki)
+	XboxTypes::VOID KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PRKTHREAD Thread, XboxTypes::PKKERNEL_ROUTINE KernelRoutine, XboxTypes::PKRUNDOWN_ROUTINE RundownRoutine, XboxTypes::PKNORMAL_ROUTINE NormalRoutine, XboxTypes::KPROCESSOR_MODE ProcessorMode, XboxTypes::PVOID NormalContext);
+	XboxTypes::VOID KeInitializeDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue);
+	XboxTypes::VOID KeInitializeDpc(XboxTypes::PKDPC Dpc, XboxTypes::PKDEFERRED_ROUTINE DeferredRoutine, XboxTypes::PVOID DeferredContext);
+	XboxTypes::VOID KeInitializeEvent(XboxTypes::PRKEVENT Event, XboxTypes::EVENT_TYPE Type, XboxTypes::BOOLEAN State);
+	XboxTypes::VOID KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count);
+	XboxTypes::VOID KeInitializeSemaphore(XboxTypes::PRKSEMAPHORE Semaphore, XboxTypes::LONG Count, XboxTypes::LONG Limit);
+	XboxTypes::VOID KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::TIMER_TYPE Type);
+	XboxTypes::BOOLEAN KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::PKDPC Dpc);
+	XboxTypes::BOOLEAN KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::LONG Period, XboxTypes::PKDPC Dpc);
+
 	// Memory manager (Mm)
 	XboxTypes::PVOID MmAllocateContiguousMemory(XboxTypes::SIZE_T NumberOfBytes);
 	XboxTypes::PVOID MmAllocateContiguousMemoryEx(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::ULONG_PTR LowestAcceptableAddress, XboxTypes::ULONG_PTR HighestAcceptableAddress, XboxTypes::ULONG_PTR Alignment, XboxTypes::ULONG Protect);
+	XboxTypes::PVOID MmClaimGpuInstanceMemory(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::PSIZE_T NumberOfPaddingBytes);
 	XboxTypes::VOID MmFreeContiguousMemory(XboxTypes::PVOID BaseAddress);
 	XboxTypes::VOID MmPersistContiguousMemory(XboxTypes::PVOID BaseAddress, XboxTypes::SIZE_T NumberOfBytes, XboxTypes::BOOLEAN Persist);
 	XboxTypes::ULONG MmQueryAddressProtect(XboxTypes::PVOID VirtualAddress);
 	XboxTypes::SIZE_T MmQueryAllocationSize(XboxTypes::PVOID BaseAddress);
 	XboxTypes::VOID MmSetAddressProtect(XboxTypes::PVOID BaseAddress, XboxTypes::ULONG NumberOfBytes, XboxTypes::ULONG NewProtect);
 
-	// NT (Nt)
+	// Native system services (Nt)
 	XboxTypes::NTSTATUS NtAllocateVirtualMemory(XboxTypes::PPVOID BaseAddress, XboxTypes::ULONG_PTR ZeroBits, XboxTypes::PSIZE_T RegionSize, XboxTypes::ULONG AllocationType, XboxTypes::ULONG Protect);
+	XboxTypes::NTSTATUS NtClose(XboxTypes::HANDLE Handle);
+	XboxTypes::NTSTATUS NtCreateEvent(XboxTypes::PHANDLE EventHandle, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::EVENT_TYPE EventType, XboxTypes::BOOLEAN InitialState);
+
+	// Object manager (Ob)
+
+	// Ethernet functions (Phy)
+
+	// Process management support functions (Ps)
+	XboxTypes::NTSTATUS PsCreateSystemThreadEx(
+		XboxTypes::PHANDLE ThreadHandle,
+		XboxTypes::SIZE_T ThreadExtensionSize,
+		XboxTypes::SIZE_T KernelStackSize,
+		XboxTypes::SIZE_T TlsDataSize,
+		XboxTypes::PHANDLE ThreadId,
+		XboxTypes::PKSTART_ROUTINE StartRoutine,
+		XboxTypes::PVOID StartContext,
+		XboxTypes::BOOLEAN CreateSuspended,
+		XboxTypes::BOOLEAN DebuggerThread,
+		XboxTypes::PKSYSTEM_ROUTINE SystemRoutine
+	);
+
+	// Runtime Library functions (Rtl)
+	XboxTypes::SIZE_T RtlCompareMemory(XboxTypes::PVOID Source1, XboxTypes::PVOID Source2, XboxTypes::SIZE_T Length);
+	XboxTypes::SIZE_T RtlCompareMemoryUlong(XboxTypes::PVOID Source, XboxTypes::SIZE_T Length, XboxTypes::ULONG Pattern);
+	XboxTypes::VOID RtlFillMemory(XboxTypes::PVOID Destination, XboxTypes::ULONG Length, XboxTypes::UCHAR Fill);
+	XboxTypes::VOID RtlFillMemoryUlong(XboxTypes::PVOID Destination, XboxTypes::SIZE_T Length, XboxTypes::ULONG Pattern);
+	XboxTypes::VOID RtlInitializeCriticalSection(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection);
+	XboxTypes::VOID RtlMoveMemory(XboxTypes::PVOID Destination, XboxTypes::PPVOID Source, XboxTypes::ULONG Length);
+	XboxTypes::ULONG RtlNtStatusToDosError(XboxTypes::NTSTATUS Status);
+	XboxTypes::ULONG RtlUlongByteSwap(XboxTypes::ULONG Source);
+	XboxTypes::USHORT RtlUshortByteSwap(XboxTypes::USHORT Source);
+	XboxTypes::VOID RtlZeroMemory(XboxTypes::PVOID Destination, XboxTypes::SIZE_T Length);
+
+	// Xbox cryptography functions (Xc)
+
+	// Xbox executable support functions (Xe)
+
+	// Miscellaneous functions
 
 private:
 	char *m_ram;
@@ -97,4 +176,16 @@ private:
 	 * Initializes the GDT and data structures referenced by it.
 	 */
 	int InitializeGDT();
+
+	/*!
+	 * Converts an address into a pointer to data in the physical Xbox memory,
+	 * allowing direct manipulation of data.
+	 *
+	 * WARNING: The function does not perform bounds check nor does it map
+	 * virtual addresses to physical addresses before obtaining the pointer.
+	 * FIXME
+	 */
+	template<class T> T* ToPointer(uint32_t address) {
+		return (T*)(address + m_ram);
+	}
 };

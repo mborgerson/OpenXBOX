@@ -12,13 +12,11 @@
 int Xbox::MmClaimGpuInstanceMemory()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(SIZE_T, NumberOfBytes);
-	K_INIT_ARG_PTR(SIZE_T, NumberOfPaddingBytes);
+	K_INIT_ARG_VAL(SIZE_T,  NumberOfBytes);
+	K_INIT_ARG_VAL(PSIZE_T, NumberOfPaddingBytes);
 	XboxTypes::PVOID rval;
 
-	SIZE_T val = 0x10000;
-	m_cpu->MemWrite(NumberOfPaddingBytes, 4, &val);
-	rval = 0x03FF0000;
+	rval = m_kernel->MmClaimGpuInstanceMemory(NumberOfBytes, NumberOfPaddingBytes);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_FAKE_IMPL;

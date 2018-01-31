@@ -14,7 +14,7 @@ int Xbox::RtlUlongByteSwap()
 	K_INIT_ARG_VAL(ULONG, Source);
 	XboxTypes::ULONG rval;
 
-	rval = (Source >> 24) | ((Source & 0xFF0000) >> 8) | ((Source & 0xFF00) << 8) | ((Source & 0xFF) << 24);
+	rval = m_kernel->RtlUlongByteSwap(Source);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_OK;

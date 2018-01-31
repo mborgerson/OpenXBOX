@@ -11,13 +11,9 @@
 int Xbox::KeInitializeDeviceQueue()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_PTR(KDEVICE_QUEUE, DeviceQueue);
+	K_INIT_ARG_VAL(PKDEVICE_QUEUE, DeviceQueue);
 
-	// FIXME: let the object manager initialize this
-	pDeviceQueue->Size = sizeof(XboxTypes::KDEVICE_QUEUE);
-	pDeviceQueue->Type = XboxTypes::DeviceQueueObject;
-	pDeviceQueue->Busy = FALSE;
-	InitializeListHead(&pDeviceQueue->DeviceListHead);
+	m_kernel->KeInitializeDeviceQueue(DeviceQueue);
 
 	K_EXIT();
 	return KF_OK;

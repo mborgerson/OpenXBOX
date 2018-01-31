@@ -13,16 +13,11 @@
 int Xbox::KeInitializeSemaphore()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KSEMAPHORE, Semaphore);
-	K_INIT_ARG_VAL(LONG,       Count);
-	K_INIT_ARG_VAL(LONG,       Limit);
+	K_INIT_ARG_VAL(PRKSEMAPHORE, Semaphore);
+	K_INIT_ARG_VAL(LONG,         Count);
+	K_INIT_ARG_VAL(LONG,         Limit);
 
-	// FIXME: let the object manager initialize this
-	pSemaphore->Header.Size = sizeof(XboxTypes::KSEMAPHORE) / sizeof(XboxTypes::LONG);
-	pSemaphore->Header.Type = XboxTypes::SemaphoreObject;
-	pSemaphore->Header.SignalState = Count;
-	pSemaphore->Limit = Limit;
-	InitializeListHead(&pSemaphore->Header.WaitListHead);
+	m_kernel->KeInitializeSemaphore(Semaphore, Count, Limit);
 
 	K_EXIT();
 	return KF_OK;

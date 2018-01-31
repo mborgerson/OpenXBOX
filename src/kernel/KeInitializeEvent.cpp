@@ -13,15 +13,11 @@
 int Xbox::KeInitializeEvent()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_RPT(KEVENT,     Event);
+	K_INIT_ARG_VAL(PRKEVENT,   Event);
 	K_INIT_ARG_VAL(EVENT_TYPE, Type);
 	K_INIT_ARG_VAL(BOOLEAN,    State);
 
-	// FIXME: let the object manager initialize this
-	pEvent->Header.Size = sizeof(XboxTypes::KEVENT) / sizeof(XboxTypes::LONG);
-	pEvent->Header.Type = (XboxTypes::UCHAR)Type;
-	pEvent->Header.SignalState = State;
-	InitializeListHead(&pEvent->Header.WaitListHead);
+	m_kernel->KeInitializeEvent(Event, Type, State);
 
 	K_EXIT();
 	return KF_OK;

@@ -14,7 +14,7 @@ int Xbox::RtlUshortByteSwap()
 	K_INIT_ARG_VAL(USHORT, Source);
 	XboxTypes::USHORT rval;
 
-	rval = (Source >> 8) | ((Source & 0xFF) << 8);
+	rval = m_kernel->RtlUshortByteSwap(Source);
 
 	K_EXIT_WITH_VALUE(rval);
 	return KF_OK;

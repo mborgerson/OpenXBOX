@@ -15,14 +15,15 @@
 int Xbox::ExQueryNonVolatileSetting()
 {
 	K_ENTER_STDCALL();
-	K_INIT_ARG_VAL(ULONG, ValueIndex);
-	K_INIT_ARG_PTR(ULONG, Type);
-	K_INIT_ARG_PTR(VOID,  Value);
-	K_INIT_ARG_VAL(ULONG, ValueLength);
-	K_INIT_ARG_PTR(ULONG, ResultLength);
+	K_INIT_ARG_VAL(ULONG,  ValueIndex);
+	K_INIT_ARG_VAL(PULONG, Type);
+	K_INIT_ARG_VAL(PVOID,  Value);
+	K_INIT_ARG_VAL(ULONG,  ValueLength);
+	K_INIT_ARG_VAL(PULONG, ResultLength);
 	XboxTypes::NTSTATUS rval;
 
-	rval = 0;
+	rval = m_kernel->ExQueryNonVolatileSetting(ValueIndex, Type, Value, ValueLength, ResultLength);
+
 	K_EXIT_WITH_VALUE(rval);
 	return KF_WARN_FAKE_IMPL;
 }
