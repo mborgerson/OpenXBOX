@@ -1047,16 +1047,30 @@ typedef struct _DISPATCHER_HEADER
 } DISPATCHER_HEADER;
 
 typedef enum _KOBJECTS {
-	EventNotificationObject     = 0x00,
-	EventSynchronizationObject  = 0x01,
-	MutantObject                = 0x02,
-	QueueObject                 = 0x04,
-	SemaphoreObject             = 0x05,
-	TimerNotificationObject     = 0x08,
-	TimerSynchronizationObject  = 0x09,
-	ApcObject                   = 0x12,
-	DpcObject                   = 0x13,
-	DeviceQueueObject           = 0x14,
+    EventNotificationObject     = 0,
+    EventSynchronizationObject  = 1,
+    MutantObject                = 2,
+    ProcessObject               = 3,
+    QueueObject                 = 4,
+    SemaphoreObject             = 5,
+    ThreadObject                = 6,
+    Spare1Object                = 7,
+    TimerNotificationObject     = 8,
+    TimerSynchronizationObject  = 9,
+    Spare2Object                = 10,
+    Spare3Object                = 11,
+    Spare4Object                = 12,
+    Spare5Object                = 13,
+    Spare6Object                = 14,
+    Spare7Object                = 15,
+    Spare8Object                = 16,
+    Spare9Object                = 17,
+    ApcObject                   = 18,
+    DpcObject                   = 19,
+    DeviceQueueObject           = 20,
+    EventPairObject             = 21,
+    InterruptObject             = 22,
+    ProfileObject               = 23
 } KOBJECTS;
 
 DEF_POINTER_TYPE(KOBJECTS, PKOBJECTS);
@@ -1098,8 +1112,8 @@ typedef struct _KPROCESS
     ULONG StackCount;
     LONG ThreadQuantum;
     SCHAR BasePriority;
-    UCHAR DisableBoost;
-    UCHAR DisableQuantum;
+    BOOLEAN DisableBoost;
+    BOOLEAN DisableQuantum;
 } KPROCESS;
 
 DEF_POINTER_TYPE(KPROCESS, PKPROCESS);
@@ -1108,10 +1122,10 @@ typedef struct _KAPC_STATE
 {
     LIST_ENTRY ApcListHead[2];
     PKPROCESS Process;
-    UCHAR KernelApcInProgress;
-    UCHAR KernelApcPending;
-    UCHAR UserApcPending;
-    UCHAR ApcQueueable;
+    BOOLEAN KernelApcInProgress;
+    BOOLEAN KernelApcPending;
+    BOOLEAN UserApcPending;
+    BOOLEAN ApcQueueable;
 } KAPC_STATE;
 
 typedef struct _KQUEUE
@@ -1138,8 +1152,8 @@ typedef struct _KWAIT_BLOCK
     PKTHREAD Thread;
     PVOID Object;
     PKWAIT_BLOCK NextWaitBlock;
-    SHORT WaitKey;
-    SHORT WaitType;
+    USHORT WaitKey;
+    USHORT WaitType;
 } KWAIT_BLOCK;
 
 typedef struct _KAPC
@@ -1179,18 +1193,18 @@ typedef struct _KTHREAD
     PVOID KernelStack;
     PVOID TlsData;
     UCHAR State;
-    UCHAR Alerted[2];
-    UCHAR Alertable;
+    BOOLEAN Alerted[2];
+    BOOLEAN Alertable;
     UCHAR NpxState;
     CHAR Saturation;
     SCHAR Priority;
     UCHAR Padding;
     KAPC_STATE ApcState;
     ULONG ContextSwitches;
-    LONG WaitStatus;
-    UCHAR WaitIrql;
-    CHAR WaitMode;
-    UCHAR WaitNext;
+    LONG_PTR WaitStatus;
+    KIRQL WaitIrql;
+    KPROCESSOR_MODE WaitMode;
+    BOOLEAN WaitNext;
     UCHAR WaitReason;
     PKWAIT_BLOCK WaitBlockList;
     LIST_ENTRY WaitListEntry;
@@ -1200,11 +1214,11 @@ typedef struct _KTHREAD
     SCHAR BasePriority;
     UCHAR DecrementCount;
     SCHAR PriorityDecrement;
-    UCHAR DisableBoost;
+    BOOLEAN DisableBoost;
     UCHAR NpxIrql;
     CHAR SuspendCount;
-    UCHAR Preempted;
-    UCHAR HasTerminated;
+    BOOLEAN Preempted;
+    BOOLEAN HasTerminated;
     PKQUEUE Queue;
     LIST_ENTRY QueueListEntry;
     KTIMER Timer;
@@ -1223,14 +1237,22 @@ typedef enum _TIMER_TYPE
 	SynchronizationTimer
 } TIMER_TYPE;
 
+DEF_POINTER_TYPE(VOID, PKSERVICE_ROUTINE);
+/*
+typedef BOOLEAN (* NTAPI PKSERVICE_ROUTINE) (
+IN PKINTERRUPT Interrupt,
+IN PVOID ServiceContext
+);
+*/
+
 typedef struct _KINTERRUPT
 {
-    PVOID ServiceRoutine;
+    PKSERVICE_ROUTINE ServiceRoutine;
     PVOID ServiceContext;
     ULONG BusInterruptLevel;
 	ULONG Irql;
-    UCHAR Connected;
-    UCHAR ShareVector;
+    BOOLEAN Connected;
+    BOOLEAN ShareVector;
     UCHAR Mode;
     UCHAR Padding7;
     ULONG ServiceCount;
@@ -1295,9 +1317,9 @@ typedef NTAPI VOID (*PKDEFERRED_ROUTINE) (
 
 typedef struct _KDEVICE_QUEUE
 {
-    SHORT Type;
+    CSHORT Type;
     UCHAR Size;
-    UCHAR Busy;
+    BOOLEAN Busy;
     LIST_ENTRY DeviceListHead;
 } KDEVICE_QUEUE;
 
@@ -1406,14 +1428,6 @@ typedef enum _KINTERRUPT_MODE
     LevelSensitive, /**< Interrupt is level-triggered. Used for traditional PCI line-based interrupts. */
     Latched /**< Interrupt is edge-triggered. Used for PCI message-signaled interrupts */
 } KINTERRUPT_MODE;
-
-DEF_POINTER_TYPE(VOID, PKSERVICE_ROUTINE);
-/*
-typedef BOOLEAN (* NTAPI PKSERVICE_ROUTINE) (
-    IN PKINTERRUPT Interrupt,
-    IN PVOID ServiceContext
-);
-*/
 
 typedef struct _TIMER_BASIC_INFORMATION
 {
