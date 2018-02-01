@@ -12,6 +12,13 @@ XboxKernel::XboxKernel(char *ram, size_t ramSize, Cpu *cpu)
 {
 }
 
+XboxKernel::~XboxKernel() {
+	// These objects must be deleted in this order
+	delete m_objmgr;
+	delete m_pmemmgr;
+	delete m_sched;
+}
+
 int XboxKernel::Initialize() {
 	// Initialize scheduler
 	log_debug("Initializing Scheduler\n");

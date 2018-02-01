@@ -72,6 +72,7 @@
 class XboxKernel {
 public:
 	XboxKernel(char *ram, size_t ramSize, Cpu *cpu);
+	~XboxKernel();
 
 	int Initialize();
 
