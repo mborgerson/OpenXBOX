@@ -79,6 +79,8 @@ void Cpu::PrintRegisters()
  */
 int Cpu::SaveContext(CpuContext *context)
 {
+	// TODO: use implementation-specific method and data to save context
+	// FIXME: save floating point registers too
     for (int i = 0; i < REG_CONTEXT_MAX; i++) {
         RegRead((enum CpuReg)i, &context->m_regs[i]);
     }
@@ -91,7 +93,9 @@ int Cpu::SaveContext(CpuContext *context)
  */
 int Cpu::RestoreContext(CpuContext *context)
 {
-    for (int i = 0; i < REG_CONTEXT_MAX; i++) {
+	// TODO: use implementation-specific method and data to restore context
+	// FIXME: restore floating point registers too
+	for (int i = 0; i < REG_CONTEXT_MAX; i++) {
         RegWrite((enum CpuReg)i, context->m_regs[i]);
     }
 
