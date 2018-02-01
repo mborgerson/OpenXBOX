@@ -163,7 +163,7 @@ Thread *XboxKernel::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
 	PhysicalMemoryBlock *kthreadBlock = m_pmemmgr->AllocateContiguous(sizeof(XboxTypes::KTHREAD) + TLS_SIZE);
 	if (nullptr == kthreadBlock) {
 		log_debug("Could not allocate memory for KTHREAD + TLS table!\n");
-		threadStack->Free();
+		delete threadStack;
 		return nullptr;
 	}
 	log_debug("...KTHREAD + TLS table allocated at 0x%08x\n", kthreadBlock->BaseAddress());

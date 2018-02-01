@@ -8,8 +8,8 @@ PhysicalMemoryBlock::PhysicalMemoryBlock(uint32_t basePage, uint32_t numPages, u
 {
 }
 
-bool PhysicalMemoryBlock::Free() {
-	return m_memmgr->FreeContiguous(BaseAddress());
+PhysicalMemoryBlock::~PhysicalMemoryBlock() {
+	m_memmgr->FreeContiguous(BaseAddress());
 }
 
 

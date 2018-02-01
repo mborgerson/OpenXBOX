@@ -26,6 +26,7 @@ protected:
 	PhysicalMemoryManager *m_memmgr;
 public:
 	PhysicalMemoryBlock(uint32_t basePage, uint32_t numPages, uint32_t actualSize, PhysicalMemoryManager *memmgr);
+	~PhysicalMemoryBlock();
 	
 	uint32_t BasePage() const { return m_basePage; }
 	uint32_t NumPages() const { return m_numPages; }
@@ -34,8 +35,6 @@ public:
 
 	uint32_t BaseAddress() const { return m_basePage << PAGE_SHIFT; }
 	uint32_t Size() const { return m_actualSize; }
-
-	bool Free();
 };
 
 

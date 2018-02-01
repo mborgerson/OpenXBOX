@@ -32,6 +32,5 @@ Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD p
  */
 Thread::~Thread()
 {
-	m_stack->Free();
 	delete m_stack;
 }
