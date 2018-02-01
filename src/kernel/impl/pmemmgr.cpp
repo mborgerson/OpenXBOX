@@ -1,4 +1,4 @@
-#include "pmemmgr.h"
+#include "kernel/impl/pmemmgr.h"
 
 PhysicalMemoryBlock::PhysicalMemoryBlock(uint32_t basePage, uint32_t numPages, uint32_t actualSize, PhysicalMemoryManager *memmgr)
 	: m_basePage(basePage)

@@ -2,7 +2,7 @@
 #include "xbox.h"
 #include "timer.h"
 #include "alloc.h"
-#include "pmemmgr.h"
+#include "kernel/impl/pmemmgr.h"
 
 #define ENABLE_GDB_SERVER     0 // FIXME: Allow enable from cmdline
 #define DUMP_SECTION_CONTENTS 0
