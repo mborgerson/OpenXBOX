@@ -2,6 +2,7 @@
 
 #include "cpu.h"
 #include "pmemmgr.h"
+#include "kernel/types.h"
 #include <string.h>
 #include <vector>
 
@@ -14,10 +15,12 @@ class Thread {
 public:
     uint32_t m_entry;
     PhysicalMemoryBlock *m_stack;
-    CpuContext m_context;
+	XboxTypes::PKTHREAD m_pkthread;
+	XboxTypes::KTHREAD *m_kthread;  // pointer to Xbox RAM, MUST NOT BE FREED
+	CpuContext m_context;
 	uint32_t m_id;
 
-    Thread(uint32_t entry, PhysicalMemoryBlock *stack);
+    Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD pkthread, XboxTypes::KTHREAD *kthread);
     ~Thread();
 };
 
@@ -37,10 +40,12 @@ protected:
     std::vector<Thread *>  m_threads;
 	Thread                *m_currentThread;
 	uint32_t               m_nextThreadIndex;
+	XboxTypes::KPCR       *m_kpcr; // pointer to Xbox RAM, MUST NOT BE FREED
 
 public:
     Scheduler(Cpu *cpu);
     ~Scheduler();
+	void SetKPCR(XboxTypes::KPCR *kpcr);
     int ScheduleThread(Thread *thread);
     int Run();
 	bool ChooseNextThread();

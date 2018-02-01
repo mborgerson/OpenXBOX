@@ -1,15 +1,18 @@
 #include "sched.h"
 #include "log.h"
 
+// FIXME: global variable
 static uint32_t g_threadId = 0;
 
 /*!
  * Constructor
  */
-Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack)
+Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD pkthread, XboxTypes::KTHREAD *kthread)
 	: m_entry(entry)
 	, m_stack(stack)
 	, m_id(++g_threadId)
+	, m_pkthread(pkthread)
+	, m_kthread(kthread)
 {
     m_context.m_regs[REG_EIP] = m_entry;
 	m_context.m_regs[REG_ESP] = stack->BaseAddress() + stack->Size();
@@ -50,6 +53,10 @@ Scheduler::~Scheduler()
 {
 }
 
+void Scheduler::SetKPCR(XboxTypes::KPCR *kpcr) {
+	m_kpcr = kpcr;
+}
+
 /*!
  * Schedule a thread for execution
  */
@@ -86,7 +93,10 @@ bool Scheduler::ChooseNextThread() {
 		// TODO: implement proper context switching
 		m_cpu->RestoreContext(&m_currentThread->m_context);
 
-		// TODO: tell the thread to update KPCR info
+		// Update KPCR info
+		m_kpcr->PrcbData.CurrentThread = m_currentThread->m_pkthread;
+		m_kpcr->NtTib.StackBase = m_currentThread->m_kthread->StackBase;
+		m_kpcr->NtTib.StackLimit = m_currentThread->m_kthread->StackLimit;
 	}
 
 	return true;

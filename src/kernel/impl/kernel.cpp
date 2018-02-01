@@ -2,6 +2,7 @@
 #include "kernel/impl/kernel.h"
 #include "kernel/impl/gdt.h"
 #include "kernel/impl/tss.h"
+#include "kernel/impl/tls.h"
 #include "log.h"
 
 XboxKernel::XboxKernel(char *ram, size_t ramSize, Cpu *cpu)
@@ -97,6 +98,7 @@ int XboxKernel::InitializeGDT() {
 	XboxTypes::KPRCB *pKPRCB = &pKPCR->PrcbData;
 	InitializeListHead(&pKPRCB->DpcListHead);
 	pKPRCB->DpcRoutineActive = 0;
+	pKPRCB->CurrentThread = kpcrAddr + sizeof(XboxTypes::KPCR);
 	// TODO: fill in just enough data for the emulated code to work properly
 
 	// Fill in GDT table data
@@ -122,6 +124,9 @@ int XboxKernel::InitializeGDT() {
 	m_cpu->RegWrite(REG_SS, 0x10);
 	m_cpu->RegWrite(REG_FS, 0x20);
 	m_cpu->RegWrite(REG_GS, 0x00);
+
+	// Point scheduler to the newly created KPCR
+	m_sched->SetKPCR(pKPCR);
 
 	return 0;
 }
@@ -149,7 +154,29 @@ Thread *XboxKernel::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
 		return nullptr;
 	}
 	log_debug("...stack allocated at 0x%08x\n", threadStack->BaseAddress());
-	return new Thread(entryAddress, threadStack);
+
+	// Allocate memory for the KTHREAD struct and TLS data array
+	PhysicalMemoryBlock *kthreadBlock = m_pmemmgr->AllocateContiguous(sizeof(XboxTypes::KTHREAD) + TLS_SIZE);
+	if (nullptr == kthreadBlock) {
+		log_debug("Could not allocate memory for KTHREAD + TLS table!\n");
+		threadStack->Free();
+		return nullptr;
+	}
+	log_debug("...KTHREAD + TLS table allocated at 0x%08x\n", kthreadBlock->BaseAddress());
+
+	XboxTypes::PKTHREAD pkthread = kthreadBlock->BaseAddress();
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(pkthread);
+	KeInitializeThread(pkthread,
+		threadStack->BaseAddress() + threadStack->TotalSize(),
+		threadStack->TotalSize(),
+		TLS_SIZE,
+		NULL, // FIXME: almost certainly incorrect
+		NULL, // FIXME: almost certainly incorrect
+		NULL, // FIXME: almost certainly incorrect
+		NULL  // FIXME: need to initialize a process object beforehand
+	);
+
+	return new Thread(entryAddress, threadStack, pkthread, pThread);
 }
 
 /*!

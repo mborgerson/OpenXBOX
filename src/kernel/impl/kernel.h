@@ -116,6 +116,7 @@ public:
 	XboxTypes::VOID KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count);
 	XboxTypes::VOID KeInitializeSemaphore(XboxTypes::PRKSEMAPHORE Semaphore, XboxTypes::LONG Count, XboxTypes::LONG Limit);
 	XboxTypes::VOID KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::TIMER_TYPE Type);
+	XboxTypes::VOID KeInitializeThread(XboxTypes::PKTHREAD Thread, XboxTypes::PVOID KernelStack, XboxTypes::SIZE_T KernelStackSize, XboxTypes::SIZE_T TlsDataSize, XboxTypes::PKSYSTEM_ROUTINE SystemRoutine, XboxTypes::PKSTART_ROUTINE StartRoutine, XboxTypes::PVOID StartContext, XboxTypes::PKPROCESS Process);
 	XboxTypes::BOOLEAN KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::PKDPC Dpc);
 	XboxTypes::BOOLEAN KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::LONG Period, XboxTypes::PKDPC Dpc);
 
@@ -136,6 +137,7 @@ public:
 	XboxTypes::NTSTATUS NtCreateFile(XboxTypes::PHANDLE FileHandle, XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PLARGE_INTEGER AllocationSize, XboxTypes::ULONG FileAttributes, XboxTypes::ULONG ShareAccess, XboxTypes::ULONG CreateDisposition, XboxTypes::ULONG CreateOptions);
 	XboxTypes::NTSTATUS NtDeviceIoControlFile(XboxTypes::HANDLE FileHandle, XboxTypes::HANDLE Event, XboxTypes::PIO_APC_ROUTINE ApcRoutine, XboxTypes::PVOID ApcContext, XboxTypes::PIO_STATUS_BLOCK, XboxTypes::ULONG IoControlCode, XboxTypes::PVOID InputBuffer, XboxTypes::ULONG InputBufferLength, XboxTypes::PVOID OutputBuffer, XboxTypes::ULONG OutputBufferLength);
 	XboxTypes::NTSTATUS NtOpenFile(XboxTypes::PHANDLE FileHandle, XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::ULONG ShareAccess, XboxTypes::ULONG OpenOptions);
+	XboxTypes::NTSTATUS NtQueryInformationFile(XboxTypes::HANDLE FileHandle, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PVOID FileInformation, XboxTypes::ULONG Length, XboxTypes::FILE_INFORMATION_CLASS FileInformationClass);
 	XboxTypes::NTSTATUS NtQueryVolumeInformationFile(XboxTypes::HANDLE FileHandle, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PVOID FsInformation, XboxTypes::ULONG Length, XboxTypes::FS_INFORMATION_CLASS FsInformationClass);
 
 	// Object manager (Ob/Obf)

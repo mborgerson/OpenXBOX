@@ -65,11 +65,27 @@ XboxTypes::NTSTATUS XboxKernel::NtOpenFile(XboxTypes::PHANDLE FileHandle, XboxTy
 	return STATUS_SUCCESS;
 }
 
+XboxTypes::NTSTATUS XboxKernel::NtQueryInformationFile(XboxTypes::HANDLE FileHandle, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PVOID FileInformation, XboxTypes::ULONG Length, XboxTypes::FILE_INFORMATION_CLASS FileInformationClass) {
+	// FIXME: implement properly
+	
+	switch (FileInformationClass) {
+	case XboxTypes::FileNetworkOpenInformation: {
+		// FIXME: fake and incomplete data
+		XboxTypes::FILE_NETWORK_OPEN_INFORMATION *fNetOpen = ToPointer<XboxTypes::FILE_NETWORK_OPEN_INFORMATION>(FileInformation);
+		fNetOpen->EndOfFile.QuadPart = 0x1234full;
+		break;
+	}
+	}
+
+	return STATUS_SUCCESS;
+}
+
 XboxTypes::NTSTATUS XboxKernel::NtQueryVolumeInformationFile(XboxTypes::HANDLE FileHandle, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PVOID FsInformation, XboxTypes::ULONG Length, XboxTypes::FS_INFORMATION_CLASS FsInformationClass) {
 	// FIXME: implement properly
 
 	switch (FsInformationClass) {
 	case XboxTypes::FileFsSizeInformation: {
+		// FIXME: fake data
 		XboxTypes::FILE_FS_SIZE_INFORMATION *fsSizeInfo = ToPointer<XboxTypes::FILE_FS_SIZE_INFORMATION>(FsInformation);
 		fsSizeInfo->BytesPerSector = 512;
 		fsSizeInfo->SectorsPerAllocationUnit = 32;

@@ -128,6 +128,39 @@ XboxTypes::VOID XboxKernel::KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTy
 	InitializeListHead(&pTimer->TimerListEntry);
 }
 
+XboxTypes::VOID XboxKernel::KeInitializeThread(XboxTypes::PKTHREAD Thread, XboxTypes::PVOID KernelStack, XboxTypes::SIZE_T KernelStackSize, XboxTypes::SIZE_T TlsDataSize, XboxTypes::PKSYSTEM_ROUTINE SystemRoutine, XboxTypes::PKSTART_ROUTINE StartRoutine, XboxTypes::PVOID StartContext, XboxTypes::PKPROCESS Process) {
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(Thread);
+	pThread->Header.Size = sizeof(XboxTypes::KTHREAD) / sizeof(XboxTypes::LONG);
+	pThread->Header.Type = XboxTypes::ThreadObject;
+	InitializeListHead(&pThread->Header.WaitListHead);
+
+	InitializeListHead(&pThread->MutantListHead);
+
+	InitializeListHead(&pThread->ApcState.ApcListHead[XboxTypes::KernelMode]);
+	InitializeListHead(&pThread->ApcState.ApcListHead[XboxTypes::UserMode]);
+	pThread->ApcState.Process = Process;
+	pThread->ApcState.ApcQueueable = TRUE;
+	// TODO: KeInitializeApc(_PTR_TO_ADDR(KAPC, &pThread->SuspendApc), Thread, <pointer to a function>, NULL, <pointer to another function>, XboxTypes::KernelMode, NULL);
+
+	KeInitializeSemaphore(_PTR_TO_ADDR(KSEMAPHORE, &pThread->SuspendSemaphore), 0, 2);
+
+	pThread->StackBase = KernelStack;
+	pThread->StackLimit = KernelStackSize;
+
+	pThread->TlsData = Thread + sizeof(XboxTypes::KTHREAD);
+	RtlZeroMemory(pThread->TlsData, TlsDataSize);
+
+	KeInitializeTimerEx(_PTR_TO_ADDR(KTIMER, &pThread->Timer), XboxTypes::NotificationTimer);
+
+	pThread->TimerWaitBlock.Object = _PTR_TO_ADDR(KTIMER, &pThread->Timer);
+	pThread->TimerWaitBlock.WaitKey = 0x102;
+	pThread->TimerWaitBlock.WaitType = XboxTypes::WaitAny;
+	pThread->TimerWaitBlock.Thread = Thread;
+	pThread->TimerWaitBlock.WaitListEntry.Flink = _PTR_TO_ADDR(LIST_ENTRY, &pThread->Timer.Header.WaitListHead);
+	pThread->TimerWaitBlock.WaitListEntry.Blink = _PTR_TO_ADDR(LIST_ENTRY, &pThread->Timer.Header.WaitListHead);
+	// TODO: there are more fields to initialize
+}
+
 XboxTypes::BOOLEAN XboxKernel::KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::PKDPC Dpc) {
 	return KeSetTimerEx(Timer, DueTime, 0, Dpc);
 }

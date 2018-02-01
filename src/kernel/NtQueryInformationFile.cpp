@@ -22,6 +22,8 @@ int Xbox::NtQueryInformationFile()
 	K_INIT_ARG(FILE_INFORMATION_CLASS, FileInformationClass);
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->NtQueryInformationFile(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_FAKE_IMPL;
 }
