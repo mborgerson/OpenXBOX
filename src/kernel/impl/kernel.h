@@ -1,10 +1,11 @@
 #pragma once
 
 #include <stdint.h>
-#include "kernel/types.h"
-#include "pmemmgr.h"
 #include "cpu.h"
-#include "sched.h"
+#include "kernel/types.h"
+#include "kernel/impl/sched.h"
+#include "kernel/impl/pmemmgr.h"
+#include "kernel/impl/objmgr.h"
 #ifdef _WIN32
 	#include "kernel/undef_win.h"
 #endif
@@ -184,6 +185,7 @@ private:
 	Cpu *m_cpu;
 	Scheduler *m_sched;
 	PhysicalMemoryManager *m_pmemmgr;
+	ObjectManager *m_objmgr;
 
 	/*!
 	 * Initializes the GDT and data structures referenced by it.

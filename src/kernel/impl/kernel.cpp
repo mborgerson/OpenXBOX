@@ -29,9 +29,13 @@ int XboxKernel::Initialize() {
 		return gdtStatus;
 	}
 
+	// Initialize object manager
+	log_debug("Initializing Object Manager\n");
+	m_objmgr = new ObjectManager();
+	assert(m_objmgr != NULL);
+
 	return 0;
 }
-
 
 int XboxKernel::InitializeGDT() {
 	GDTEntry gdtTable[7];

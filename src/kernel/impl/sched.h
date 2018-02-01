@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cpu.h"
-#include "pmemmgr.h"
 #include "kernel/types.h"
+#include "kernel/impl/pmemmgr.h"
 #include "kernel/impl/thread.h"
 #include <string.h>
 #include <vector>
