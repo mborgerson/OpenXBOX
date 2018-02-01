@@ -29,7 +29,6 @@ XboxTypes::BOOLEAN XboxKernel::KeConnectInterrupt(XboxTypes::PKINTERRUPT Interru
 XboxTypes::VOID XboxKernel::KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PRKTHREAD Thread, XboxTypes::PKKERNEL_ROUTINE KernelRoutine, XboxTypes::PKRUNDOWN_ROUTINE RundownRoutine, XboxTypes::PKNORMAL_ROUTINE NormalRoutine, XboxTypes::KPROCESSOR_MODE ProcessorMode, XboxTypes::PVOID NormalContext) {
 	XboxTypes::KAPC *pApc = ToPointer<XboxTypes::KAPC>(Apc);
 
-	// FIXME: let the object manager initialize this
 	pApc->Type = XboxTypes::ApcObject;
 	pApc->Inserted = FALSE;
 	pApc->Thread = Thread;
@@ -50,7 +49,6 @@ XboxTypes::VOID XboxKernel::KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PR
 XboxTypes::VOID XboxKernel::KeInitializeDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue) {
 	XboxTypes::KDEVICE_QUEUE *pDeviceQueue = ToPointer<XboxTypes::KDEVICE_QUEUE>(DeviceQueue);
 	
-	// FIXME: let the object manager initialize this
 	pDeviceQueue->Size = sizeof(XboxTypes::KDEVICE_QUEUE);
 	pDeviceQueue->Type = XboxTypes::DeviceQueueObject;
 	pDeviceQueue->Busy = FALSE;
@@ -60,7 +58,6 @@ XboxTypes::VOID XboxKernel::KeInitializeDeviceQueue(XboxTypes::PKDEVICE_QUEUE De
 XboxTypes::VOID XboxKernel::KeInitializeDpc(XboxTypes::PKDPC Dpc, XboxTypes::PKDEFERRED_ROUTINE DeferredRoutine, XboxTypes::PVOID DeferredContext) {
 	XboxTypes::KDPC *pDpc = ToPointer<XboxTypes::KDPC>(Dpc);
 
-	// FIXME: let the object manager initialize this
 	pDpc->Type = XboxTypes::DpcObject;
 	pDpc->DeferredRoutine = DeferredRoutine;
 	pDpc->DeferredContext = DeferredContext;
@@ -70,30 +67,30 @@ XboxTypes::VOID XboxKernel::KeInitializeDpc(XboxTypes::PKDPC Dpc, XboxTypes::PKD
 XboxTypes::VOID XboxKernel::KeInitializeEvent(XboxTypes::PRKEVENT Event, XboxTypes::EVENT_TYPE Type, XboxTypes::BOOLEAN State) {
 	XboxTypes::KEVENT *pEvent = ToPointer<XboxTypes::KEVENT>(Event);
 
-	// FIXME: let the object manager initialize this
 	pEvent->Header.Size = sizeof(XboxTypes::KEVENT) / sizeof(XboxTypes::LONG);
 	pEvent->Header.Type = (XboxTypes::UCHAR)Type;
 	pEvent->Header.SignalState = State;
 	// FIXME: what can we do about pointers to structs within structs?
 	InitializeListHead(&pEvent->Header.WaitListHead);
+
+	//m_objmgr->RegisterEvent(Event, pEvent, Type);
 }
 
 XboxTypes::VOID XboxKernel::KeInitializeInterrupt(XboxTypes::PKINTERRUPT Interrupt, XboxTypes::PKSERVICE_ROUTINE ServiceRoutine, XboxTypes::PVOID ServiceContext, XboxTypes::ULONG Vector, XboxTypes::KIRQL Irql, XboxTypes::KINTERRUPT_MODE InterruptMode, XboxTypes::BOOLEAN ShareVector) {
 	XboxTypes::KINTERRUPT *pInterrupt = ToPointer<XboxTypes::KINTERRUPT>(Interrupt);
 
-	// FIXME: let the object manager initialize this
 	pInterrupt->ServiceRoutine = ServiceRoutine;
 	pInterrupt->ServiceContext = ServiceContext;
 	pInterrupt->BusInterruptLevel = Vector - 0x30;
 	pInterrupt->Irql = Irql;
 	pInterrupt->Mode = InterruptMode;
+	pInterrupt->Connected = FALSE;
 	// TODO: this is incomplete
 }
 
 XboxTypes::VOID XboxKernel::KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count) {
 	XboxTypes::KQUEUE *pQueue = ToPointer<XboxTypes::KQUEUE>(Queue);
 
-	// FIXME: let the object manager initialize this
 	pQueue->Header.Size = sizeof(XboxTypes::KQUEUE) / sizeof(XboxTypes::LONG);
 	pQueue->Header.Type = XboxTypes::QueueObject;
 	pQueue->Header.SignalState = 0;
@@ -107,25 +104,13 @@ XboxTypes::VOID XboxKernel::KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTyp
 XboxTypes::VOID XboxKernel::KeInitializeSemaphore(XboxTypes::PRKSEMAPHORE Semaphore, XboxTypes::LONG Count, XboxTypes::LONG Limit) {
 	XboxTypes::KSEMAPHORE *pSemaphore = ToPointer<XboxTypes::KSEMAPHORE>(Semaphore);
 
-	// FIXME: let the object manager initialize this
 	pSemaphore->Header.Size = sizeof(XboxTypes::KSEMAPHORE) / sizeof(XboxTypes::LONG);
 	pSemaphore->Header.Type = XboxTypes::SemaphoreObject;
 	pSemaphore->Header.SignalState = Count;
 	pSemaphore->Limit = Limit;
 	InitializeListHead(&pSemaphore->Header.WaitListHead);
-}
 
-XboxTypes::VOID XboxKernel::KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::TIMER_TYPE Type) {
-	XboxTypes::KTIMER *pTimer = ToPointer<XboxTypes::KTIMER>(Timer);
-
-	// FIXME: let the object manager initialize this
-	pTimer->Header.Size = sizeof(XboxTypes::KTIMER) / sizeof(XboxTypes::LONG);
-	pTimer->Header.Type = XboxTypes::TimerNotificationObject + Type;
-	pTimer->Header.Inserted = FALSE;
-	pTimer->Header.SignalState = FALSE;
-	pTimer->DueTime.QuadPart = 0;
-	pTimer->Period = 0;
-	InitializeListHead(&pTimer->TimerListEntry);
+	//m_objmgr->RegisterSemaphore(Semaphore, pSemaphore);
 }
 
 XboxTypes::VOID XboxKernel::KeInitializeThread(XboxTypes::PKTHREAD Thread, XboxTypes::PVOID KernelStack, XboxTypes::SIZE_T KernelStackSize, XboxTypes::SIZE_T TlsDataSize, XboxTypes::PKSYSTEM_ROUTINE SystemRoutine, XboxTypes::PKSTART_ROUTINE StartRoutine, XboxTypes::PVOID StartContext, XboxTypes::PKPROCESS Process) {
@@ -140,7 +125,12 @@ XboxTypes::VOID XboxKernel::KeInitializeThread(XboxTypes::PKTHREAD Thread, XboxT
 	InitializeListHead(&pThread->ApcState.ApcListHead[XboxTypes::UserMode]);
 	pThread->ApcState.Process = Process;
 	pThread->ApcState.ApcQueueable = TRUE;
-	// TODO: KeInitializeApc(_PTR_TO_ADDR(KAPC, &pThread->SuspendApc), Thread, <pointer to a function>, NULL, <pointer to another function>, XboxTypes::KernelMode, NULL);
+	// TODO: KeInitializeApc(_PTR_TO_ADDR(KAPC, &pThread->SuspendApc), Thread, <PKKERNEL_ROUTINE f1>, NULL, <PKNORMAL_ROUTINE f2>, XboxTypes::KernelMode, NULL);
+	// f1: literally does nothing
+	/* f2: does a bit more than nothing:
+	PKTHREAD currentThread = pKPCR->PrcbData.CurrentThread;
+	KeWaitForSingleObject(&currentThread->SuspendSemaphore, XboxTypes::Suspended, XboxTypes::KernelMode, FALSE, NULL);
+	*/
 
 	KeInitializeSemaphore(_PTR_TO_ADDR(KSEMAPHORE, &pThread->SuspendSemaphore), 0, 2);
 
@@ -159,6 +149,22 @@ XboxTypes::VOID XboxKernel::KeInitializeThread(XboxTypes::PKTHREAD Thread, XboxT
 	pThread->TimerWaitBlock.WaitListEntry.Flink = _PTR_TO_ADDR(LIST_ENTRY, &pThread->Timer.Header.WaitListHead);
 	pThread->TimerWaitBlock.WaitListEntry.Blink = _PTR_TO_ADDR(LIST_ENTRY, &pThread->Timer.Header.WaitListHead);
 	// TODO: there are more fields to initialize
+
+	//m_objmgr->RegisterThread(Thread, pThread, Type);
+}
+
+XboxTypes::VOID XboxKernel::KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::TIMER_TYPE Type) {
+	XboxTypes::KTIMER *pTimer = ToPointer<XboxTypes::KTIMER>(Timer);
+
+	pTimer->Header.Size = sizeof(XboxTypes::KTIMER) / sizeof(XboxTypes::LONG);
+	pTimer->Header.Type = XboxTypes::TimerNotificationObject + Type;
+	pTimer->Header.Inserted = FALSE;
+	pTimer->Header.SignalState = FALSE;
+	pTimer->DueTime.QuadPart = 0;
+	pTimer->Period = 0;
+	InitializeListHead(&pTimer->TimerListEntry);
+
+	//m_objmgr->RegisterTimer(Timer, pTimer, Type);
 }
 
 XboxTypes::BOOLEAN XboxKernel::KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::PKDPC Dpc) {
@@ -168,7 +174,6 @@ XboxTypes::BOOLEAN XboxKernel::KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::L
 XboxTypes::BOOLEAN XboxKernel::KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::LONG Period, XboxTypes::PKDPC Dpc) {
 	XboxTypes::KTIMER *pTimer = ToPointer<XboxTypes::KTIMER>(Timer);
 
-	// TODO: let the object manager initialize this
 	pTimer->Header.SignalState = FALSE;
 	pTimer->Header.Inserted = TRUE;
 	pTimer->Header.Absolute = FALSE;
