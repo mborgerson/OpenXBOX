@@ -68,6 +68,8 @@ XboxTypes::PSINGLE_LIST_ENTRY XboxKernel::InterlockedPopEntrySList(XboxTypes::PS
 		XboxTypes::ULONG *val = (XboxTypes::ULONG *)(&pListHead->Depth);
 		val += 0xffff;
 	}
+
+	return currNext;
 }
 
 XboxTypes::PSINGLE_LIST_ENTRY XboxKernel::InterlockedPushEntrySList(XboxTypes::PSLIST_HEADER ListHead, XboxTypes::PSINGLE_LIST_ENTRY ListEntry) {
