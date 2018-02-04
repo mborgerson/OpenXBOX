@@ -7,6 +7,7 @@ struct KernelVariables {
 	XboxTypes::OBJECT_TYPE         ExMutantObjectType;
 	XboxTypes::OBJECT_TYPE         ExSemaphoreObjectType;
 	XboxTypes::OBJECT_TYPE         ExTimerObjectType;
+	XboxTypes::ULONG               HalBootSMCVideoMode;
 	XboxTypes::ULONG               HalDiskCachePartitionCount;
 	XboxTypes::STRING              HalDiskModelNumber;
 	XboxTypes::STRING              HalDiskSerialNumber;

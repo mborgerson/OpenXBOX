@@ -95,6 +95,9 @@ public:
 	// Debugger support functions (Dbg)
 
 	// Executive (Ex)
+	XboxTypes::NTSTATUS ExAllocatePool(XboxTypes::SIZE_T NumberOfBytes);
+	XboxTypes::NTSTATUS ExAllocatePoolWithTag(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::ULONG Tag);
+	XboxTypes::VOID ExInitializeReadWriteLock(XboxTypes::PERWLOCK ReadWriteLock);
 	XboxTypes::NTSTATUS ExQueryNonVolatileSetting(XboxTypes::ULONG ValueIndex, XboxTypes::PULONG Type, XboxTypes::PVOID Value, XboxTypes::ULONG ValueLength, XboxTypes::PULONG ResultLength);
 
 	// File system cache (Fsc)

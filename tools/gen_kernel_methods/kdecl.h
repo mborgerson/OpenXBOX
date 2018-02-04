@@ -20,6 +20,7 @@ XBAPI volatile OBJECT_TYPE IoCompletionObjectType;
 XBAPI volatile IDE_CHANNEL_OBJECT IdexChannelObject;
 XBAPI volatile STRING HalDiskSerialNumber;
 XBAPI volatile STRING HalDiskModelNumber;
+XBAPI volatile ULONG HalBootSMCVideoMode;
 XBAPI volatile ULONG HalDiskCachePartitionCount;
 XBAPI volatile OBJECT_TYPE ExTimerObjectType;
 XBAPI volatile OBJECT_TYPE ExSemaphoreObjectType;
@@ -2228,9 +2229,6 @@ XBAPI VOID NTAPI HalDisableSystemInterrupt
 (
     IN ULONG BusInterruptLevel
 );
-
-XBAPI DWORD HalBootSMCVideoMode(void);
-
 
 XBAPI NTSTATUS NTAPI FscSetCacheSize
 (

@@ -361,7 +361,7 @@
 	KERNEL_IMPORT_DATA(353, XboxLANKey) \
 	KERNEL_IMPORT_DATA(354, XboxAlternateSignatureKeys) \
 	KERNEL_IMPORT_DATA(355, XePublicKeyData) \
-	KERNEL_IMPORT_FUNC(356, HalBootSMCVideoMode) \
+	KERNEL_IMPORT_DATA(356, HalBootSMCVideoMode) \
 	KERNEL_IMPORT_DATA(357, IdexChannelObject) \
 	KERNEL_IMPORT_FUNC(358, HalIsResetOrShutdownPending) \
 	KERNEL_IMPORT_FUNC(359, IoMarkIrpMustComplete) \

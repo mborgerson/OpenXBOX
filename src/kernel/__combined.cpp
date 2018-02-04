@@ -30,7 +30,6 @@
 #include "FscGetCacheSize.cpp"
 #include "FscInvalidateIdleBlocks.cpp"
 #include "FscSetCacheSize.cpp"
-#include "HalBootSMCVideoMode.cpp"
 #include "HalClearSoftwareInterrupt.cpp"
 #include "HalDisableSystemInterrupt.cpp"
 #include "HalEnableSecureTrayEject.cpp"
