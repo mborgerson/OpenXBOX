@@ -104,6 +104,18 @@ public:
 	XboxTypes::VOID HalReturnToFirmware(XboxTypes::FIRMWARE_REENTRY Routine);
 
 	// I/O manager (Io/Iof)
+	XboxTypes::NTSTATUS IoCreateFile(
+		XboxTypes::PHANDLE FileHandle,
+		XboxTypes::ACCESS_MASK DesiredAccess,
+		XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes,
+		XboxTypes::PIO_STATUS_BLOCK IoStatusBlock,
+		XboxTypes::PLARGE_INTEGER AllocationSize,
+		XboxTypes::ULONG FileAttributes,
+		XboxTypes::ULONG ShareAccess,
+		XboxTypes::ULONG Disposition,
+		XboxTypes::ULONG CreateOptions,
+		XboxTypes::ULONG Options
+	);
 	XboxTypes::NTSTATUS IoCreateSymbolicLink(XboxTypes::POBJECT_STRING SymbolicLinkName, XboxTypes::POBJECT_STRING DeviceName);
 
 	// Kernel core (Ke) and internal kernel functions (Kf/Ki)

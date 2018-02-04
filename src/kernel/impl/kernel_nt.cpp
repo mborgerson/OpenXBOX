@@ -36,12 +36,7 @@ XboxTypes::NTSTATUS XboxKernel::NtCreateEvent(XboxTypes::PHANDLE EventHandle, Xb
 }
 
 XboxTypes::NTSTATUS XboxKernel::NtCreateFile(XboxTypes::PHANDLE FileHandle, XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PLARGE_INTEGER AllocationSize, XboxTypes::ULONG FileAttributes, XboxTypes::ULONG ShareAccess, XboxTypes::ULONG CreateDisposition, XboxTypes::ULONG CreateOptions) {
-	// FIXME: implement properly
-	XboxTypes::HANDLE *pFileHandle = ToPointer<XboxTypes::HANDLE>(FileHandle);
-
-	*pFileHandle = (XboxTypes::HANDLE) 0xc;
-
-	return STATUS_SUCCESS;
+	return IoCreateFile(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, 0);
 }
 
 XboxTypes::NTSTATUS XboxKernel::NtDeviceIoControlFile(XboxTypes::HANDLE FileHandle, XboxTypes::HANDLE Event, XboxTypes::PIO_APC_ROUTINE ApcRoutine, XboxTypes::PVOID ApcContext, XboxTypes::PIO_STATUS_BLOCK, XboxTypes::ULONG IoControlCode, XboxTypes::PVOID InputBuffer, XboxTypes::ULONG InputBufferLength, XboxTypes::PVOID OutputBuffer, XboxTypes::ULONG OutputBufferLength) {
@@ -57,12 +52,7 @@ XboxTypes::NTSTATUS XboxKernel::NtDeviceIoControlFile(XboxTypes::HANDLE FileHand
 }
 
 XboxTypes::NTSTATUS XboxKernel::NtOpenFile(XboxTypes::PHANDLE FileHandle, XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::ULONG ShareAccess, XboxTypes::ULONG OpenOptions) {
-	// FIXME: implement properly
-	XboxTypes::HANDLE *pFileHandle = ToPointer<XboxTypes::HANDLE>(FileHandle);
-
-	*pFileHandle = (XboxTypes::HANDLE) 0x8;
-
-	return STATUS_SUCCESS;
+	return IoCreateFile(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, NULL, 0L, ShareAccess, FILE_OPEN, OpenOptions, 0);
 }
 
 XboxTypes::NTSTATUS XboxKernel::NtQueryInformationFile(XboxTypes::HANDLE FileHandle, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PVOID FileInformation, XboxTypes::ULONG Length, XboxTypes::FILE_INFORMATION_CLASS FileInformationClass) {

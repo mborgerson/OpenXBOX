@@ -53,6 +53,7 @@ class ObjectManager {
 public:
 	// TODO: define
 	// - methods to create and destroy objects
+	//   - should also handle named objects, place them in the tree, validate name clash
 	// - add and remove references by pointer or handle
 private:
 	// TODO: object namespace
