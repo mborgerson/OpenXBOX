@@ -238,6 +238,11 @@ public:
 	// Xbox executable support functions (Xe)
 
 	// Miscellaneous functions
+	XboxTypes::LONG InterlockedCompareExchange(XboxTypes::PLONG Destination, XboxTypes::LONG ExChange, XboxTypes::LONG Comparand);
+	XboxTypes::LONG InterlockedDecrement(XboxTypes::PLONG Addend);
+	XboxTypes::LONG InterlockedExchange(XboxTypes::PLONG Target, XboxTypes::LONG Value);
+	XboxTypes::LONG InterlockedExchangeAdd(XboxTypes::PLONG Addend, XboxTypes::LONG Increment);
+	XboxTypes::LONG InterlockedIncrement(XboxTypes::PLONG Addend);
 
 private:
 	char *m_ram;

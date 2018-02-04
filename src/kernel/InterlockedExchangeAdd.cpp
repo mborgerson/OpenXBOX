@@ -16,6 +16,8 @@ int Xbox::InterlockedExchangeAdd()
 	K_INIT_ARG(LONG,  Increment);
 	XboxTypes::LONG rval;
 
+	rval = m_kernel->InterlockedExchangeAdd(Addend, Increment);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }
