@@ -15,9 +15,8 @@ int Xbox::KeInitializeMutant()
 	K_INIT_ARG(PRKMUTANT, Mutant);
 	K_INIT_ARG(BOOLEAN,   InitialOwner);
 
-	// FIXME: let the object manager initialize this
-
+	m_kernel->KeInitializeMutant(Mutant, InitialOwner);
 
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

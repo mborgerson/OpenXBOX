@@ -16,6 +16,8 @@ int Xbox::KeInsertDeviceQueue()
 	K_INIT_ARG(PKDEVICE_QUEUE_ENTRY, DeviceQueueEntry);
 	XboxTypes::BOOLEAN rval;
 
+	rval = m_kernel->KeInsertDeviceQueue(DeviceQueue, DeviceQueueEntry);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

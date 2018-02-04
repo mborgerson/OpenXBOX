@@ -13,6 +13,8 @@ int Xbox::KiUnlockDispatcherDatabase()
 	K_ENTER_FASTCALL();
 	K_INIT_ARG(KIRQL, OldIrql);
 
+	m_kernel->KiUnlockDispatcherDatabase(OldIrql);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_PARTIAL_IMPL;
 }

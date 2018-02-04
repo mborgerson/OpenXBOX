@@ -49,6 +49,9 @@ bool Scheduler::ChooseNextThread() {
 	Thread *prevThread = m_currentThread;
 
 	// TODO: implement proper thread scheduling
+	// This should actually use the fields in KPCR/KTHREAD to determine what
+	// thread to run next, as they are updated by various kernel functions.
+
 	// For now, threads will be scheduled with a simple round-robin method
 	m_nextThreadIndex = (m_nextThreadIndex + 1) % m_threads.size();
 	m_currentThread = m_threads[m_nextThreadIndex];

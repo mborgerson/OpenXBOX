@@ -100,13 +100,13 @@ int XboxKernel::InitializeGDT() {
 	m_cpu->MemWrite(tssNMIAddr, sizeof(TSS), &tss);
 
 	// Fill in basic KPCR data directly in memory
-	XboxTypes::KPCR *pKPCR = _ADDR_TO_PTR(KPCR, kpcrAddr);
-	memset(pKPCR, 0, sizeof(XboxTypes::KPCR));
-	pKPCR->SelfPcr = kpcrAddr;
-	pKPCR->Prcb = _PTR_TO_ADDR(KPCR, &pKPCR->PrcbData);
-	pKPCR->NtTib.Self = _PTR_TO_ADDR(NT_TIB, &pKPCR->NtTib);
-	pKPCR->NtTib.ExceptionList = EXCEPTION_CHAIN_END;
-	XboxTypes::KPRCB *pKPRCB = &pKPCR->PrcbData;
+	m_pKPCR = _ADDR_TO_PTR(KPCR, kpcrAddr);
+	memset(m_pKPCR, 0, sizeof(XboxTypes::KPCR));
+	m_pKPCR->SelfPcr = kpcrAddr;
+	m_pKPCR->Prcb = _PTR_TO_ADDR(KPCR, &m_pKPCR->PrcbData);
+	m_pKPCR->NtTib.Self = _PTR_TO_ADDR(NT_TIB, &m_pKPCR->NtTib);
+	m_pKPCR->NtTib.ExceptionList = EXCEPTION_CHAIN_END;
+	XboxTypes::KPRCB *pKPRCB = &m_pKPCR->PrcbData;
 	InitializeListHead(&pKPRCB->DpcListHead);
 	pKPRCB->DpcRoutineActive = 0;
 	pKPRCB->CurrentThread = kpcrAddr + sizeof(XboxTypes::KPCR);
@@ -137,7 +137,7 @@ int XboxKernel::InitializeGDT() {
 	m_cpu->RegWrite(REG_GS, 0x00);
 
 	// Point scheduler to the newly created KPCR
-	m_sched->SetKPCR(pKPCR);
+	m_sched->SetKPCR(m_pKPCR);
 
 	return 0;
 }

@@ -29,6 +29,24 @@
 #  define ATTRIBUTE_PACKED __attribute__((packed))
 #endif
 
+// Check windows
+#if _WIN32 || _WIN64
+#if _WIN64
+#define ENVIRONMENT64
+#else
+#define ENVIRONMENT32
+#endif
+#endif
+
+// Check GCC
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+#define ENVIRONMENT64
+#else
+#define ENVIRONMENT32
+#endif
+#endif
+
 #if defined(__cplusplus)
 namespace XboxTypes {
 extern "C"
@@ -178,6 +196,21 @@ typedef LONG NTSTATUS;
 #define AV_PACK_VGA 0x00000005
 #define AV_PACK_SVIDEO 0x00000006
 
+// IRQ levels
+#define PASSIVE_LEVEL 0
+#define LOW_LEVEL 0
+#define APC_LEVEL 1
+#define DISPATCH_LEVEL 2
+
+#define SMBUS_LEVEL 15
+#define PROFILE_LEVEL 26
+#define SCI_LEVEL 27
+#define CLOCK_LEVEL 28
+#define IPI_LEVEL 29
+#define POWER_LEVEL 30
+#define HIGH_LEVEL 31
+#define SYNCH_LEVEL (IPI_LEVEL-1)
+
 typedef PVOID HANDLE;
 DEF_POINTER_TYPE(HANDLE, PHANDLE);
 typedef ULONG PHYSICAL_ADDRESS;
@@ -275,15 +308,15 @@ typedef struct _LIST_ENTRY
 
 #define IsListEmpty(ListHead) ((ListHead)->Flink == _PTR_TO_ADDR(LIST_ENTRY, (ListHead)))
 
-#define RemoveHeadList(ListHead) (ListHead)->Flink;{RemoveEntryList((ListHead)->Flink)}
+#define RemoveHeadList(ListHead) _ADDR_TO_PTR(LIST_ENTRY, (ListHead)->Flink);{RemoveEntryList(_ADDR_TO_PTR(LIST_ENTRY, (ListHead)->Flink))}
 
-#define RemoveTailList(ListHead) (ListHead)->Blink;{RemoveEntryList((ListHead)->Blink)}
+#define RemoveTailList(ListHead) _ADDR_TO_PTR(LIST_ENTRY, (ListHead)->Blink);{RemoveEntryList(_ADDR_TO_PTR(LIST_ENTRY, (ListHead)->Blink))}
 
 #define RemoveEntryList(Entry) {\
     XboxTypes::PLIST_ENTRY _EX_Blink;\
     XboxTypes::PLIST_ENTRY _EX_Flink;\
-    _EX_Flink = _ADDR_TO_PTR(LIST_ENTRY, (Entry))->Flink;\
-    _EX_Blink = _ADDR_TO_PTR(LIST_ENTRY, (Entry))->Blink;\
+    _EX_Flink = (Entry)->Flink;\
+    _EX_Blink = (Entry)->Blink;\
     _ADDR_TO_PTR(LIST_ENTRY, _EX_Blink)->Flink = _EX_Flink;\
     _ADDR_TO_PTR(LIST_ENTRY, _EX_Flink)->Blink = _EX_Blink;\
 }
@@ -324,6 +357,16 @@ typedef struct _LIST_ENTRY
     (Entry)->Next = (ListHead)->Next; \
     (ListHead)->Next = _PTR_TO_ADDR(SINGLE_LIST_ENTRY, (Entry));
 
+
+#ifdef ENVIRONMENT64
+typedef unsigned long long POINTER_VAL_T;
+#else
+typedef unsigned long POINTER_VAL_T;
+#endif
+
+#define CONTAINING_RECORD(address, type, field) ((type *)( \
+                                                  (XboxTypes::CHAR *)(address) - \
+                                                  (XboxTypes::POINTER_VAL_T)(&((type *)0)->field)))
 
 /**
  * Struct for modelling critical sections in the XBOX-kernel

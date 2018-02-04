@@ -1697,7 +1697,7 @@ XBAPI PLIST_ENTRY NTAPI KeRemoveQueue
 XBAPI BOOLEAN NTAPI KeRemoveEntryDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
-    IN PKDEVICE_QUEUE DeviceQueueEntry
+    IN PKDEVICE_QUEUE_ENTRY DeviceQueueEntry
 );
 
 XBAPI PKDEVICE_QUEUE_ENTRY NTAPI KeRemoveDeviceQueue
@@ -1759,7 +1759,7 @@ XBAPI LONG NTAPI KePulseEvent
 
 XBAPI VOID NTAPI KeLeaveCriticalRegion (void);
 
-XBAPI BOOLEAN NTAPI KeIsExecutingDpc (void);
+XBAPI ULONG NTAPI KeIsExecutingDpc (void);
 
 
 XBAPI BOOLEAN NTAPI KeInsertQueueDpc

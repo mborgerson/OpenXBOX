@@ -1,6 +1,44 @@
 #include "kernel/impl/kernel.h"
 #include "log.h"
 
+// These two defines might actually be inlined functions in the kernel since
+// they appear in multiple places
+
+
+#define RaiseIRQLToDPCLevel(oldIRQL) \
+	XboxTypes::KIRQL oldIRQL = KeRaiseIrqlToDpcLevel();
+
+XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql) {
+	if (m_pKPCR->PrcbData.NextThread == NULL) {
+		// FIXME: this should be KfLowerIrql(oldIRQL);
+		m_pKPCR->Irql = OldIrql;
+		return;
+	}
+
+	if (OldIrql >= DISPATCH_LEVEL) {
+		if (m_pKPCR->PrcbData.DpcRoutineActive == NULL) {
+			// TODO: HalRequestSoftwareInterrupt(DISPATCH_LEVEL);
+		}
+
+		// FIXME: this should be KfLowerIrql(oldIRQL);
+		m_pKPCR->Irql = OldIrql;
+		return;
+	}
+
+	XboxTypes::KTHREAD *pCurrThread = ToPointer<XboxTypes::KTHREAD>(m_pKPCR->PrcbData.CurrentThread);
+	XboxTypes::KIRQL prevIrql = pCurrThread->WaitIrql;
+	m_pKPCR->PrcbData.CurrentThread = m_pKPCR->PrcbData.NextThread;
+	m_pKPCR->PrcbData.NextThread = NULL;
+	// TODO: tell scheduler that the current thread has changed
+	// FIXME: this is incomplete
+	// At this point, pending APCs (if any) should run at IRQL = APC_LEVEL
+
+	// FIXME: this should be KfLowerIrql(oldIRQL);
+	m_pKPCR->Irql = OldIrql;
+	return;
+}
+
+
 XboxTypes::VOID XboxKernel::KeBugCheck(XboxTypes::ULONG BugCheckCode) {
 	KeBugCheckEx(BugCheckCode, 0, 0, 0, 0);
 }
@@ -24,6 +62,21 @@ XboxTypes::BOOLEAN XboxKernel::KeConnectInterrupt(XboxTypes::PKINTERRUPT Interru
 	}
 
 	return FALSE;
+}
+
+XboxTypes::VOID XboxKernel::KeEnterCriticalRegion() {
+	XboxTypes::PKTHREAD thread = KeGetCurrentThread();
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(thread);
+	
+	pThread->KernelApcDisable--;
+}
+
+XboxTypes::KIRQL XboxKernel::KeGetCurrentIrql() {
+	return m_pKPCR->Irql;
+}
+
+XboxTypes::PKTHREAD XboxKernel::KeGetCurrentThread() {
+	return m_pKPCR->PrcbData.CurrentThread;
 }
 
 XboxTypes::VOID XboxKernel::KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PRKTHREAD Thread, XboxTypes::PKKERNEL_ROUTINE KernelRoutine, XboxTypes::PKRUNDOWN_ROUTINE RundownRoutine, XboxTypes::PKNORMAL_ROUTINE NormalRoutine, XboxTypes::KPROCESSOR_MODE ProcessorMode, XboxTypes::PVOID NormalContext) {
@@ -86,6 +139,36 @@ XboxTypes::VOID XboxKernel::KeInitializeInterrupt(XboxTypes::PKINTERRUPT Interru
 	pInterrupt->Mode = InterruptMode;
 	pInterrupt->Connected = FALSE;
 	// TODO: this is incomplete
+}
+
+XboxTypes::VOID XboxKernel::KeInitializeMutant(XboxTypes::PRKMUTANT Mutant, XboxTypes::BOOLEAN InitialOwner) {
+	XboxTypes::KMUTANT *pMutant = ToPointer<XboxTypes::KMUTANT>(Mutant);
+
+	pMutant->Header.Size = sizeof(XboxTypes::KMUTANT) / sizeof(XboxTypes::LONG);
+	pMutant->Header.Type = XboxTypes::MutantObject;
+	pMutant->Abandoned = FALSE;
+	InitializeListHead(&pMutant->Header.WaitListHead);
+
+	if (InitialOwner == TRUE) {
+		XboxTypes::PKTHREAD thread = KeGetCurrentThread();
+		XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(thread);
+		pMutant->Header.SignalState = 0;
+		pMutant->OwnerThread = thread;
+
+		RaiseIRQLToDPCLevel(oldIRQL);
+
+		XboxTypes::PLIST_ENTRY mutantList = pThread->MutantListHead.Blink;
+		XboxTypes::LIST_ENTRY *pMutantList = ToPointer<XboxTypes::LIST_ENTRY>(mutantList);
+		InsertHeadList(pMutantList, &pMutant->MutantListEntry);
+
+		KiUnlockDispatcherDatabase(oldIRQL);
+	}
+	else {
+		pMutant->Header.SignalState = 1;
+		pMutant->OwnerThread = NULL;
+	}
+
+	//m_objmgr->RegisterMutant(Mutant, pMutant);
 }
 
 XboxTypes::VOID XboxKernel::KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count) {
@@ -167,6 +250,212 @@ XboxTypes::VOID XboxKernel::KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTy
 	//m_objmgr->RegisterTimer(Timer, pTimer, Type);
 }
 
+XboxTypes::BOOLEAN XboxKernel::KeInsertByKeyDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::PKDEVICE_QUEUE_ENTRY DeviceQueueEntry, XboxTypes::ULONG SortKey) {
+	XboxTypes::KDEVICE_QUEUE *pDeviceQueue = ToPointer<XboxTypes::KDEVICE_QUEUE>(DeviceQueue);
+	XboxTypes::KDEVICE_QUEUE_ENTRY *pDeviceQueueEntry = ToPointer<XboxTypes::KDEVICE_QUEUE_ENTRY>(DeviceQueueEntry);
+	XboxTypes::BOOLEAN inserted;
+
+	pDeviceQueueEntry->SortKey = SortKey;
+	if (pDeviceQueue->Busy) {
+		inserted = TRUE;
+		XboxTypes::LIST_ENTRY *pListEntry = ToPointer<XboxTypes::LIST_ENTRY>(pDeviceQueue->DeviceListHead.Flink);
+		while (pListEntry != &pDeviceQueue->DeviceListHead) {
+			XboxTypes::KDEVICE_QUEUE_ENTRY *pQueueEntry = CONTAINING_RECORD(pListEntry, XboxTypes::KDEVICE_QUEUE_ENTRY, DeviceListEntry);
+			if (SortKey < pQueueEntry->SortKey) {
+				break;
+			}
+			pListEntry = ToPointer<XboxTypes::LIST_ENTRY>(pListEntry->Flink);
+		}
+		pListEntry = ToPointer<XboxTypes::LIST_ENTRY>(pListEntry->Blink);
+		InsertHeadList(pListEntry, &pDeviceQueueEntry->DeviceListEntry);
+	}
+	else {
+		inserted = FALSE;
+		pDeviceQueue->Busy = TRUE;
+	}
+	pDeviceQueueEntry->Inserted = inserted;
+
+	return inserted;
+}
+
+XboxTypes::BOOLEAN XboxKernel::KeInsertDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::PKDEVICE_QUEUE_ENTRY DeviceQueueEntry) {
+	XboxTypes::KDEVICE_QUEUE *pDeviceQueue = ToPointer<XboxTypes::KDEVICE_QUEUE>(DeviceQueue);
+	XboxTypes::KDEVICE_QUEUE_ENTRY *pDeviceQueueEntry = ToPointer<XboxTypes::KDEVICE_QUEUE_ENTRY>(DeviceQueueEntry);
+	XboxTypes::BOOLEAN inserted;
+
+	if (pDeviceQueue->Busy) {
+		inserted = TRUE;
+		InsertTailList(&pDeviceQueue->DeviceListHead, &pDeviceQueueEntry->DeviceListEntry);
+	}
+	else {
+		pDeviceQueue->Busy = TRUE;
+		inserted = FALSE;
+	}
+	pDeviceQueueEntry->Inserted = inserted;
+
+	return inserted;
+}
+
+XboxTypes::BOOLEAN XboxKernel::KeInsertQueueDpc(XboxTypes::PRKDPC Dpc, XboxTypes::PVOID SystemArgument1, XboxTypes::PVOID SystemArgument2) {
+	XboxTypes::KDPC *pDpc = ToPointer<XboxTypes::KDPC>(Dpc);
+	
+	XboxTypes::KIRQL oldIrql = KfRaiseIrql(HIGH_LEVEL);
+
+	XboxTypes::BOOLEAN inserted = pDpc->Inserted;
+	if (!inserted) {
+		pDpc->Inserted = TRUE;
+		pDpc->SystemArgument1 = SystemArgument1;
+		pDpc->SystemArgument2 = SystemArgument2;
+
+		XboxTypes::KPRCB *pKPRCB = &m_pKPCR->PrcbData;
+		InsertTailList(&pKPRCB->DpcListHead, &pDpc->DpcListEntry);
+		if (!pKPRCB->DpcRoutineActive && !pKPRCB->DpcInterruptRequested) {
+			pKPRCB->DpcInterruptRequested = TRUE;
+			// TODO: HalRequestSoftwareInterrupt(DISPATCH_LEVEL);
+		}
+	}
+
+	// TODO: KfLowerIrql(oldIrql);
+
+	return !inserted;
+}
+
+XboxTypes::ULONG XboxKernel::KeIsExecutingDpc() {
+	return m_pKPCR->PrcbData.DpcRoutineActive;
+}
+
+XboxTypes::VOID XboxKernel::KeLeaveCriticalRegion() {
+	XboxTypes::PKTHREAD thread = KeGetCurrentThread();
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(thread);
+
+	pThread->KernelApcDisable++;
+	
+	XboxTypes::KAPC_STATE *apcState = &pThread->ApcState;
+	XboxTypes::LIST_ENTRY *apcListHead = &apcState->ApcListHead[XboxTypes::KernelMode];
+	if (pThread->KernelApcDisable == 0 && apcListHead->Flink != _PTR_TO_ADDR(LIST_ENTRY, apcListHead)) {
+		apcState->KernelApcPending = TRUE;
+		// TODO: HalRequestSoftwareInterrupt(APC_LEVEL);
+	}
+}
+
+XboxTypes::KIRQL XboxKernel::KeRaiseIrqlToDpcLevel() {
+	XboxTypes::KIRQL oldIRQL = m_pKPCR->Irql;
+	m_pKPCR->Irql = DISPATCH_LEVEL;
+	return oldIRQL;
+}
+
+XboxTypes::KIRQL XboxKernel::KeRaiseIrqlToSynchLevel() {
+	XboxTypes::KIRQL oldIRQL = m_pKPCR->Irql;
+	m_pKPCR->Irql = SYNCH_LEVEL;
+	return oldIRQL;
+}
+
+XboxTypes::PKDEVICE_QUEUE_ENTRY XboxKernel::KeRemoveByKeyDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::ULONG SortKey) {
+	XboxTypes::KDEVICE_QUEUE *pDeviceQueue = ToPointer<XboxTypes::KDEVICE_QUEUE>(DeviceQueue);
+	XboxTypes::KDEVICE_QUEUE_ENTRY *pEntry;
+
+	if (IsListEmpty(&pDeviceQueue->DeviceListHead)) {
+		pDeviceQueue->Busy = FALSE;
+		pEntry = NULL;
+	}
+	else {
+		XboxTypes::LIST_ENTRY *pListEntry = ToPointer<XboxTypes::LIST_ENTRY>(pDeviceQueue->DeviceListHead.Flink);
+		while (pListEntry != &pDeviceQueue->DeviceListHead) {
+			pEntry = CONTAINING_RECORD(pListEntry, XboxTypes::KDEVICE_QUEUE_ENTRY, DeviceListEntry);
+			if (SortKey <= pEntry->SortKey) {
+				break;
+			}
+			pListEntry = ToPointer<XboxTypes::LIST_ENTRY>(pListEntry->Flink);
+		}
+
+		if (pListEntry != &pDeviceQueue->DeviceListHead) {
+			RemoveEntryList(&pEntry->DeviceListEntry);
+
+		}
+		else {
+			pListEntry = RemoveHeadList(&pDeviceQueue->DeviceListHead);
+			pEntry = CONTAINING_RECORD(pListEntry, XboxTypes::KDEVICE_QUEUE_ENTRY, DeviceListEntry);
+		}
+
+		pEntry->Inserted = FALSE;
+	}
+
+	return _PTR_TO_ADDR(KDEVICE_QUEUE_ENTRY, pEntry);
+}
+
+XboxTypes::PKDEVICE_QUEUE_ENTRY XboxKernel::KeRemoveDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue) {
+	XboxTypes::KDEVICE_QUEUE *pDeviceQueue = ToPointer<XboxTypes::KDEVICE_QUEUE>(DeviceQueue);
+	XboxTypes::KDEVICE_QUEUE_ENTRY *pEntry;
+
+	if (IsListEmpty(&pDeviceQueue->DeviceListHead)) {
+		pDeviceQueue->Busy = FALSE;
+		pEntry = NULL;
+	}
+	else {
+		XboxTypes::LIST_ENTRY *pListEntry = RemoveHeadList(&pDeviceQueue->DeviceListHead);
+		pEntry = CONTAINING_RECORD(pListEntry, XboxTypes::KDEVICE_QUEUE_ENTRY, DeviceListEntry);
+		pEntry->Inserted = FALSE;
+	}
+
+	return _PTR_TO_ADDR(KDEVICE_QUEUE_ENTRY, pEntry);
+}
+
+XboxTypes::BOOLEAN XboxKernel::KeRemoveEntryDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::PKDEVICE_QUEUE_ENTRY DeviceQueueEntry) {
+	// NOTE: DeviceQueue is not used for some reason
+
+	RaiseIRQLToDPCLevel(oldIRQL);
+
+	XboxTypes::KDEVICE_QUEUE_ENTRY *pDeviceQueueEntry = ToPointer<XboxTypes::KDEVICE_QUEUE_ENTRY>(DeviceQueueEntry);
+
+	XboxTypes::BOOLEAN currentlyInserted = pDeviceQueueEntry->Inserted;
+	if (currentlyInserted) {
+		pDeviceQueueEntry->Inserted = FALSE;
+		RemoveEntryList(&pDeviceQueueEntry->DeviceListEntry);
+	}
+
+	KiUnlockDispatcherDatabase(oldIRQL);
+
+	return currentlyInserted;
+}
+
+XboxTypes::BOOLEAN XboxKernel::KeRemoveQueueDpc(XboxTypes::PRKDPC Dpc) {
+	XboxTypes::KDPC *pDpc = ToPointer<XboxTypes::KDPC>(Dpc);
+
+	XboxTypes::BOOLEAN inserted = pDpc->Inserted;
+	if (inserted) {
+		RemoveEntryList(&pDpc->DpcListEntry);
+		pDpc->Inserted = FALSE;
+	}
+
+	return inserted;
+}
+
+XboxTypes::LONG XboxKernel::KeResetEvent(XboxTypes::PRKEVENT Event) {
+	XboxTypes::KEVENT *pEvent = ToPointer<XboxTypes::KEVENT>(Event);
+
+	RaiseIRQLToDPCLevel(oldIRQL);
+
+	XboxTypes::LONG prevState = pEvent->Header.SignalState;
+	pEvent->Header.SignalState = 0;
+
+	KiUnlockDispatcherDatabase(oldIRQL);
+
+	return prevState;
+}
+
+XboxTypes::LOGICAL XboxKernel::KeSetDisableBoostThread(XboxTypes::PKTHREAD Thread, XboxTypes::LOGICAL Disable) {
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(Thread);
+
+	RaiseIRQLToDPCLevel(oldIRQL);
+
+	XboxTypes::LOGICAL prevDisableBoost = pThread->DisableBoost;
+	pThread->DisableBoost = Disable;
+
+	KiUnlockDispatcherDatabase(oldIRQL);
+
+	return prevDisableBoost;
+}
+
 XboxTypes::BOOLEAN XboxKernel::KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::PKDPC Dpc) {
 	return KeSetTimerEx(Timer, DueTime, 0, Dpc);
 }
@@ -181,4 +470,10 @@ XboxTypes::BOOLEAN XboxKernel::KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes:
 	pTimer->Period = Period;
 	pTimer->DueTime.QuadPart = DueTime.QuadPart;
 	return TRUE;
+}
+
+XboxTypes::KIRQL XboxKernel::KfRaiseIrql(XboxTypes::KIRQL NewIrql) {
+	XboxTypes::KIRQL oldIRQL = m_pKPCR->Irql;
+	m_pKPCR->Irql = NewIrql;
+	return oldIRQL;
 }

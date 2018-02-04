@@ -14,6 +14,8 @@ int Xbox::KeRemoveDeviceQueue()
 	K_INIT_ARG(PKDEVICE_QUEUE, DeviceQueue);
 	XboxTypes::PKDEVICE_QUEUE_ENTRY rval;
 
+	rval = m_kernel->KeRemoveDeviceQueue(DeviceQueue);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

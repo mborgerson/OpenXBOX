@@ -125,17 +125,36 @@ public:
 	XboxTypes::VOID KeBugCheck(XboxTypes::ULONG BugCheckCode);
 	XboxTypes::VOID KeBugCheckEx(XboxTypes::ULONG BugCheckCode, XboxTypes::ULONG_PTR BugCheckParameter1, XboxTypes::ULONG_PTR BugCheckParameter2, XboxTypes::ULONG_PTR BugCheckParameter3, XboxTypes::ULONG_PTR BugCheckParameter4);
 	XboxTypes::BOOLEAN KeConnectInterrupt(XboxTypes::PKINTERRUPT Interrupt);
+	XboxTypes::VOID KeEnterCriticalRegion();
+	XboxTypes::KIRQL KeGetCurrentIrql();
+	XboxTypes::PKTHREAD KeGetCurrentThread();
 	XboxTypes::VOID KeInitializeApc(XboxTypes::PRKAPC Apc, XboxTypes::PRKTHREAD Thread, XboxTypes::PKKERNEL_ROUTINE KernelRoutine, XboxTypes::PKRUNDOWN_ROUTINE RundownRoutine, XboxTypes::PKNORMAL_ROUTINE NormalRoutine, XboxTypes::KPROCESSOR_MODE ProcessorMode, XboxTypes::PVOID NormalContext);
 	XboxTypes::VOID KeInitializeDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue);
 	XboxTypes::VOID KeInitializeDpc(XboxTypes::PKDPC Dpc, XboxTypes::PKDEFERRED_ROUTINE DeferredRoutine, XboxTypes::PVOID DeferredContext);
 	XboxTypes::VOID KeInitializeEvent(XboxTypes::PRKEVENT Event, XboxTypes::EVENT_TYPE Type, XboxTypes::BOOLEAN State);
 	XboxTypes::VOID KeInitializeInterrupt(XboxTypes::PKINTERRUPT Interrupt, XboxTypes::PKSERVICE_ROUTINE ServiceRoutine, XboxTypes::PVOID ServiceContext, XboxTypes::ULONG Vector, XboxTypes::KIRQL Irql, XboxTypes::KINTERRUPT_MODE InterruptMode, XboxTypes::BOOLEAN ShareVector);
+	XboxTypes::VOID KeInitializeMutant(XboxTypes::PRKMUTANT Mutant, XboxTypes::BOOLEAN InitialOwner);
 	XboxTypes::VOID KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count);
 	XboxTypes::VOID KeInitializeSemaphore(XboxTypes::PRKSEMAPHORE Semaphore, XboxTypes::LONG Count, XboxTypes::LONG Limit);
 	XboxTypes::VOID KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::TIMER_TYPE Type);
 	XboxTypes::VOID KeInitializeThread(XboxTypes::PKTHREAD Thread, XboxTypes::PVOID KernelStack, XboxTypes::SIZE_T KernelStackSize, XboxTypes::SIZE_T TlsDataSize, XboxTypes::PKSYSTEM_ROUTINE SystemRoutine, XboxTypes::PKSTART_ROUTINE StartRoutine, XboxTypes::PVOID StartContext, XboxTypes::PKPROCESS Process);
+	XboxTypes::BOOLEAN KeInsertByKeyDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::PKDEVICE_QUEUE_ENTRY DeviceQueueEntry, XboxTypes::ULONG SortKey);
+	XboxTypes::BOOLEAN KeInsertDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::PKDEVICE_QUEUE_ENTRY DeviceQueueEntry);
+	XboxTypes::BOOLEAN KeInsertQueueDpc(XboxTypes::PRKDPC Dpc, XboxTypes::PVOID SystemArgument1, XboxTypes::PVOID SystemArgument2);
+	XboxTypes::ULONG KeIsExecutingDpc();
+	XboxTypes::VOID KeLeaveCriticalRegion();
+	XboxTypes::KIRQL KeRaiseIrqlToDpcLevel();
+	XboxTypes::KIRQL KeRaiseIrqlToSynchLevel();
+	XboxTypes::PKDEVICE_QUEUE_ENTRY KeRemoveByKeyDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::ULONG SortKey);
+	XboxTypes::PKDEVICE_QUEUE_ENTRY KeRemoveDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue);
+	XboxTypes::BOOLEAN KeRemoveEntryDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::PKDEVICE_QUEUE_ENTRY DeviceQueueEntry);
+	XboxTypes::BOOLEAN KeRemoveQueueDpc(XboxTypes::PRKDPC Dpc);
+	XboxTypes::LONG KeResetEvent(XboxTypes::PRKEVENT Event);
+	XboxTypes::LOGICAL KeSetDisableBoostThread(XboxTypes::PKTHREAD Thread, XboxTypes::LOGICAL Disable);
 	XboxTypes::BOOLEAN KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::PKDPC Dpc);
 	XboxTypes::BOOLEAN KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::LONG Period, XboxTypes::PKDPC Dpc);
+	XboxTypes::KIRQL KfRaiseIrql(XboxTypes::KIRQL NewIrql);
+	XboxTypes::VOID KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql);
 
 	// Memory manager (Mm)
 	XboxTypes::PVOID MmAllocateContiguousMemory(XboxTypes::SIZE_T NumberOfBytes);
@@ -198,6 +217,7 @@ public:
 private:
 	char *m_ram;
 	size_t m_ramSize;
+	XboxTypes::KPCR *m_pKPCR;
 	Cpu *m_cpu;
 	Scheduler *m_sched;
 	PhysicalMemoryManager *m_pmemmgr;

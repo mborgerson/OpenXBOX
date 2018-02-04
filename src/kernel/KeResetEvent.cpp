@@ -14,6 +14,8 @@ int Xbox::KeResetEvent()
 	K_INIT_ARG(PRKEVENT, Event);
 	XboxTypes::LONG rval;
 
+	rval = m_kernel->KeResetEvent(Event);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_PARTIAL_IMPL;
 }

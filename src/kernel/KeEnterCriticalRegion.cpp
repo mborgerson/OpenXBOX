@@ -11,6 +11,8 @@ int Xbox::KeEnterCriticalRegion()
 {
 	K_ENTER_STDCALL();
 
+	m_kernel->KeEnterCriticalRegion();
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

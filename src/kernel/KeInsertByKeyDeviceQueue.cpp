@@ -18,6 +18,8 @@ int Xbox::KeInsertByKeyDeviceQueue()
 	K_INIT_ARG(ULONG,                SortKey);
 	XboxTypes::BOOLEAN rval;
 
+	rval = m_kernel->KeInsertByKeyDeviceQueue(DeviceQueue, DeviceQueueEntry, SortKey);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

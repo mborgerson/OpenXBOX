@@ -18,6 +18,8 @@ int Xbox::KeInsertQueueDpc()
 	K_INIT_ARG(PVOID,  SystemArgument2);
 	XboxTypes::BOOLEAN rval;
 
+	rval = m_kernel->KeInsertQueueDpc(Dpc, SystemArgument1, SystemArgument2);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_PARTIAL_IMPL;
 }

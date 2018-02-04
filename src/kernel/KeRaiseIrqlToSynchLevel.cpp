@@ -12,6 +12,8 @@ int Xbox::KeRaiseIrqlToSynchLevel()
 	K_ENTER_STDCALL();
 	XboxTypes::KIRQL rval;
 
+	rval = m_kernel->KeRaiseIrqlToSynchLevel();
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

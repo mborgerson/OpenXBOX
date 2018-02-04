@@ -5,13 +5,15 @@
  *
  * Import Number:      121
  * Calling Convention: stdcall
- * Return Type:        BOOLEAN
+ * Return Type:        ULONG
  */
 int Xbox::KeIsExecutingDpc()
 {
 	K_ENTER_STDCALL();
-	XboxTypes::BOOLEAN rval;
+	XboxTypes::ULONG rval;
+
+	rval = m_kernel->KeIsExecutingDpc();
 
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

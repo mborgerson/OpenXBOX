@@ -85,4 +85,6 @@
 	#undef SYNCHRONIZE
 	#undef WRITE_DAC
 	#undef WRITE_OWNER
+	#undef CONTAINING_RECORD
+	#undef HIGH_LEVEL
 #endif
