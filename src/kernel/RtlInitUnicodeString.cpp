@@ -15,6 +15,8 @@ int Xbox::RtlInitUnicodeString()
 	K_INIT_ARG(PUNICODE_STRING, DestinationString);
 	K_INIT_ARG(PCWSTR,          SourceString);
 
+	m_kernel->RtlInitUnicodeString(DestinationString, SourceString);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

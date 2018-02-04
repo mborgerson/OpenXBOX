@@ -15,6 +15,8 @@ int Xbox::RtlCopyString()
 	K_INIT_ARG(PSTRING, DestinationString);
 	K_INIT_ARG(PSTRING, SourceString);
 
+	m_kernel->RtlCopyString(DestinationString, SourceString);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

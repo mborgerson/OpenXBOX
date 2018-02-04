@@ -14,6 +14,8 @@ int Xbox::RtlTryEnterCriticalSection()
 	K_INIT_ARG(PRTL_CRITICAL_SECTION, CriticalSection);
 	XboxTypes::BOOLEAN rval;
 
+	rval = m_kernel->RtlTryEnterCriticalSection(CriticalSection);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

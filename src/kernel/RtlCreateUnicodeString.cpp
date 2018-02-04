@@ -16,6 +16,8 @@ int Xbox::RtlCreateUnicodeString()
 	K_INIT_ARG(PCWSTR,          SourceString);
 	XboxTypes::BOOLEAN rval;
 
+	rval = m_kernel->RtlCreateUnicodeString(DestinationString, SourceString);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

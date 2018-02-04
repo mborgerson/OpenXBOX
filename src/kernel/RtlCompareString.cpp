@@ -18,6 +18,8 @@ int Xbox::RtlCompareString()
 	K_INIT_ARG(BOOLEAN, CaseInSensitive);
 	XboxTypes::LONG rval;
 
+	rval = m_kernel->RtlCompareString(String1, String2, CaseInSensitive);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

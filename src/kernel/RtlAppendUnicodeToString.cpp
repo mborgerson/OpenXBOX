@@ -16,6 +16,8 @@ int Xbox::RtlAppendUnicodeToString()
 	K_INIT_ARG(PCWSTR,          Source);
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->RtlAppendUnicodeToString(Destination, Source);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

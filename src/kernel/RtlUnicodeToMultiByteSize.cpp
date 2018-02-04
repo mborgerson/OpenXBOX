@@ -18,6 +18,8 @@ int Xbox::RtlUnicodeToMultiByteSize()
 	K_INIT_ARG(ULONG,  BytesInUnicodeString);
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->RtlUnicodeToMultiByteSize(BytesInMultiByteString, UnicodeString, BytesInUnicodeString);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

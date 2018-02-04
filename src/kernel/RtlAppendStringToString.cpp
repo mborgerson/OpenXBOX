@@ -16,6 +16,8 @@ int Xbox::RtlAppendStringToString()
 	K_INIT_ARG(PSTRING, Source);
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->RtlAppendStringToString(Destination, Source);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

@@ -1,12 +1,17 @@
 #include "kernel/impl/kernel.h"
 
-XboxTypes::NTSTATUS XboxKernel::ExAllocatePool(XboxTypes::SIZE_T NumberOfBytes) {
+XboxTypes::PVOID XboxKernel::ExAllocatePool(XboxTypes::SIZE_T NumberOfBytes) {
 	return ExAllocatePoolWithTag(NumberOfBytes, 'enoN');
 }
 
-XboxTypes::NTSTATUS XboxKernel::ExAllocatePoolWithTag(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::ULONG Tag) {
-	// TODO: implement
-	return STATUS_SUCCESS;
+XboxTypes::PVOID XboxKernel::ExAllocatePoolWithTag(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::ULONG Tag) {
+	// TODO: implement properly
+	return MmAllocateContiguousMemory(NumberOfBytes);
+}
+
+XboxTypes::VOID XboxKernel::ExFreePool(XboxTypes::PVOID P) {
+	// TODO: implement properly
+	MmFreeContiguousMemory(P);
 }
 
 XboxTypes::VOID XboxKernel::ExInitializeReadWriteLock(XboxTypes::PERWLOCK ReadWriteLock) {

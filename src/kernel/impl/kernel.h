@@ -95,8 +95,9 @@ public:
 	// Debugger support functions (Dbg)
 
 	// Executive (Ex)
-	XboxTypes::NTSTATUS ExAllocatePool(XboxTypes::SIZE_T NumberOfBytes);
-	XboxTypes::NTSTATUS ExAllocatePoolWithTag(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::ULONG Tag);
+	XboxTypes::PVOID ExAllocatePool(XboxTypes::SIZE_T NumberOfBytes);
+	XboxTypes::PVOID ExAllocatePoolWithTag(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::ULONG Tag);
+	XboxTypes::VOID ExFreePool(XboxTypes::PVOID P);
 	XboxTypes::VOID ExInitializeReadWriteLock(XboxTypes::PERWLOCK ReadWriteLock);
 	XboxTypes::NTSTATUS ExQueryNonVolatileSetting(XboxTypes::ULONG ValueIndex, XboxTypes::PULONG Type, XboxTypes::PVOID Value, XboxTypes::ULONG ValueLength, XboxTypes::PULONG ResultLength);
 
@@ -195,16 +196,40 @@ public:
 	);
 
 	// Runtime Library functions (Rtl)
+	XboxTypes::NTSTATUS RtlAppendStringToString(XboxTypes::PSTRING Destination, XboxTypes::PSTRING Source);
+	XboxTypes::NTSTATUS RtlAppendUnicodeStringToString(XboxTypes::PUNICODE_STRING Destination, XboxTypes::PUNICODE_STRING Source);
+	XboxTypes::NTSTATUS RtlAppendUnicodeToString(XboxTypes::PUNICODE_STRING Destination, XboxTypes::PCWSTR Source);
 	XboxTypes::SIZE_T RtlCompareMemory(XboxTypes::PVOID Source1, XboxTypes::PVOID Source2, XboxTypes::SIZE_T Length);
 	XboxTypes::SIZE_T RtlCompareMemoryUlong(XboxTypes::PVOID Source, XboxTypes::SIZE_T Length, XboxTypes::ULONG Pattern);
+	XboxTypes::LONG RtlCompareString(XboxTypes::PSTRING String1, XboxTypes::PSTRING String2, XboxTypes::BOOLEAN CaseInSensitive);
+	XboxTypes::LONG RtlCompareUnicodeString(XboxTypes::PUNICODE_STRING String1, XboxTypes::PUNICODE_STRING String2, XboxTypes::BOOLEAN CaseInSensitive);
+	XboxTypes::VOID RtlCopyString(XboxTypes::PSTRING DestinationString, XboxTypes::PSTRING SourceString);
+	XboxTypes::VOID RtlCopyUnicodeString(XboxTypes::PUNICODE_STRING DestinationString, XboxTypes::PUNICODE_STRING SourceString);
+	XboxTypes::BOOLEAN RtlCreateUnicodeString(XboxTypes::PUNICODE_STRING DestinationString, XboxTypes::PCWSTR SourceString);
+	XboxTypes::VOID RtlEnterCriticalSection(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection);
+	XboxTypes::VOID RtlEnterCriticalSectionAndRegion(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection);
 	XboxTypes::BOOLEAN RtlEqualString(XboxTypes::PSTRING String1, XboxTypes::PSTRING String2, XboxTypes::BOOLEAN CaseInSensitive);
+	XboxTypes::LARGE_INTEGER RtlExtendedIntegerMultiply(XboxTypes::LARGE_INTEGER Multiplicand, XboxTypes::LONG Multiplier);
+	XboxTypes::LARGE_INTEGER RtlExtendedLargeIntegerDivide(XboxTypes::LARGE_INTEGER Dividend, XboxTypes::LONG Divisor);
 	XboxTypes::VOID RtlFillMemory(XboxTypes::PVOID Destination, XboxTypes::ULONG Length, XboxTypes::UCHAR Fill);
 	XboxTypes::VOID RtlFillMemoryUlong(XboxTypes::PVOID Destination, XboxTypes::SIZE_T Length, XboxTypes::ULONG Pattern);
+	XboxTypes::VOID RtlFreeAnsiString(XboxTypes::PANSI_STRING AnsiString);
+	XboxTypes::VOID RtlFreeUnicodeString(XboxTypes::PUNICODE_STRING UnicodeString);
 	XboxTypes::VOID RtlInitAnsiString(XboxTypes::PANSI_STRING DestinationString, XboxTypes::PCSZ SourceString);
 	XboxTypes::VOID RtlInitializeCriticalSection(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection);
+	XboxTypes::VOID RtlInitUnicodeString(XboxTypes::PUNICODE_STRING DestinationString, XboxTypes::PWSZ SourceString);
+	XboxTypes::VOID RtlLeaveCriticalSection(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection);
+	XboxTypes::VOID RtlLeaveCriticalSectionAndRegion(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection);
+	XboxTypes::VOID RtlMapGenericMask(XboxTypes::PACCESS_MASK AccessMask, XboxTypes::PGENERIC_MAPPING GenericMapping);
 	XboxTypes::VOID RtlMoveMemory(XboxTypes::PVOID Destination, XboxTypes::PPVOID Source, XboxTypes::ULONG Length);
+	XboxTypes::NTSTATUS RtlMultiByteToUnicodeN(XboxTypes::PWSTR UnicodeString, XboxTypes::ULONG MaxBytesInUnicodeString, XboxTypes::PULONG BytesInUnicodeString, XboxTypes::PCHAR MultiByteString, XboxTypes::ULONG BytesInMultiByteString);
+	XboxTypes::NTSTATUS RtlMultiByteToUnicodeSize(XboxTypes::PULONG BytesInUnicodeString, XboxTypes::PCHAR MultiByteString, XboxTypes::ULONG BytesInMultiByteString);
 	XboxTypes::ULONG RtlNtStatusToDosError(XboxTypes::NTSTATUS Status);
+	XboxTypes::VOID RtlRip(XboxTypes::PVOID ApiName, XboxTypes::PVOID Expression, XboxTypes::PVOID Message);
+	XboxTypes::ULONG RtlTryEnterCriticalSection(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection);
 	XboxTypes::ULONG RtlUlongByteSwap(XboxTypes::ULONG Source);
+	XboxTypes::NTSTATUS RtlUnicodeToMultiByteN(XboxTypes::PCHAR MultiByteString, XboxTypes::ULONG MaxBytesInMultiByteString, XboxTypes::PULONG BytesInMultiByteString, XboxTypes::PWSTR UnicodeString, XboxTypes::ULONG BytesInUnicodeString);
+	XboxTypes::NTSTATUS RtlUnicodeToMultiByteSize(XboxTypes::PULONG BytesInMultiByteString, XboxTypes::PWSTR UnicodeString, XboxTypes::ULONG BytesInUnicodeString);
 	XboxTypes::USHORT RtlUshortByteSwap(XboxTypes::USHORT Source);
 	XboxTypes::VOID RtlZeroMemory(XboxTypes::PVOID Destination, XboxTypes::SIZE_T Length);
 

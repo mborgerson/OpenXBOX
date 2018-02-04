@@ -17,6 +17,8 @@ int Xbox::RtlRip()
 	K_INIT_ARG(PVOID, Expression);
 	K_INIT_ARG(PVOID, Message);
 
+	m_kernel->RtlRip(ApiName, Expression, Message);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }
