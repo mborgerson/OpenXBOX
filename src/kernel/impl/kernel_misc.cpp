@@ -44,3 +44,41 @@ XboxTypes::LONG XboxKernel::InterlockedIncrement(XboxTypes::PLONG Addend) {
 	*pAddend++;
 	return *pAddend;
 }
+
+XboxTypes::PSINGLE_LIST_ENTRY XboxKernel::InterlockedFlushSList(XboxTypes::PSLIST_HEADER ListHead) {
+	XboxTypes::SLIST_HEADER *pListHead = ToPointer<XboxTypes::SLIST_HEADER>(ListHead);
+	XboxTypes::PSINGLE_LIST_ENTRY currList = _PTR_TO_ADDR(SINGLE_LIST_ENTRY, &pListHead->Next);
+
+	if (pListHead->Next.Next != NULL) {
+		pListHead->Next.Next = NULL;
+		pListHead->Depth = 0;
+		pListHead->Sequence = 0;
+	}
+	
+	return currList;
+}
+
+XboxTypes::PSINGLE_LIST_ENTRY XboxKernel::InterlockedPopEntrySList(XboxTypes::PSLIST_HEADER ListHead) {
+	XboxTypes::SLIST_HEADER *pListHead = ToPointer<XboxTypes::SLIST_HEADER>(ListHead);
+	XboxTypes::PSINGLE_LIST_ENTRY currNext = pListHead->Next.Next;
+	XboxTypes::SINGLE_LIST_ENTRY *pCurrNext = ToPointer<XboxTypes::SINGLE_LIST_ENTRY>(currNext);
+
+	if (pListHead->Next.Next != NULL) {
+		pListHead->Next = *pCurrNext;
+		XboxTypes::ULONG *val = (XboxTypes::ULONG *)(&pListHead->Depth);
+		val += 0xffff;
+	}
+}
+
+XboxTypes::PSINGLE_LIST_ENTRY XboxKernel::InterlockedPushEntrySList(XboxTypes::PSLIST_HEADER ListHead, XboxTypes::PSINGLE_LIST_ENTRY ListEntry) {
+	XboxTypes::SLIST_HEADER *pListHead = ToPointer<XboxTypes::SLIST_HEADER>(ListHead);
+	XboxTypes::SINGLE_LIST_ENTRY *pListEntry = ToPointer<XboxTypes::SINGLE_LIST_ENTRY>(ListEntry);
+	XboxTypes::PSINGLE_LIST_ENTRY currNext = pListHead->Next.Next;
+
+	pListEntry->Next = currNext;
+	pListHead->Next = *pListEntry;
+	pListHead->Depth++;
+	pListHead->Sequence++;
+
+	return currNext;
+}

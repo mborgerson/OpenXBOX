@@ -243,6 +243,10 @@ public:
 	XboxTypes::LONG InterlockedExchange(XboxTypes::PLONG Target, XboxTypes::LONG Value);
 	XboxTypes::LONG InterlockedExchangeAdd(XboxTypes::PLONG Addend, XboxTypes::LONG Increment);
 	XboxTypes::LONG InterlockedIncrement(XboxTypes::PLONG Addend);
+	
+	XboxTypes::PSINGLE_LIST_ENTRY InterlockedFlushSList(XboxTypes::PSLIST_HEADER ListHead);
+	XboxTypes::PSINGLE_LIST_ENTRY InterlockedPopEntrySList(XboxTypes::PSLIST_HEADER ListHead);
+	XboxTypes::PSINGLE_LIST_ENTRY InterlockedPushEntrySList(XboxTypes::PSLIST_HEADER ListHead, XboxTypes::PSINGLE_LIST_ENTRY ListEntry);
 
 private:
 	char *m_ram;

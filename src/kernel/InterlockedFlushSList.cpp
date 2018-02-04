@@ -14,6 +14,8 @@ int Xbox::InterlockedFlushSList()
 	K_INIT_ARG(PSLIST_HEADER, ListHead);
 	XboxTypes::PSINGLE_LIST_ENTRY rval;
 
+	rval = m_kernel->InterlockedFlushSList(ListHead);
+
 	K_EXIT_WITH_VALUE(rval);
 	return KF_ERROR_NOT_IMPLEMENTED;
 }

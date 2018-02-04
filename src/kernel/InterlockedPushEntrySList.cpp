@@ -16,6 +16,8 @@ int Xbox::InterlockedPushEntrySList()
 	K_INIT_ARG(PSINGLE_LIST_ENTRY, ListEntry);
 	XboxTypes::PSINGLE_LIST_ENTRY rval;
 
+	rval = m_kernel->InterlockedPushEntrySList(ListHead, ListEntry);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }
