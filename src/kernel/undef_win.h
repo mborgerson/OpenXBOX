@@ -87,4 +87,5 @@
 	#undef WRITE_OWNER
 	#undef CONTAINING_RECORD
 	#undef HIGH_LEVEL
+	#undef UNICODE_NULL
 #endif

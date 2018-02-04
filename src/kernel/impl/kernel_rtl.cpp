@@ -101,7 +101,7 @@ XboxTypes::LONG XboxKernel::RtlCompareString(XboxTypes::PSTRING String1, XboxTyp
 	XboxTypes::CHAR *str2 = ToPointer<XboxTypes::CHAR>(pString2->Buffer);
 
 	if (CaseInSensitive) {
-		return strnicmp(str1, str2, maxLen);
+		return _strnicmp(str1, str2, maxLen);
 	}
 	return strncmp(str1, str2, maxLen);
 }
@@ -118,7 +118,7 @@ XboxTypes::LONG XboxKernel::RtlCompareUnicodeString(XboxTypes::PUNICODE_STRING S
 	XboxTypes::WCHAR *str2 = ToPointer<XboxTypes::WCHAR>(pString2->Buffer);
 
 	if (CaseInSensitive) {
-		return wcsnicmp(str1, str2, maxLen);
+		return _wcsnicmp(str1, str2, maxLen);
 	}
 	return wcsncmp(str1, str2, maxLen);
 }
