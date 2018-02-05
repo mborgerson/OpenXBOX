@@ -14,6 +14,8 @@ int Xbox::RtlUpperChar()
 	K_INIT_ARG(CHAR, Character);
 	XboxTypes::CHAR rval;
 
+	rval = m_kernel->RtlUpperChar(Character);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

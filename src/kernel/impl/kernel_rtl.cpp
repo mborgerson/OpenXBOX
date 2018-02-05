@@ -180,6 +180,39 @@ XboxTypes::BOOLEAN XboxKernel::RtlCreateUnicodeString(XboxTypes::PUNICODE_STRING
 	return TRUE;
 }
 
+XboxTypes::WCHAR XboxKernel::RtlDowncaseUnicodeChar(XboxTypes::WCHAR SourceCharacter) {
+	return towlower(SourceCharacter);
+}
+
+XboxTypes::NTSTATUS XboxKernel::RtlDowncaseUnicodeString(XboxTypes::PUNICODE_STRING DestinationString, XboxTypes::PUNICODE_STRING SourceString, XboxTypes::BOOLEAN AllocateDestinationString) {
+	XboxTypes::UNICODE_STRING *pDestinationString = ToPointer<XboxTypes::UNICODE_STRING>(DestinationString);
+	XboxTypes::UNICODE_STRING *pSourceString = ToPointer<XboxTypes::UNICODE_STRING>(SourceString);
+
+	if (AllocateDestinationString) {
+		pDestinationString->MaximumLength = pSourceString->Length;
+		pDestinationString->Buffer = ExAllocatePoolWithTag((XboxTypes::ULONG)pDestinationString->MaximumLength, 'grtS');
+		if (pDestinationString->Buffer == NULL) {
+			return STATUS_NO_MEMORY;
+		}
+	}
+	else {
+		if (pSourceString->Length > pDestinationString->MaximumLength) {
+			return STATUS_BUFFER_OVERFLOW;
+		}
+	}
+
+	XboxTypes::ULONG length = ((XboxTypes::ULONG)pSourceString->Length) / sizeof(XboxTypes::WCHAR);
+	XboxTypes::WCHAR *pDst = ToPointer<XboxTypes::WCHAR>(pDestinationString->Buffer);
+	XboxTypes::WCHAR *pSrc = ToPointer<XboxTypes::WCHAR>(pSourceString->Buffer);
+	for (XboxTypes::ULONG i = 0; i < length; i++) {
+		pDst[i] = (XboxTypes::WCHAR)towlower(pSrc[i]);
+	}
+
+	pDestinationString->Length = pSourceString->Length;
+
+	return STATUS_SUCCESS;
+}
+
 XboxTypes::VOID XboxKernel::RtlEnterCriticalSection(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection) {
 	XboxTypes::RTL_CRITICAL_SECTION *pCriticalSection = ToPointer<XboxTypes::RTL_CRITICAL_SECTION>(CriticalSection);
 	
@@ -245,12 +278,45 @@ XboxTypes::BOOLEAN XboxKernel::RtlEqualString(XboxTypes::PSTRING String1, XboxTy
 			XboxTypes::CHAR c1 = *p1++;
 			XboxTypes::CHAR c2 = *p2++;
 			if (c1 != c2) {
-				// TODO: use RtlUpperChar instead of toupper
-				// The issue with RtlUpperChar is that its parameter is a
-				// register parameter, which the calling convention helper
-				// classes cannot handle yet
-				c1 = toupper(c1);
-				c2 = toupper(c2);
+				c1 = RtlUpperChar(c1);
+				c2 = RtlUpperChar(c2);
+				if (c1 != c2) {
+					return FALSE;
+				}
+			}
+		}
+		return TRUE;
+	}
+
+	while (p1 < last) {
+		if (*p1++ != *p2++) {
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+XboxTypes::BOOLEAN XboxKernel::RtlEqualUnicodeString(XboxTypes::PCUNICODE_STRING String1, XboxTypes::PCUNICODE_STRING String2, XboxTypes::BOOLEAN CaseInSensitive) {
+	XboxTypes::UNICODE_STRING *pString1 = ToPointer<XboxTypes::UNICODE_STRING>(String1);
+	XboxTypes::UNICODE_STRING *pString2 = ToPointer<XboxTypes::UNICODE_STRING>(String2);
+
+	XboxTypes::USHORT l1 = pString1->Length;
+	XboxTypes::USHORT l2 = pString2->Length;
+	if (l1 != l2) {
+		return FALSE;
+	}
+
+	XboxTypes::WCHAR *p1 = ToPointer<XboxTypes::WCHAR>(pString1->Buffer);
+	XboxTypes::WCHAR *p2 = ToPointer<XboxTypes::WCHAR>(pString2->Buffer);
+	XboxTypes::WCHAR *last = p1 + l1;
+
+	if (CaseInSensitive) {
+		while (p1 < last) {
+			XboxTypes::WCHAR c1 = *p1++;
+			XboxTypes::WCHAR c2 = *p2++;
+			if (c1 != c2) {
+				c1 = towupper(c1);
+				c2 = towupper(c2);
 				if (c1 != c2) {
 					return FALSE;
 				}
@@ -396,6 +462,10 @@ XboxTypes::VOID XboxKernel::RtlLeaveCriticalSectionAndRegion(XboxTypes::PRTL_CRI
 	}
 }
 
+XboxTypes::CHAR XboxKernel::RtlLowerChar(XboxTypes::CHAR Character) {
+	return tolower(Character);
+}
+
 XboxTypes::VOID XboxKernel::RtlMapGenericMask(XboxTypes::PACCESS_MASK AccessMask, XboxTypes::PGENERIC_MAPPING GenericMapping) {
 	XboxTypes::ACCESS_MASK *pAccessMask = ToPointer<XboxTypes::ACCESS_MASK>(AccessMask);
 	XboxTypes::GENERIC_MAPPING *pGenericMapping = ToPointer<XboxTypes::GENERIC_MAPPING>(GenericMapping);
@@ -430,7 +500,7 @@ XboxTypes::NTSTATUS XboxKernel::RtlMultiByteToUnicodeN(XboxTypes::PWSTR UnicodeS
 	XboxTypes::ULONG maxUnicodeChars = MaxBytesInUnicodeString / sizeof(XboxTypes::WCHAR);
 	XboxTypes::ULONG numChars = (maxUnicodeChars < BytesInMultiByteString) ? maxUnicodeChars : BytesInMultiByteString;
 
-	if (pBytesInUnicodeString != NULL) {
+	if (BytesInUnicodeString != NULL) {
 		*pBytesInUnicodeString = numChars * sizeof(XboxTypes::WCHAR);
 	}
 
@@ -507,7 +577,7 @@ XboxTypes::NTSTATUS XboxKernel::RtlUnicodeToMultiByteN(XboxTypes::PCHAR MultiByt
 	XboxTypes::ULONG maxUnicodeChars = BytesInUnicodeString / sizeof(XboxTypes::WCHAR);
 	XboxTypes::ULONG numChars = (maxUnicodeChars < MaxBytesInMultiByteString) ? maxUnicodeChars : MaxBytesInMultiByteString;
 
-	if (pBytesInMultiByteString != NULL) {
+	if (BytesInMultiByteString != NULL) {
 		*pBytesInMultiByteString = numChars;
 	}
 
@@ -528,6 +598,86 @@ XboxTypes::NTSTATUS XboxKernel::RtlUnicodeToMultiByteSize(XboxTypes::PULONG Byte
 	*pBytesInMultiByteString = BytesInUnicodeString * sizeof(XboxTypes::WCHAR);
 
 	return STATUS_SUCCESS;
+}
+
+XboxTypes::WCHAR XboxKernel::RtlUpcaseUnicodeChar(XboxTypes::WCHAR SourceCharacter) {
+	return towupper(SourceCharacter);
+}
+
+XboxTypes::NTSTATUS XboxKernel::RtlUpcaseUnicodeString(XboxTypes::PUNICODE_STRING DestinationString, XboxTypes::PUNICODE_STRING SourceString, XboxTypes::BOOLEAN AllocateDestinationString) {
+	XboxTypes::UNICODE_STRING *pDestinationString = ToPointer<XboxTypes::UNICODE_STRING>(DestinationString);
+	XboxTypes::UNICODE_STRING *pSourceString = ToPointer<XboxTypes::UNICODE_STRING>(SourceString);
+
+	if (AllocateDestinationString) {
+		pDestinationString->MaximumLength = pSourceString->Length;
+		pDestinationString->Buffer = ExAllocatePoolWithTag((XboxTypes::ULONG)pDestinationString->MaximumLength, 'grtS');
+		if (pDestinationString->Buffer == NULL) {
+			return STATUS_NO_MEMORY;
+		}
+	}
+	else {
+		if (pSourceString->Length > pDestinationString->MaximumLength) {
+			return STATUS_BUFFER_OVERFLOW;
+		}
+	}
+
+	XboxTypes::ULONG length = ((XboxTypes::ULONG)pSourceString->Length) / sizeof(XboxTypes::WCHAR);
+	XboxTypes::WCHAR *pDst = ToPointer<XboxTypes::WCHAR>(pDestinationString->Buffer);
+	XboxTypes::WCHAR *pSrc = ToPointer<XboxTypes::WCHAR>(pSourceString->Buffer);
+	for (XboxTypes::ULONG i = 0; i < length; i++) {
+		pDst[i] = (XboxTypes::WCHAR)towupper(pSrc[i]);
+	}
+
+	pDestinationString->Length = pSourceString->Length;
+
+	return STATUS_SUCCESS;
+}
+
+XboxTypes::NTSTATUS XboxKernel::RtlUpcaseUnicodeToMultiByteN(XboxTypes::PCHAR MultiByteString, XboxTypes::ULONG MaxBytesInMultiByteString, XboxTypes::PULONG BytesInMultiByteString, XboxTypes::PWSTR UnicodeString, XboxTypes::ULONG BytesInUnicodeString) {
+	XboxTypes::CHAR *pMultiByteString = ToPointer<XboxTypes::CHAR>(MultiByteString);
+	XboxTypes::ULONG *pBytesInMultiByteString = ToPointer<XboxTypes::ULONG>(BytesInMultiByteString);
+	XboxTypes::WCHAR *pUnicodeString = ToPointer<XboxTypes::WCHAR>(UnicodeString);
+
+	XboxTypes::ULONG maxUnicodeChars = BytesInUnicodeString / sizeof(XboxTypes::WCHAR);
+	XboxTypes::ULONG numChars = (maxUnicodeChars < MaxBytesInMultiByteString) ? maxUnicodeChars : MaxBytesInMultiByteString;
+
+	if (BytesInMultiByteString != NULL) {
+		*pBytesInMultiByteString = numChars;
+	}
+
+	while (numChars > 0) {
+		XboxTypes::WCHAR unicodeChar = (*pUnicodeString < 256) ? *pUnicodeString : L'?';
+		unicodeChar = towupper(unicodeChar);
+
+		*pMultiByteString = (unicodeChar < 256) ? unicodeChar : '?';
+
+		UnicodeString++;
+		MultiByteString++;
+		numChars--;
+	}
+
+	return STATUS_SUCCESS;
+}
+
+XboxTypes::CHAR XboxKernel::RtlUpperChar(XboxTypes::CHAR Character) {
+	return toupper(Character);
+}
+
+XboxTypes::VOID XboxKernel::RtlUpperString(XboxTypes::PSTRING DestinationString, XboxTypes::PSTRING SourceString) {
+	XboxTypes::STRING *pDestinationString = ToPointer<XboxTypes::STRING>(DestinationString);
+	XboxTypes::STRING *pSourceString = ToPointer<XboxTypes::STRING>(SourceString);
+
+	XboxTypes::CHAR *pDst = ToPointer<XboxTypes::CHAR>(pDestinationString->Buffer);
+	XboxTypes::CHAR *pSrc = ToPointer<XboxTypes::CHAR>(pSourceString->Buffer);
+	XboxTypes::ULONG length = pSourceString->Length;
+	if ((XboxTypes::USHORT)length > pDestinationString->MaximumLength) {
+		length = pDestinationString->MaximumLength;
+	}
+	pDestinationString->Length = (XboxTypes::USHORT)length;
+	while (length > 0) {
+		*pDst++ = RtlUpperChar(*pSrc++);
+		length--;
+	}
 }
 
 XboxTypes::USHORT XboxKernel::RtlUshortByteSwap(XboxTypes::USHORT Source) {
