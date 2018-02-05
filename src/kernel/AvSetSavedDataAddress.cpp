@@ -13,6 +13,8 @@ int Xbox::AvSetSavedDataAddress()
 	K_ENTER_STDCALL();
 	K_INIT_ARG(PVOID, Address);
 
+	m_kernel->AvSetSavedDataAddress(Address);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

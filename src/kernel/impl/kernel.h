@@ -89,8 +89,10 @@ public:
 	// ------------------------------------------------------------------------
 
 	// Audio and video support functions (Av)
+	XboxTypes::PVOID AvGetSavedDataAddress();
 	XboxTypes::VOID AvSendTVEncoderOption(XboxTypes::PVOID RegisterBase, XboxTypes::ULONG Option, XboxTypes::ULONG Param, XboxTypes::PULONG Result);
 	XboxTypes::ULONG AvSetDisplayMode(XboxTypes::PVOID RegisterBase, XboxTypes::ULONG Step, XboxTypes::ULONG DisplayMode, XboxTypes::ULONG SourceColorFormat, XboxTypes::ULONG Pitch, XboxTypes::ULONG FrameBuffer);
+	XboxTypes::VOID AvGetSavedDataAddress(XboxTypes::PVOID Address);
 
 	// Debugger support functions (Dbg)
 
@@ -265,6 +267,9 @@ private:
 	Scheduler *m_sched;
 	PhysicalMemoryManager *m_pmemmgr;
 	ObjectManager *m_objmgr;
+
+	// Used by AvGet/SetSavedDataAddress
+	XboxTypes::PVOID m_AvSavedDataAddress;
 
 	/*!
 	 * Initializes the GDT and data structures referenced by it.

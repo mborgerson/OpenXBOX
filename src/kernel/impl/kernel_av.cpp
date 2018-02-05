@@ -1,6 +1,10 @@
 #include "kernel/impl/kernel.h"
 #include "log.h"
 
+XboxTypes::PVOID XboxKernel::AvGetSavedDataAddress() {
+	return m_AvSavedDataAddress;
+}
+
 XboxTypes::VOID XboxKernel::AvSendTVEncoderOption(XboxTypes::PVOID RegisterBase, XboxTypes::ULONG Option, XboxTypes::ULONG Param, XboxTypes::PULONG Result) {
 	log_debug("%s(%08x, %x, %x, %08x)\n",
 		__func__,
@@ -37,4 +41,8 @@ XboxTypes::ULONG XboxKernel::AvSetDisplayMode(XboxTypes::PVOID RegisterBase, Xbo
 		FrameBuffer);
 
 	return 0;
+}
+
+XboxTypes::VOID XboxKernel::AvGetSavedDataAddress(XboxTypes::PVOID Address) {
+	m_AvSavedDataAddress = Address;
 }
