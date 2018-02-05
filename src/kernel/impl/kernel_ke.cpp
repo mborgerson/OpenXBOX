@@ -1,12 +1,8 @@
 #include "kernel/impl/kernel.h"
 #include "log.h"
 
-// These two defines might actually be inlined functions in the kernel since
-// they appear in multiple places
-
-
-#define RaiseIRQLToDPCLevel(oldIRQL) \
-	XboxTypes::KIRQL oldIRQL = KeRaiseIrqlToDpcLevel();
+#define KiLockDispatcherDatabase(oldIRQL) \
+	*(oldIRQL) = KeRaiseIrqlToDpcLevel();
 
 XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql) {
 	if (m_pKPCR->PrcbData.NextThread == NULL) {
@@ -155,7 +151,8 @@ XboxTypes::VOID XboxKernel::KeInitializeMutant(XboxTypes::PRKMUTANT Mutant, Xbox
 		pMutant->Header.SignalState = 0;
 		pMutant->OwnerThread = thread;
 
-		RaiseIRQLToDPCLevel(oldIRQL);
+		XboxTypes::KIRQL oldIRQL;
+		KiLockDispatcherDatabase(&oldIRQL);
 
 		XboxTypes::PLIST_ENTRY mutantList = pThread->MutantListHead.Blink;
 		XboxTypes::LIST_ENTRY *pMutantList = ToPointer<XboxTypes::LIST_ENTRY>(mutantList);
@@ -403,7 +400,8 @@ XboxTypes::PKDEVICE_QUEUE_ENTRY XboxKernel::KeRemoveDeviceQueue(XboxTypes::PKDEV
 XboxTypes::BOOLEAN XboxKernel::KeRemoveEntryDeviceQueue(XboxTypes::PKDEVICE_QUEUE DeviceQueue, XboxTypes::PKDEVICE_QUEUE_ENTRY DeviceQueueEntry) {
 	// NOTE: DeviceQueue is not used for some reason
 
-	RaiseIRQLToDPCLevel(oldIRQL);
+	XboxTypes::KIRQL oldIRQL;
+	KiLockDispatcherDatabase(&oldIRQL);
 
 	XboxTypes::KDEVICE_QUEUE_ENTRY *pDeviceQueueEntry = ToPointer<XboxTypes::KDEVICE_QUEUE_ENTRY>(DeviceQueueEntry);
 
@@ -433,7 +431,8 @@ XboxTypes::BOOLEAN XboxKernel::KeRemoveQueueDpc(XboxTypes::PRKDPC Dpc) {
 XboxTypes::LONG XboxKernel::KeResetEvent(XboxTypes::PRKEVENT Event) {
 	XboxTypes::KEVENT *pEvent = ToPointer<XboxTypes::KEVENT>(Event);
 
-	RaiseIRQLToDPCLevel(oldIRQL);
+	XboxTypes::KIRQL oldIRQL;
+	KiLockDispatcherDatabase(&oldIRQL);
 
 	XboxTypes::LONG prevState = pEvent->Header.SignalState;
 	pEvent->Header.SignalState = 0;
@@ -446,7 +445,8 @@ XboxTypes::LONG XboxKernel::KeResetEvent(XboxTypes::PRKEVENT Event) {
 XboxTypes::LOGICAL XboxKernel::KeSetDisableBoostThread(XboxTypes::PKTHREAD Thread, XboxTypes::LOGICAL Disable) {
 	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(Thread);
 
-	RaiseIRQLToDPCLevel(oldIRQL);
+	XboxTypes::KIRQL oldIRQL;
+	KiLockDispatcherDatabase(&oldIRQL);
 
 	XboxTypes::LOGICAL prevDisableBoost = pThread->DisableBoost;
 	pThread->DisableBoost = Disable;
