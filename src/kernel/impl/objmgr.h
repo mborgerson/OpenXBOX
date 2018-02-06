@@ -58,4 +58,18 @@ public:
 private:
 	// TODO: object namespace
 	// - Initialize basic structure with default directories and objects
+
+	// Some of the basic objects initialized by the kernel:
+	// Type                                    Path                                    Description
+	// -----------------------------------------------------------------------------------------------------------------------------------------------
+	// OBJECT_DIRECTORY                        \                                       Root directory object
+	// OBJECT_DIRECTORY                        \??                                     DOS devices
+	// OBJECT_DIRECTORY                        \Device                                 I/O devices 
+	// DEVICE_OBJECT / IDE_DISK_EXTENSION      \Device\Harddisk0                         Internal hard drive device
+	// DEVICE_OBJECT / IDE_DISK_EXTENSION      \Device\Harddisk0\Partition0                Volume partition - raw sector access
+	// DEVICE_OBJECT / IDE_DISK_EXTENSION      \Device\Harddisk0\Partition1                Data partition - contains TDATA and UDATA folders
+	// DEVICE_OBJECT / IDE_DISK_EXTENSION      \Device\Harddisk0\Partition2                Shell partition - contains Dashboard
+	// DEVICE_OBJECT / IDE_DISK_EXTENSION      \Device\Harddisk0\Partition3..20            Cache partitions
+	// DEVICE_OBJECT / nothing                 \Device\CdRom0                            DVD-ROM device
+	// OBJECT_DIRECTORY                        \Win32NamedObjects                      Win32 named objects
 };
