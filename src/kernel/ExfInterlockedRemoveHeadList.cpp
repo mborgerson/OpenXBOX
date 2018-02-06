@@ -14,6 +14,8 @@ int Xbox::ExfInterlockedRemoveHeadList()
 	K_INIT_ARG(PLIST_ENTRY, ListHead);
 	XboxTypes::PLIST_ENTRY rval;
 
+	rval = m_kernel->ExfInterlockedRemoveHeadList(ListHead);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

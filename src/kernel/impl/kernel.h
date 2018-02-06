@@ -99,8 +99,14 @@ public:
 	// Executive (Ex)
 	XboxTypes::PVOID ExAllocatePool(XboxTypes::SIZE_T NumberOfBytes);
 	XboxTypes::PVOID ExAllocatePoolWithTag(XboxTypes::SIZE_T NumberOfBytes, XboxTypes::ULONG Tag);
+	XboxTypes::PLIST_ENTRY ExfInterlockedInsertHeadList(XboxTypes::PLIST_ENTRY ListHead, XboxTypes::PLIST_ENTRY ListEntry);
+	XboxTypes::PLIST_ENTRY ExfInterlockedInsertTailList(XboxTypes::PLIST_ENTRY ListHead, XboxTypes::PLIST_ENTRY ListEntry);
+	XboxTypes::PLIST_ENTRY ExfInterlockedRemoveHeadList(XboxTypes::PLIST_ENTRY ListHead);
 	XboxTypes::VOID ExFreePool(XboxTypes::PVOID P);
 	XboxTypes::VOID ExInitializeReadWriteLock(XboxTypes::PERWLOCK ReadWriteLock);
+	XboxTypes::LARGE_INTEGER ExInterlockedAddLargeInteger(XboxTypes::PLARGE_INTEGER Addend, XboxTypes::LARGE_INTEGER Increment);
+	XboxTypes::VOID ExInterlockedAddLargeStatistic(XboxTypes::PLARGE_INTEGER Addend, XboxTypes::ULONG Increment);
+	XboxTypes::LONGLONG ExInterlockedCompareExchange64(XboxTypes::PLONGLONG Destination, XboxTypes::PLONGLONG Exchange, XboxTypes::PLONGLONG Comparand);
 	XboxTypes::NTSTATUS ExQueryNonVolatileSetting(XboxTypes::ULONG ValueIndex, XboxTypes::PULONG Type, XboxTypes::PVOID Value, XboxTypes::ULONG ValueLength, XboxTypes::PULONG ResultLength);
 
 	// File system cache (Fsc)

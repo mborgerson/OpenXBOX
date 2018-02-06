@@ -16,6 +16,8 @@ int Xbox::ExInterlockedAddLargeInteger()
 	K_INIT_ARG(LARGE_INTEGER,  Increment);
 	XboxTypes::LARGE_INTEGER rval;
 
+	rval = m_kernel->ExInterlockedAddLargeInteger(Addend, Increment);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

@@ -18,6 +18,8 @@ int Xbox::ExInterlockedCompareExchange64()
 	K_INIT_ARG(PLONGLONG, Comparand);
 	XboxTypes::LONGLONG rval;
 
+	rval = m_kernel->ExInterlockedCompareExchange64(Destination, Exchange, Comparand);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

@@ -15,6 +15,8 @@ int Xbox::ExInterlockedAddLargeStatistic()
 	K_INIT_ARG(PLARGE_INTEGER, Addend);
 	K_INIT_ARG(ULONG,          Increment);
 
+	m_kernel->ExInterlockedAddLargeStatistic(Addend, Increment);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }
