@@ -92,7 +92,7 @@ public:
 	XboxTypes::PVOID AvGetSavedDataAddress();
 	XboxTypes::VOID AvSendTVEncoderOption(XboxTypes::PVOID RegisterBase, XboxTypes::ULONG Option, XboxTypes::ULONG Param, XboxTypes::PULONG Result);
 	XboxTypes::ULONG AvSetDisplayMode(XboxTypes::PVOID RegisterBase, XboxTypes::ULONG Step, XboxTypes::ULONG DisplayMode, XboxTypes::ULONG SourceColorFormat, XboxTypes::ULONG Pitch, XboxTypes::ULONG FrameBuffer);
-	XboxTypes::VOID AvGetSavedDataAddress(XboxTypes::PVOID Address);
+	XboxTypes::VOID AvSetSavedDataAddress(XboxTypes::PVOID Address);
 
 	// Debugger support functions (Dbg)
 

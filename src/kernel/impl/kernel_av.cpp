@@ -43,6 +43,6 @@ XboxTypes::ULONG XboxKernel::AvSetDisplayMode(XboxTypes::PVOID RegisterBase, Xbo
 	return 0;
 }
 
-XboxTypes::VOID XboxKernel::AvGetSavedDataAddress(XboxTypes::PVOID Address) {
+XboxTypes::VOID XboxKernel::AvSetSavedDataAddress(XboxTypes::PVOID Address) {
 	m_AvSavedDataAddress = Address;
 }
