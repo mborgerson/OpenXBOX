@@ -472,6 +472,10 @@ XboxTypes::BOOLEAN XboxKernel::KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes:
 	return TRUE;
 }
 
+XboxTypes::VOID XboxKernel::KeStallExecutionProcessor(XboxTypes::ULONG MicroSeconds) {
+	log_spew("Stalling execution for %ud microseconds\n", MicroSeconds);
+}
+
 XboxTypes::KIRQL XboxKernel::KfRaiseIrql(XboxTypes::KIRQL NewIrql) {
 	XboxTypes::KIRQL oldIRQL = m_pKPCR->Irql;
 	m_pKPCR->Irql = NewIrql;

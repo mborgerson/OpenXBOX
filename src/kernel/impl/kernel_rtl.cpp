@@ -232,24 +232,9 @@ XboxTypes::VOID XboxKernel::RtlEnterCriticalSection(XboxTypes::PRTL_CRITICAL_SEC
 	// TODO: KeWaitForSingleObject(CriticalSection, XboxTypes::WrExecutive, 0, 0, 0);
 	// FIXME: once we switch back to the original thread, we should continue
 	// execution from this point on
+	// See https://github.com/StrikerX3/OpenXBOX/issues/1
 	pCriticalSection->OwningThread = m_pKPCR->PrcbData.CurrentThread;
 	pCriticalSection->RecursionCount = 1;
-
-	// A possible solution for the above:
-	// - The scheduler should expose the current Thread object
-	// - The Thread should expose a method to provide a continuation callback
-	//   so that we can proceed to perform the operations above, after the
-	//   KeWaitForSingleObject call
-	// - The scheduler should be notified that the thread is waiting for a
-	//   resource (which should be done in KeWaitForSingleObject) and therefore
-	//   switch to another thread
-	// - Once the scheduler reschedules the waiting thread, the continuation
-	//   callback should be executed
-	// - The kernel function callback in the Xbox class MUST NOT return the
-	//   result of this function until the above operation completes
-	//   - This might also need some deep changes to the way those callbacks are
-	//     implemented, since they will need to know when to actually return the
-	//     results and continue execution
 }
 
 XboxTypes::VOID XboxKernel::RtlEnterCriticalSectionAndRegion(XboxTypes::PRTL_CRITICAL_SECTION CriticalSection) {

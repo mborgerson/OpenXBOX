@@ -162,6 +162,7 @@ public:
 	XboxTypes::LOGICAL KeSetDisableBoostThread(XboxTypes::PKTHREAD Thread, XboxTypes::LOGICAL Disable);
 	XboxTypes::BOOLEAN KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::PKDPC Dpc);
 	XboxTypes::BOOLEAN KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::LONG Period, XboxTypes::PKDPC Dpc);
+	XboxTypes::VOID KeStallExecutionProcessor(XboxTypes::ULONG MicroSeconds);
 	XboxTypes::KIRQL KfRaiseIrql(XboxTypes::KIRQL NewIrql);
 	XboxTypes::VOID KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql);
 

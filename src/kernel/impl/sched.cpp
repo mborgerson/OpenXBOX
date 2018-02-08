@@ -89,6 +89,7 @@ int Scheduler::Run()
 
 	// Choose next thread to execute
 	if (!ChooseNextThread()) {
+		// FIXME: should do the "idle thread" work
 		log_debug("No more threads to execute. Halting.\n");
 		return SCHEDULER_EXIT_EXPIRE;
 	}
