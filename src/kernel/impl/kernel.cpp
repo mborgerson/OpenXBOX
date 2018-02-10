@@ -213,14 +213,14 @@ Thread *XboxKernel::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
 	}
 	log_debug("...stack allocated at 0x%08x\n", threadStack->BaseAddress());
 
-	// Allocate memory for the KTHREAD struct and TLS data array
-	PhysicalMemoryBlock *kthreadBlock = m_pmemmgr->AllocateContiguous(sizeof(XboxTypes::KTHREAD) + TLS_SIZE);
+	// Allocate memory for the KTHREAD struct
+	PhysicalMemoryBlock *kthreadBlock = m_pmemmgr->AllocateContiguous(sizeof(XboxTypes::KTHREAD));
 	if (nullptr == kthreadBlock) {
-		log_debug("Could not allocate memory for KTHREAD + TLS table!\n");
+		log_debug("Could not allocate memory for KTHREAD!\n");
 		delete threadStack;
 		return nullptr;
 	}
-	log_debug("...KTHREAD + TLS table allocated at 0x%08x\n", kthreadBlock->BaseAddress());
+	log_debug("...KTHREAD allocated at 0x%08x\n", kthreadBlock->BaseAddress());
 
 	XboxTypes::PKTHREAD pkthread = kthreadBlock->BaseAddress();
 	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(pkthread);
