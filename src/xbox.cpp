@@ -321,7 +321,6 @@ int Xbox::RunEmulation()
 		}
 		else if (result == SCHEDULER_EXIT_THREAD) {
 			log_debug("Scheduled thread has exited\n");
-			break;
 		}
 		else if (result != 0) {
             log_error("Error occured\n");
