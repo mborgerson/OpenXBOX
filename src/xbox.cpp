@@ -294,9 +294,9 @@ int Xbox::Run()
         SDL_PumpEvents();
 
         t.Start();
-        m_video->FixmeLock();
+        //m_video->FixmeLock();
         result = m_kernel->Run();
-        m_video->FixmeUnlock();
+        //m_video->FixmeUnlock();
         t.Stop();
         log_debug("CPU Executed for %lld ms\n", t.GetMillisecondsElapsed());
 		if (result == SCHEDULER_EXIT_NOTHREADS) {
