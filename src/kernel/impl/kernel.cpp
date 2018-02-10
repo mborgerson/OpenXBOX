@@ -153,16 +153,20 @@ int XboxKernel::InitializeKernel() {
 	// TODO: KfLowerIrql(APC_LEVEL);
 
 	PhysicalMemoryBlock *dataBlock = m_pmemmgr->AllocateContiguous(sizeof(KernelData));
+	if (nullptr == dataBlock) {
+		log_debug("Could not allocate memory for kernel data\n");
+		return 1;
+	}
 	m_kernelData = ToPointer<KernelData>(dataBlock->BaseAddress());
 
 	KiInitSystem();
 
-	PhysicalMemoryBlock *block = m_pmemmgr->AllocateContiguous(sizeof(XboxTypes::KPROCESS) * 2);
-	if (nullptr == block) {
+	PhysicalMemoryBlock *procsBlock = m_pmemmgr->AllocateContiguous(sizeof(XboxTypes::KPROCESS) * 2);
+	if (nullptr == procsBlock) {
 		log_debug("Could not allocate memory for the KPROCESS objects\n");
 		return 1;
 	}
-	m_KiIdleProcess = block->BaseAddress();
+	m_KiIdleProcess = procsBlock->BaseAddress();
 	m_KiSystemProcess = m_KiIdleProcess + sizeof(XboxTypes::KPROCESS);
 	m_pKiIdleProcess = ToPointer<XboxTypes::KPROCESS>(m_KiIdleProcess);
 	m_pKiSystemProcess = ToPointer<XboxTypes::KPROCESS>(m_KiSystemProcess);
