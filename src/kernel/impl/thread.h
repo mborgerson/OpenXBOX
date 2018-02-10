@@ -19,7 +19,6 @@ class ThreadSuspensionCondition;
  */
 class Thread {
 public:
-    uint32_t m_entry;
     PhysicalMemoryBlock *m_stack;
 	XboxTypes::PKTHREAD m_pkthread;
 	XboxTypes::KTHREAD *m_kthread;  // pointer to Xbox RAM, MUST NOT BE FREED

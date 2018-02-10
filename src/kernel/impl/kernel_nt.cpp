@@ -1,4 +1,5 @@
 #include "kernel/impl/kernel.h"
+#include "kernel/impl/kernel_ki.h"
 
 XboxTypes::NTSTATUS XboxKernel::NtAllocateVirtualMemory(XboxTypes::PPVOID BaseAddress, XboxTypes::ULONG_PTR ZeroBits, XboxTypes::PSIZE_T RegionSize, XboxTypes::ULONG AllocationType, XboxTypes::ULONG Protect) {
 	XboxTypes::SIZE_T regionSize;
@@ -87,4 +88,47 @@ XboxTypes::NTSTATUS XboxKernel::NtQueryVolumeInformationFile(XboxTypes::HANDLE F
 		// TODO: implement the rest of the types
 	}
 	return STATUS_SUCCESS;
+}
+
+XboxTypes::NTSTATUS XboxKernel::NtYieldExecution() {
+	XboxTypes::NTSTATUS status = STATUS_NO_YIELD_PERFORMED;
+
+	if (m_KiReadySummary != 0) {
+		XboxTypes::PKTHREAD thread = KeGetCurrentThread();
+		XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(thread);
+		XboxTypes::KPRCB *prcb = &m_pKPCR->PrcbData;
+
+		KiLockDispatcherDatabase(&pThread->WaitIrql);
+		if (prcb->NextThread == NULL) {
+			prcb->NextThread = KiFindReadyThread(1);
+		}
+
+		if (prcb->NextThread != NULL) {
+			XboxTypes::KPROCESS *pProcess = ToPointer<XboxTypes::KPROCESS>(pThread->ApcState.Process);
+			pThread->Quantum = pProcess->ThreadQuantum;
+			pThread->State = XboxTypes::Ready;
+			XboxTypes::KPRIORITY priority = pThread->Priority;
+			if (priority < LOW_REALTIME_PRIORITY) {
+				priority = priority - pThread->PriorityDecrement - 1;
+				if (priority < pThread->BasePriority) {
+					priority = pThread->BasePriority;
+				}
+
+				pThread->PriorityDecrement = 0;
+			}
+			pThread->Priority = priority;
+
+			InsertTailList(&m_KiDispatcherReadyListHead[priority], &pThread->WaitListEntry);
+
+			SetMember(priority, m_KiReadySummary);
+			m_sched->SuspendThread(new AlwaysTrueTSCondition());
+			status = STATUS_SUCCESS;
+
+		}
+		else {
+			KiUnlockDispatcherDatabase(pThread->WaitIrql);
+		}
+	}
+
+	return status;
 }

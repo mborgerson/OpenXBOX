@@ -64,6 +64,7 @@ int Scheduler::Run()
 		vec_erase(m_activeThreads, m_currentThread);
 		delete m_currentThread;
 		m_currentThread = nullptr;
+		return SCHEDULER_EXIT_THREAD;
 	}
 
 	// Debugging

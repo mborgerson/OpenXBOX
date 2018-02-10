@@ -130,7 +130,7 @@ public:
 	);
 	XboxTypes::NTSTATUS IoCreateSymbolicLink(XboxTypes::POBJECT_STRING SymbolicLinkName, XboxTypes::POBJECT_STRING DeviceName);
 
-	// Kernel core (Ke) and internal kernel functions (Kf/Ki)
+	// Kernel core (Ke/Kf)
 	XboxTypes::VOID KeBugCheck(XboxTypes::ULONG BugCheckCode);
 	XboxTypes::VOID KeBugCheckEx(XboxTypes::ULONG BugCheckCode, XboxTypes::ULONG_PTR BugCheckParameter1, XboxTypes::ULONG_PTR BugCheckParameter2, XboxTypes::ULONG_PTR BugCheckParameter3, XboxTypes::ULONG_PTR BugCheckParameter4);
 	XboxTypes::BOOLEAN KeConnectInterrupt(XboxTypes::PKINTERRUPT Interrupt);
@@ -143,6 +143,7 @@ public:
 	XboxTypes::VOID KeInitializeEvent(XboxTypes::PRKEVENT Event, XboxTypes::EVENT_TYPE Type, XboxTypes::BOOLEAN State);
 	XboxTypes::VOID KeInitializeInterrupt(XboxTypes::PKINTERRUPT Interrupt, XboxTypes::PKSERVICE_ROUTINE ServiceRoutine, XboxTypes::PVOID ServiceContext, XboxTypes::ULONG Vector, XboxTypes::KIRQL Irql, XboxTypes::KINTERRUPT_MODE InterruptMode, XboxTypes::BOOLEAN ShareVector);
 	XboxTypes::VOID KeInitializeMutant(XboxTypes::PRKMUTANT Mutant, XboxTypes::BOOLEAN InitialOwner);
+	XboxTypes::VOID KeInitializeProcess(XboxTypes::PRKPROCESS Process, XboxTypes::KPRIORITY BasePriority);
 	XboxTypes::VOID KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count);
 	XboxTypes::VOID KeInitializeSemaphore(XboxTypes::PRKSEMAPHORE Semaphore, XboxTypes::LONG Count, XboxTypes::LONG Limit);
 	XboxTypes::VOID KeInitializeTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::TIMER_TYPE Type);
@@ -164,6 +165,12 @@ public:
 	XboxTypes::BOOLEAN KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::LONG Period, XboxTypes::PKDPC Dpc);
 	XboxTypes::VOID KeStallExecutionProcessor(XboxTypes::ULONG MicroSeconds);
 	XboxTypes::KIRQL KfRaiseIrql(XboxTypes::KIRQL NewIrql);
+
+	// Internal kernel functions (Ki)
+	XboxTypes::VOID KiInitializeContextThread(XboxTypes::PKTHREAD Thread, XboxTypes::SIZE_T TlsDataSize, XboxTypes::PKSYSTEM_ROUTINE SystemRoutine, XboxTypes::PKSTART_ROUTINE StartRoutine, XboxTypes::PVOID StartContext);
+	XboxTypes::VOID KiInitSystem();
+	XboxTypes::PKTHREAD KiFindReadyThread(XboxTypes::KPRIORITY LowPriority);
+	XboxTypes::VOID KiReadyThread(XboxTypes::PRKTHREAD Thread);
 	XboxTypes::VOID KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql);
 
 	// Memory manager (Mm)
@@ -185,6 +192,7 @@ public:
 	XboxTypes::NTSTATUS NtOpenFile(XboxTypes::PHANDLE FileHandle, XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::POBJECT_ATTRIBUTES ObjectAttributes, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::ULONG ShareAccess, XboxTypes::ULONG OpenOptions);
 	XboxTypes::NTSTATUS NtQueryInformationFile(XboxTypes::HANDLE FileHandle, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PVOID FileInformation, XboxTypes::ULONG Length, XboxTypes::FILE_INFORMATION_CLASS FileInformationClass);
 	XboxTypes::NTSTATUS NtQueryVolumeInformationFile(XboxTypes::HANDLE FileHandle, XboxTypes::PIO_STATUS_BLOCK IoStatusBlock, XboxTypes::PVOID FsInformation, XboxTypes::ULONG Length, XboxTypes::FS_INFORMATION_CLASS FsInformationClass);
+	XboxTypes::NTSTATUS NtYieldExecution();
 
 	// Object manager (Ob/Obf)
 
@@ -267,21 +275,48 @@ public:
 	XboxTypes::PSINGLE_LIST_ENTRY InterlockedPushEntrySList(XboxTypes::PSLIST_HEADER ListHead, XboxTypes::PSINGLE_LIST_ENTRY ListEntry);
 
 private:
+	// --- Xbox hardware ------------------------------------------------------
 	char *m_ram;
 	size_t m_ramSize;
-	XboxTypes::KPCR *m_pKPCR;
 	Cpu *m_cpu;
+	
+	// --- Internal kernel data -----------------------------------------------
+	// The only instance of the KPCR in Xbox memory
+	XboxTypes::KPCR *m_pKPCR;
+
+	// Process objects representing the two only processes in Xbox
+	XboxTypes::PRKPROCESS m_KiIdleProcess;     // Contains the idle thread
+	XboxTypes::PRKPROCESS m_KiSystemProcess;   // Contains every other thread
+	XboxTypes::KPROCESS *m_pKiIdleProcess;
+	XboxTypes::KPROCESS *m_pKiSystemProcess;
+
+	// Used by the kernel in some places
+	XboxTypes::LIST_ENTRY m_KiDispatcherReadyListHead[MAXIMUM_PRIORITY];
+	XboxTypes::KAFFINITY m_KiIdleSummary;
+	XboxTypes::ULONG m_KiReadySummary;
+	XboxTypes::LIST_ENTRY m_KiTimerTableListHead[TIMER_TABLE_SIZE];
+	XboxTypes::KDPC m_KiTimerExpireDpc;
+	XboxTypes::LIST_ENTRY m_KiWaitInListHead;
+	XboxTypes::ULONG m_KeTickCount;
+
+	// Used by AvGet/SetSavedDataAddress
+	XboxTypes::PVOID m_AvSavedDataAddress;
+
+	// --- Kernel subsystems --------------------------------------------------
 	Scheduler *m_sched;
 	PhysicalMemoryManager *m_pmemmgr;
 	ObjectManager *m_objmgr;
 
-	// Used by AvGet/SetSavedDataAddress
-	XboxTypes::PVOID m_AvSavedDataAddress;
 
 	/*!
 	 * Initializes the GDT and data structures referenced by it.
 	 */
 	int InitializeGDT();
+
+	/*!
+	 * Initializes the internal kernel objects and systems.
+	 */
+	int InitializeKernel();
 
 	/*!
 	 * Converts an address into a pointer to data in the physical Xbox memory,

@@ -11,6 +11,7 @@
 #define SCHEDULER_EXIT_HLT        0
 #define SCHEDULER_EXIT_EXPIRE     1
 #define SCHEDULER_EXIT_NOTHREADS  2
+#define SCHEDULER_EXIT_THREAD     3
 
 /*!
  * CPU Scheduler

@@ -8,8 +8,7 @@ static uint32_t g_threadId = 0;
  * Constructor
  */
 Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD pkthread, XboxTypes::KTHREAD *kthread)
-	: m_entry(entry)
-	, m_stack(stack)
+	: m_stack(stack)
 	, m_id(++g_threadId)
 	, m_pkthread(pkthread)
 	, m_kthread(kthread)
@@ -17,7 +16,7 @@ Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD p
 	g_cond_init(&m_suspensionSync);
 	g_mutex_init(&m_suspensionMutex);
 
-    m_context.m_regs[REG_EIP] = m_entry;
+    m_context.m_regs[REG_EIP] = entry;
 	m_context.m_regs[REG_ESP] = stack->BaseAddress() + stack->Size();
 	m_context.m_regs[REG_EBP] = stack->BaseAddress();
 	

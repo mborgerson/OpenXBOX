@@ -141,6 +141,31 @@ typedef int64_t LONGLONG;
 DEF_POINTER_TYPE(LONGLONG, PLONGLONG);
 typedef uint64_t ULONGLONG;
 
+
+#define EFLAGS_INTERRUPT_MASK 0x00000200L
+
+#define ALIGN_DOWN(length, type) \
+    ((XboxTypes::ULONG)(length) & ~(sizeof(type) - 1))
+
+#define ALIGN_UP(length, type) \
+    (ALIGN_DOWN(((XboxTypes::ULONG)(length) + sizeof(type) - 1), type))
+
+#define ALIGN_DOWN_POINTER(address, type) \
+    ((XboxTypes::PVOID)((XboxTypes::ULONG_PTR)(address) & ~((XboxTypes::ULONG_PTR)sizeof(type) - 1)))
+
+#define ALIGN_UP_POINTER(address, type) \
+    (ALIGN_DOWN_POINTER(((XboxTypes::ULONG_PTR)(address) + sizeof(type) - 1), type))
+
+#define MINCHAR  0x80
+#define MAXCHAR  0x7f
+#define MINSHORT 0x8000
+#define MAXSHORT 0x7fff
+#define MINLONG  0x80000000
+#define MAXLONG  0x7fffffff
+#define MAXBYTE  0xff
+#define MAXWORD  0xffff
+#define MAXDWORD 0xffffffff
+
 typedef LONG NTSTATUS;
 #define NT_SUCCESS(Status) ((XboxTypes::NTSTATUS)(Status) >= 0)
 #define STATUS_SUCCESS ((XboxTypes::NTSTATUS)0x00000000L)
@@ -155,6 +180,7 @@ typedef LONG NTSTATUS;
 #define STATUS_TIMEOUT ((XboxTypes::NTSTATUS)0x00000102L)
 #define STATUS_PENDING ((XboxTypes::NTSTATUS)0x00000103L)
 #define STATUS_SEGMENT_NOTIFICATION ((XboxTypes::NTSTATUS)0x40000005L)
+#define STATUS_NO_YIELD_PERFORMED ((XboxTypes::NTSTATUS)0x40000024L)
 #define STATUS_GUARD_PAGE_VIOLATION ((XboxTypes::NTSTATUS)0x80000001L)
 #define STATUS_DATATYPE_MISALIGNMENT ((XboxTypes::NTSTATUS)0x80000002L)
 #define STATUS_BREAKPOINT ((XboxTypes::NTSTATUS)0x80000003L)
@@ -227,6 +253,8 @@ DEF_POINTER_TYPE(PFN_COUNT, PPFN_COUNT);
 typedef ULONG PFN_NUMBER;
 DEF_POINTER_TYPE(PFN_NUMBER, PPFN_NUMBER);
 typedef LONG KPRIORITY;
+typedef ULONG KAFFINITY;
+DEF_POINTER_TYPE(KAFFINITY, PKAFFINITY);
 typedef ULONG DEVICE_TYPE;
 typedef ULONG LOGICAL;
 
@@ -1157,7 +1185,7 @@ DEF_POINTER_TYPE(KTIMER, PKTIMER);
 
 typedef struct _KPROCESS
 {
-    LIST_ENTRY ReadListHead;
+    LIST_ENTRY ReadyListHead;
     LIST_ENTRY ThreadListHead;
     ULONG StackCount;
     LONG ThreadQuantum;
@@ -1167,6 +1195,7 @@ typedef struct _KPROCESS
 } KPROCESS;
 
 DEF_POINTER_TYPE(KPROCESS, PKPROCESS);
+DEF_POINTER_TYPE(KPROCESS, PRKPROCESS);
 
 typedef struct _KAPC_STATE
 {
@@ -1478,6 +1507,16 @@ typedef enum _KINTERRUPT_MODE
     LevelSensitive, /**< Interrupt is level-triggered. Used for traditional PCI line-based interrupts. */
     Latched /**< Interrupt is edge-triggered. Used for PCI message-signaled interrupts */
 } KINTERRUPT_MODE;
+
+typedef enum _KTHREAD_STATE {
+	Initialized,
+	Ready,
+	Running,
+	Standby,
+	Terminated,
+	Waiting,
+	Transition
+} KTHREAD_STATE;
 
 typedef struct _TIMER_BASIC_INFORMATION
 {
@@ -1830,6 +1869,9 @@ typedef struct _FLOATING_SAVE_AREA
 
 DEF_POINTER_TYPE(FLOATING_SAVE_AREA, PFLOATING_SAVE_AREA);
 
+#define NPX_STATE_NOT_LOADED 10
+#define NPX_STATE_LOADED 0
+
 typedef struct _FX_SAVE_AREA {
 	XboxTypes::FLOATING_SAVE_AREA FloatSave;
 	XboxTypes::ULONG Align16Byte[3];
@@ -1856,6 +1898,13 @@ typedef struct _CONTEXT
 } CONTEXT;
 
 DEF_POINTER_TYPE(CONTEXT, PCONTEXT);
+
+typedef struct _KSWITCHFRAME {
+	ULONG   ExceptionList;
+	ULONG   Eflags;
+	ULONG   RetAddr;
+} KSWITCHFRAME;
+DEF_POINTER_TYPE(KSWITCHFRAME, PKSWITCHFRAME);
 
 typedef struct _KFLOATING_SAVE
 {
@@ -2366,6 +2415,12 @@ typedef VOID (* NTAPI PKSYSTEM_ROUTINE) (
 #define HIGH_PRIORITY 31            // Highest thread priority level
 #define MAXIMUM_PRIORITY 32         // Number of thread priority levels
 
+#define NORMAL_BASE_PRIORITY 8
+#define FOREGROUND_BASE_PRIORITY 9
+
+#define THREAD_QUANTUM 60
+
+#define TIMER_TABLE_SIZE 32
 
 /* values for CreateDisposition */
 /*

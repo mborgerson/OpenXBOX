@@ -4,7 +4,7 @@
 #include "alloc.h"
 #include "kernel/impl/pmemmgr.h"
 
-#define ENABLE_GDB_SERVER     0 // FIXME: Allow enable from cmdline
+#define ENABLE_GDB_SERVER     1 // FIXME: Allow enable from cmdline
 #define DUMP_SECTION_CONTENTS 0
 
 // Statically generate a lookup table to quickly find the member function
@@ -317,6 +317,10 @@ int Xbox::RunEmulation()
         log_debug("CPU Executed for %lld ms\n", t.GetMillisecondsElapsed());
 		if (result == SCHEDULER_EXIT_NOTHREADS) {
 			log_debug("Scheduler no longer has threads to execute\n");
+			break;
+		}
+		else if (result == SCHEDULER_EXIT_THREAD) {
+			log_debug("Scheduled thread has exited\n");
 			break;
 		}
 		else if (result != 0) {

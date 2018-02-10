@@ -12,6 +12,8 @@ int Xbox::NtYieldExecution()
 	K_ENTER_STDCALL();
 	XboxTypes::NTSTATUS rval;
 
+	rval = m_kernel->NtYieldExecution();
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

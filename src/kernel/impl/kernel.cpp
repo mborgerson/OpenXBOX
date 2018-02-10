@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "kernel/impl/kernel.h"
+#include "kernel/impl/kernel_ki.h"
 #include "kernel/impl/gdt.h"
 #include "kernel/impl/tss.h"
 #include "kernel/impl/tls.h"
@@ -34,6 +35,12 @@ int XboxKernel::Initialize(GThreadFunc emuThreadFunc, gpointer emuThreadData) {
 	int gdtStatus = InitializeGDT();
 	if (gdtStatus != 0) {
 		return gdtStatus;
+	}
+
+	// Initialize the idle and system processes
+	int procStatus = InitializeKernel();
+	if (procStatus != 0) {
+		return procStatus;
 	}
 
 	// Initialize object manager
@@ -142,6 +149,38 @@ int XboxKernel::InitializeGDT() {
 	return 0;
 }
 
+int XboxKernel::InitializeKernel() {
+	// TODO: KfLowerIrql(APC_LEVEL);
+	KiInitSystem();
+
+	PhysicalMemoryBlock *block = m_pmemmgr->AllocateContiguous(sizeof(XboxTypes::KPROCESS) * 2);
+	if (nullptr == block) {
+		log_debug("Could not allocate memory for the KPROCESS objects\n");
+		return 1;
+	}
+	m_KiIdleProcess = block->BaseAddress();
+	m_KiSystemProcess = m_KiIdleProcess + sizeof(XboxTypes::KPROCESS);
+	m_pKiIdleProcess = ToPointer<XboxTypes::KPROCESS>(m_KiIdleProcess);
+	m_pKiSystemProcess = ToPointer<XboxTypes::KPROCESS>(m_KiSystemProcess);
+
+	KeInitializeProcess(m_KiIdleProcess, (XboxTypes::KPRIORITY)0);
+	m_pKiIdleProcess->ThreadQuantum = CHAR_MAX;
+
+	KeInitializeProcess(m_KiSystemProcess, NORMAL_BASE_PRIORITY);
+	m_pKiIdleProcess->ThreadQuantum = THREAD_QUANTUM;
+
+	// FIXME: incomplete
+
+	if (m_pKPCR->PrcbData.NextThread == NULL) {
+		SetMember(0, m_KiIdleSummary);
+	}
+
+	KfRaiseIrql(HIGH_LEVEL);
+
+	return 0;
+}
+
+
 int XboxKernel::Run() {
 	return m_sched->Run();
 }
@@ -184,7 +223,7 @@ Thread *XboxKernel::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
 		NULL, // FIXME: almost certainly incorrect
 		NULL, // FIXME: almost certainly incorrect
 		NULL, // FIXME: almost certainly incorrect
-		NULL  // FIXME: need to initialize a process object beforehand
+		m_KiSystemProcess
 	);
 
 	return new Thread(entryAddress, threadStack, pkthread, pThread);

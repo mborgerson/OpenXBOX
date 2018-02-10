@@ -2,37 +2,6 @@
 #include "kernel/impl/kernel_ki.h"
 #include "log.h"
 
-XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql) {
-	if (m_pKPCR->PrcbData.NextThread == NULL) {
-		// FIXME: this should be KfLowerIrql(oldIRQL);
-		m_pKPCR->Irql = OldIrql;
-		return;
-	}
-
-	if (OldIrql >= DISPATCH_LEVEL) {
-		if (m_pKPCR->PrcbData.DpcRoutineActive == NULL) {
-			// TODO: HalRequestSoftwareInterrupt(DISPATCH_LEVEL);
-		}
-
-		// FIXME: this should be KfLowerIrql(oldIRQL);
-		m_pKPCR->Irql = OldIrql;
-		return;
-	}
-
-	XboxTypes::KTHREAD *pCurrThread = ToPointer<XboxTypes::KTHREAD>(m_pKPCR->PrcbData.CurrentThread);
-	XboxTypes::KIRQL prevIrql = pCurrThread->WaitIrql;
-	m_pKPCR->PrcbData.CurrentThread = m_pKPCR->PrcbData.NextThread;
-	m_pKPCR->PrcbData.NextThread = NULL;
-	// TODO: tell scheduler that the current thread has changed
-	// FIXME: this is incomplete
-	// At this point, pending APCs (if any) should run at IRQL = APC_LEVEL
-
-	// FIXME: this should be KfLowerIrql(oldIRQL);
-	m_pKPCR->Irql = OldIrql;
-	return;
-}
-
-
 XboxTypes::VOID XboxKernel::KeBugCheck(XboxTypes::ULONG BugCheckCode) {
 	KeBugCheckEx(BugCheckCode, 0, 0, 0, 0);
 }
@@ -117,7 +86,6 @@ XboxTypes::VOID XboxKernel::KeInitializeEvent(XboxTypes::PRKEVENT Event, XboxTyp
 	pEvent->Header.Size = sizeof(XboxTypes::KEVENT) / sizeof(XboxTypes::LONG);
 	pEvent->Header.Type = (XboxTypes::UCHAR)Type;
 	pEvent->Header.SignalState = State;
-	// FIXME: what can we do about pointers to structs within structs?
 	InitializeListHead(&pEvent->Header.WaitListHead);
 
 	//m_objmgr->RegisterEvent(Event, pEvent, Type);
@@ -166,6 +134,15 @@ XboxTypes::VOID XboxKernel::KeInitializeMutant(XboxTypes::PRKMUTANT Mutant, Xbox
 	//m_objmgr->RegisterMutant(Mutant, pMutant);
 }
 
+XboxTypes::VOID XboxKernel::KeInitializeProcess(XboxTypes::PRKPROCESS Process, XboxTypes::KPRIORITY BasePriority) {
+	XboxTypes::KPROCESS *pProcess = ToPointer<XboxTypes::KPROCESS>(Process);
+
+	pProcess->BasePriority = BasePriority;
+	pProcess->ThreadQuantum = THREAD_QUANTUM;
+	InitializeListHead(&pProcess->ReadyListHead);
+	InitializeListHead(&pProcess->ThreadListHead);
+}
+
 XboxTypes::VOID XboxKernel::KeInitializeQueue(XboxTypes::PRKQUEUE Queue, XboxTypes::ULONG Count) {
 	XboxTypes::KQUEUE *pQueue = ToPointer<XboxTypes::KQUEUE>(Queue);
 
@@ -193,6 +170,8 @@ XboxTypes::VOID XboxKernel::KeInitializeSemaphore(XboxTypes::PRKSEMAPHORE Semaph
 
 XboxTypes::VOID XboxKernel::KeInitializeThread(XboxTypes::PKTHREAD Thread, XboxTypes::PVOID KernelStack, XboxTypes::SIZE_T KernelStackSize, XboxTypes::SIZE_T TlsDataSize, XboxTypes::PKSYSTEM_ROUTINE SystemRoutine, XboxTypes::PKSTART_ROUTINE StartRoutine, XboxTypes::PVOID StartContext, XboxTypes::PKPROCESS Process) {
 	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(Thread);
+	XboxTypes::KPROCESS *pProcess = ToPointer<XboxTypes::KPROCESS>(Process);
+
 	pThread->Header.Size = sizeof(XboxTypes::KTHREAD) / sizeof(XboxTypes::LONG);
 	pThread->Header.Type = XboxTypes::ThreadObject;
 	InitializeListHead(&pThread->Header.WaitListHead);
@@ -203,30 +182,41 @@ XboxTypes::VOID XboxKernel::KeInitializeThread(XboxTypes::PKTHREAD Thread, XboxT
 	InitializeListHead(&pThread->ApcState.ApcListHead[XboxTypes::UserMode]);
 	pThread->ApcState.Process = Process;
 	pThread->ApcState.ApcQueueable = TRUE;
-	// TODO: KeInitializeApc(_PTR_TO_ADDR(KAPC, &pThread->SuspendApc), Thread, <PKKERNEL_ROUTINE f1>, NULL, <PKNORMAL_ROUTINE f2>, XboxTypes::KernelMode, NULL);
-	// f1: literally does nothing
-	/* f2: does a bit more than nothing:
+	KeInitializeApc(_PTR_TO_ADDR(KAPC, &pThread->SuspendApc), Thread, (XboxTypes::PKKERNEL_ROUTINE)/*m_KiSuspendNop*/NULL, NULL, (XboxTypes::PKNORMAL_ROUTINE)/*m_KiSuspendThread*/NULL, XboxTypes::KernelMode, NULL);
+	// TODO: pointers to functions
+	// KiSuspendNop: literally does nothing
+	/* KiSuspendThread: does a bit more than nothing:
 	PKTHREAD currentThread = pKPCR->PrcbData.CurrentThread;
 	KeWaitForSingleObject(&currentThread->SuspendSemaphore, XboxTypes::Suspended, XboxTypes::KernelMode, FALSE, NULL);
 	*/
 
 	KeInitializeSemaphore(_PTR_TO_ADDR(KSEMAPHORE, &pThread->SuspendSemaphore), 0, 2);
 
-	pThread->StackBase = KernelStack;
-	pThread->StackLimit = KernelStackSize;
-
-	pThread->TlsData = Thread + sizeof(XboxTypes::KTHREAD);
-	RtlZeroMemory(pThread->TlsData, TlsDataSize);
-
 	KeInitializeTimerEx(_PTR_TO_ADDR(KTIMER, &pThread->Timer), XboxTypes::NotificationTimer);
-
+	
 	pThread->TimerWaitBlock.Object = _PTR_TO_ADDR(KTIMER, &pThread->Timer);
-	pThread->TimerWaitBlock.WaitKey = 0x102;
+	pThread->TimerWaitBlock.WaitKey = (XboxTypes::USHORT)STATUS_TIMEOUT;
 	pThread->TimerWaitBlock.WaitType = XboxTypes::WaitAny;
 	pThread->TimerWaitBlock.Thread = Thread;
 	pThread->TimerWaitBlock.WaitListEntry.Flink = _PTR_TO_ADDR(LIST_ENTRY, &pThread->Timer.Header.WaitListHead);
 	pThread->TimerWaitBlock.WaitListEntry.Blink = _PTR_TO_ADDR(LIST_ENTRY, &pThread->Timer.Header.WaitListHead);
-	// TODO: there are more fields to initialize
+
+	pThread->StackBase = KernelStack;
+	pThread->StackLimit = KernelStack - KernelStackSize;
+	KiInitializeContextThread(Thread, TlsDataSize, SystemRoutine, StartRoutine, StartContext);
+	
+	pThread->BasePriority = pProcess->BasePriority;
+	pThread->Priority = pThread->BasePriority;
+	pThread->Quantum = pProcess->ThreadQuantum;
+	pThread->State = XboxTypes::Initialized;
+	pThread->DisableBoost = pProcess->DisableBoost;
+	
+	XboxTypes::KIRQL oldIrql;
+	KiLockDispatcherDatabase(&oldIrql);
+	InsertTailList(&pProcess->ThreadListHead, &pThread->ThreadListEntry);
+	pProcess->StackCount += 1;
+
+	KiUnlockDispatcherDatabase(oldIrql);
 
 	//m_objmgr->RegisterThread(Thread, pThread, Type);
 }
