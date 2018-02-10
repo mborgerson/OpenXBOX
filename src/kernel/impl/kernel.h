@@ -74,7 +74,7 @@ public:
 	XboxKernel(char *ram, size_t ramSize, Cpu *cpu);
 	~XboxKernel();
 
-	int Initialize();
+	int Initialize(GThreadFunc emuThreadFunc, gpointer emuThreadData);
 
 	int Run();
 	void SaveCPUContext(); // FIXME: shouldn't be necessary
@@ -271,6 +271,8 @@ private:
 	size_t m_ramSize;
 	XboxTypes::KPCR *m_pKPCR;
 	Cpu *m_cpu;
+	GThreadFunc m_emuThreadFunc;
+	gpointer m_emuThreadData;
 	Scheduler *m_sched;
 	PhysicalMemoryManager *m_pmemmgr;
 	ObjectManager *m_objmgr;

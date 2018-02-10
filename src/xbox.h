@@ -56,9 +56,16 @@ public:
     ~Xbox();
     int Initialize();
     int LoadXbe(Xbe *xbe);
-    uint32_t UnscrambleAddress(uint32_t addr, uint32_t debug, uint32_t retail);
-    int Run();
-    int HandleKernelEntry();
+	
+	void InitializePreRun();
+	void Cleanup();
+
+	int Run();
+	int RunEmulation();
+
+	uint32_t UnscrambleAddress(uint32_t addr, uint32_t debug, uint32_t retail);
+	
+	int HandleKernelEntry();
 	void KernelFunctionNotImplemented();
 
 	// Generate kernel method prototypes

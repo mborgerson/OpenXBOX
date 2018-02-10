@@ -51,7 +51,9 @@ int main(int argc, const char *argv[])
     Xbox *xbox = new Xbox();
     xbox->Initialize();
     xbox->LoadXbe(xbe);
+	xbox->InitializePreRun();
     xbox->Run();
+	xbox->Cleanup();
 
     delete xbox;
     delete xbe;

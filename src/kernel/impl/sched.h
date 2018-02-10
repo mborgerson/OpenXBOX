@@ -20,17 +20,22 @@
 class Scheduler {
 protected:
     Cpu                   *m_cpu;
+	
+	GThreadFunc            m_emuThreadFunc;
+	gpointer               m_emuThreadData;
+
     std::vector<Thread *>  m_activeThreads;
 	std::vector<Thread *>  m_suspendedThreads;
 	Thread                *m_currentThread;
 	uint32_t               m_nextThreadIndex;
+
 	XboxTypes::KPCR       *m_kpcr; // pointer to Xbox RAM, MUST NOT BE FREED
 
 public:
 	/*!
 	 * Creates a new thread scheduler for the given CPU.
 	 */
-    Scheduler(Cpu *cpu);
+    Scheduler(Cpu *cpu, GThreadFunc emuThreadFunc, gpointer emuThreadData);
 
     ~Scheduler();
 

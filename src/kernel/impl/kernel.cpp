@@ -19,10 +19,10 @@ XboxKernel::~XboxKernel() {
 	delete m_sched;
 }
 
-int XboxKernel::Initialize() {
+int XboxKernel::Initialize(GThreadFunc emuThreadFunc, gpointer emuThreadData) {
 	// Initialize scheduler
 	log_debug("Initializing Scheduler\n");
-	m_sched = new Scheduler(m_cpu);
+	m_sched = new Scheduler(m_cpu, emuThreadFunc, emuThreadData);
 	assert(m_sched != NULL);
 
 	// Initialize memory manager

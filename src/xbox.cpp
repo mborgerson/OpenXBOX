@@ -32,6 +32,14 @@ const static struct KernelFuncImportMap kKernelFuncImportMap[379] = {
 	#undef KERNEL_IMPORT_FUNC
 };
 
+
+// Emulation thread function
+static gpointer EmuThreadFunc(gpointer data) {
+	Xbox *xbox = (Xbox *)data;
+	return (gpointer)xbox->RunEmulation();
+}
+
+
 /*!
  * Constructor
  */
@@ -110,7 +118,7 @@ int Xbox::Initialize()
 	log_debug("Initializing Kernel\n");
 	m_kernel = new XboxKernel(m_ram, XBOX_RAM_SIZE, m_cpu);
 	assert(m_kernel != NULL);
-	m_kernel->Initialize();
+	m_kernel->Initialize(EmuThreadFunc, this);
 
 	// GDB Server
 #if ENABLE_GDB_SERVER
@@ -271,24 +279,32 @@ int Xbox::HandleKernelEntry()
     return 0;
 }
 
+void Xbox::InitializePreRun() {
+#if ENABLE_GDB_SERVER
+	// Allow debugging before running so client can setup breakpoints, etc
+	m_gdb->WaitForConnection();
+	m_gdb->Debug(1);
+#endif
+}
+
+int Xbox::Run() {
+	// TODO: should join every emulation thread
+	// For now, let's just bootstrap emulation on the current thread
+	return (int)EmuThreadFunc(this);
+}
+
 /*!
  * Main loop which advances the system state
  * 
  * This is the main loop of the entire emulator.
  */
-int Xbox::Run()
+int Xbox::RunEmulation()
 {
     Timer t;
     int result;
     struct CpuExitInfo *exit_info;
 
     m_should_run = true;
-
-#if ENABLE_GDB_SERVER
-    // Allow debugging before running so client can setup breakpoints, etc
-    m_gdb->WaitForConnection();
-    m_gdb->Debug(1);
-#endif
 
     while (m_should_run) {
         SDL_PumpEvents();
@@ -337,15 +353,17 @@ int Xbox::Run()
         // log_debug("Video update took %lld ms\n", t.GetMillisecondsElapsed());
     }
 
+    return result;
+}
+
+void Xbox::Cleanup() {
 	if (LOG_LEVEL >= LOG_LEVEL_DEBUG) {
 		log_debug("CPU registers at the end of execution:\n");
 		m_cpu->PrintRegisters();
 	}
 
-    m_video->Cleanup();
+	m_video->Cleanup();
 #if ENABLE_GDB_SERVER
-    m_gdb->Shutdown();
+	m_gdb->Shutdown();
 #endif
-
-    return result;
 }

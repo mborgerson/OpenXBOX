@@ -4,10 +4,12 @@
 #include "kernel/impl/sched.h"
 #include "log.h"
 
-Scheduler::Scheduler(Cpu *cpu)
+Scheduler::Scheduler(Cpu *cpu, GThreadFunc emuThreadFunc, gpointer emuThreadData)
 	: m_cpu(cpu)
 	, m_nextThreadIndex(0)
 	, m_currentThread(nullptr)
+	, m_emuThreadFunc(emuThreadFunc)
+	, m_emuThreadData(emuThreadData)
 {
 }
 
@@ -103,7 +105,7 @@ void Scheduler::SuspendThread(ThreadSuspensionCondition *condition) {
 	vec_erase(m_activeThreads, m_currentThread);
 
 	// Start a new host thread to continue execution of the emulator
-	// TODO: implement
+	g_thread_new("Emulation thread", m_emuThreadFunc, m_emuThreadData);
 
 	// Wait for the condition to be signaled
 	GCond *cond = &m_currentThread->m_suspensionSync;

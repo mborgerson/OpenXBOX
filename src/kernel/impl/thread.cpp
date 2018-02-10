@@ -14,6 +14,9 @@ Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD p
 	, m_pkthread(pkthread)
 	, m_kthread(kthread)
 {
+	g_cond_init(&m_suspensionSync);
+	g_mutex_init(&m_suspensionMutex);
+
     m_context.m_regs[REG_EIP] = m_entry;
 	m_context.m_regs[REG_ESP] = stack->BaseAddress() + stack->Size();
 	m_context.m_regs[REG_EBP] = stack->BaseAddress();
@@ -32,6 +35,9 @@ Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD p
  */
 Thread::~Thread()
 {
+	g_cond_clear(&m_suspensionSync);
+	g_mutex_clear(&m_suspensionMutex);
+
 	delete m_stack;
 }
 
