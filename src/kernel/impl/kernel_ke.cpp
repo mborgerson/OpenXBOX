@@ -1,8 +1,6 @@
 #include "kernel/impl/kernel.h"
+#include "kernel/impl/kernel_ki.h"
 #include "log.h"
-
-#define KiLockDispatcherDatabase(oldIRQL) \
-	*(oldIRQL) = KeRaiseIrqlToDpcLevel();
 
 XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql) {
 	if (m_pKPCR->PrcbData.NextThread == NULL) {
