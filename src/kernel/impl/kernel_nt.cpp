@@ -93,7 +93,7 @@ XboxTypes::NTSTATUS XboxKernel::NtQueryVolumeInformationFile(XboxTypes::HANDLE F
 XboxTypes::NTSTATUS XboxKernel::NtYieldExecution() {
 	XboxTypes::NTSTATUS status = STATUS_NO_YIELD_PERFORMED;
 
-	if (m_KiReadySummary != 0) {
+	if (m_kernelData->KiReadySummary != 0) {
 		XboxTypes::PKTHREAD thread = KeGetCurrentThread();
 		XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(thread);
 		XboxTypes::KPRCB *prcb = &m_pKPCR->PrcbData;
@@ -118,9 +118,9 @@ XboxTypes::NTSTATUS XboxKernel::NtYieldExecution() {
 			}
 			pThread->Priority = priority;
 
-			InsertTailList(&m_KiDispatcherReadyListHead[priority], &pThread->WaitListEntry);
+			InsertTailList(&m_kernelData->KiDispatcherReadyListHead[priority], &pThread->WaitListEntry);
 
-			SetMember(priority, m_KiReadySummary);
+			SetMember(priority, m_kernelData->KiReadySummary);
 			m_sched->SuspendThread(new AlwaysTrueTSCondition());
 			status = STATUS_SUCCESS;
 

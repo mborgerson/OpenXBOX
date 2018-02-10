@@ -151,6 +151,10 @@ int XboxKernel::InitializeGDT() {
 
 int XboxKernel::InitializeKernel() {
 	// TODO: KfLowerIrql(APC_LEVEL);
+
+	PhysicalMemoryBlock *dataBlock = m_pmemmgr->AllocateContiguous(sizeof(KernelData));
+	m_kernelData = ToPointer<KernelData>(dataBlock->BaseAddress());
+
 	KiInitSystem();
 
 	PhysicalMemoryBlock *block = m_pmemmgr->AllocateContiguous(sizeof(XboxTypes::KPROCESS) * 2);
@@ -172,7 +176,7 @@ int XboxKernel::InitializeKernel() {
 	// FIXME: incomplete
 
 	if (m_pKPCR->PrcbData.NextThread == NULL) {
-		SetMember(0, m_KiIdleSummary);
+		SetMember(0, m_kernelData->KiIdleSummary);
 	}
 
 	KfRaiseIrql(HIGH_LEVEL);

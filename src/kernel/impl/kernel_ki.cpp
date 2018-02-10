@@ -46,27 +46,27 @@ XboxTypes::VOID XboxKernel::KiInitializeContextThread(XboxTypes::PKTHREAD Thread
 
 XboxTypes::VOID XboxKernel::KiInitSystem() {
 	for (XboxTypes::ULONG i = 0; i < MAXIMUM_PRIORITY; i++) {
-		InitializeListHead(&m_KiDispatcherReadyListHead[i]);
+		InitializeListHead(&m_kernelData->KiDispatcherReadyListHead[i]);
 	}
 
 	// TODO: handle pointers to functions
-	KeInitializeDpc(_PTR_TO_ADDR(KDPC, &m_KiTimerExpireDpc), (XboxTypes::PKDEFERRED_ROUTINE)/*m_KiTimerExpiration*/NULL, NULL);
+	KeInitializeDpc(_PTR_TO_ADDR(KDPC, &m_kernelData->KiTimerExpireDpc), (XboxTypes::PKDEFERRED_ROUTINE)/*m_KiTimerExpiration*/NULL, NULL);
 
 	for (XboxTypes::ULONG i = 0; i < TIMER_TABLE_SIZE; i++) {
-		InitializeListHead(&m_KiTimerTableListHead[i]);
+		InitializeListHead(&m_kernelData->KiTimerTableListHead[i]);
 	}
 
-	InitializeListHead(&m_KiWaitInListHead);
+	InitializeListHead(&m_kernelData->KiWaitInListHead);
 }
 
 XboxTypes::PKTHREAD XboxKernel::KiFindReadyThread(XboxTypes::KPRIORITY LowPriority) {
 	XboxTypes::ULONG highPriority;
 
-	XboxTypes::ULONG prioritySet = (~((1 << LowPriority) - 1)) & m_KiReadySummary;
+	XboxTypes::ULONG prioritySet = (~((1 << LowPriority) - 1)) & m_kernelData->KiReadySummary;
 	FindFirstSetLeftMember(prioritySet, &highPriority);
 	prioritySet <<= (31 - highPriority);
 
-	XboxTypes::LIST_ENTRY *listHead = &m_KiDispatcherReadyListHead[highPriority];
+	XboxTypes::LIST_ENTRY *listHead = &m_kernelData->KiDispatcherReadyListHead[highPriority];
 	while (prioritySet != 0) {
 		if ((XboxTypes::LONG)prioritySet < 0) {
 			XboxTypes::PLIST_ENTRY nextEntry = listHead->Flink;
@@ -74,7 +74,7 @@ XboxTypes::PKTHREAD XboxKernel::KiFindReadyThread(XboxTypes::KPRIORITY LowPriori
 			XboxTypes::KTHREAD *thread = CONTAINING_RECORD(nextEntry, XboxTypes::KTHREAD, WaitListEntry);
 			RemoveEntryList(&thread->WaitListEntry);
 			if (IsListEmpty(listHead)) {
-				ClearMember(highPriority, m_KiReadySummary);
+				ClearMember(highPriority, m_kernelData->KiReadySummary);
 			}
 
 			return _PTR_TO_ADDR(KTHREAD, thread);
@@ -94,12 +94,12 @@ XboxTypes::VOID XboxKernel::KiReadyThread(XboxTypes::PRKTHREAD Thread) {
 	XboxTypes::KPRIORITY threadPriority = pThread->Priority;
 	XboxTypes::BOOLEAN wasPreempted = pThread->Preempted;
 	pThread->Preempted = FALSE;
-	pThread->WaitTime = m_KeTickCount;
+	pThread->WaitTime = m_kernelData->KeTickCount;
 
 	XboxTypes::KPRCB *prcb = &m_pKPCR->PrcbData;
 
-	if (m_KiIdleSummary != 0) {
-		m_KiIdleSummary = 0;
+	if (m_kernelData->KiIdleSummary != 0) {
+		m_kernelData->KiIdleSummary = 0;
 		prcb->NextThread = Thread;
 		pThread->State = XboxTypes::Standby;
 
@@ -132,13 +132,13 @@ XboxTypes::VOID XboxKernel::KiReadyThread(XboxTypes::PRKTHREAD Thread) {
 
 	pThread->State = XboxTypes::Ready;
 	if (wasPreempted) {
-		InsertHeadList(&m_KiDispatcherReadyListHead[threadPriority], &pThread->WaitListEntry);
+		InsertHeadList(&m_kernelData->KiDispatcherReadyListHead[threadPriority], &pThread->WaitListEntry);
 	}
 	else {
-		InsertTailList(&m_KiDispatcherReadyListHead[threadPriority], &pThread->WaitListEntry);
+		InsertTailList(&m_kernelData->KiDispatcherReadyListHead[threadPriority], &pThread->WaitListEntry);
 	}
 
-	SetMember(threadPriority, m_KiReadySummary);
+	SetMember(threadPriority, m_kernelData->KiReadySummary);
 }
 
 XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql) {

@@ -10,6 +10,17 @@
 	#include "kernel/undef_win.h"
 #endif
 
+typedef struct {
+	XboxTypes::LIST_ENTRY KiDispatcherReadyListHead[MAXIMUM_PRIORITY];
+	XboxTypes::KAFFINITY KiIdleSummary;
+	XboxTypes::ULONG KiReadySummary;
+	XboxTypes::LIST_ENTRY KiTimerTableListHead[TIMER_TABLE_SIZE];
+	XboxTypes::KDPC KiTimerExpireDpc;
+	XboxTypes::LIST_ENTRY KiWaitInListHead;
+	XboxTypes::ULONG KeTickCount;
+} KernelData;
+
+
 /*
  * TODO: deal with pointers in an elegant manner
  *
@@ -290,14 +301,8 @@ private:
 	XboxTypes::KPROCESS *m_pKiIdleProcess;
 	XboxTypes::KPROCESS *m_pKiSystemProcess;
 
-	// Used by the kernel in some places
-	XboxTypes::LIST_ENTRY m_KiDispatcherReadyListHead[MAXIMUM_PRIORITY];
-	XboxTypes::KAFFINITY m_KiIdleSummary;
-	XboxTypes::ULONG m_KiReadySummary;
-	XboxTypes::LIST_ENTRY m_KiTimerTableListHead[TIMER_TABLE_SIZE];
-	XboxTypes::KDPC m_KiTimerExpireDpc;
-	XboxTypes::LIST_ENTRY m_KiWaitInListHead;
-	XboxTypes::ULONG m_KeTickCount;
+	// Data used by the kernel
+	KernelData *m_kernelData;
 
 	// Used by AvGet/SetSavedDataAddress
 	XboxTypes::PVOID m_AvSavedDataAddress;
