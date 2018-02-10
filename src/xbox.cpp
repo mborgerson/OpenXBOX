@@ -4,7 +4,7 @@
 #include "alloc.h"
 #include "kernel/impl/pmemmgr.h"
 
-#define ENABLE_GDB_SERVER     1 // FIXME: Allow enable from cmdline
+#define ENABLE_GDB_SERVER     0 // FIXME: Allow enable from cmdline
 #define DUMP_SECTION_CONTENTS 0
 
 // Statically generate a lookup table to quickly find the member function
