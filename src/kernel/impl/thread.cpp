@@ -17,7 +17,7 @@ Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD p
 	g_mutex_init(&m_suspensionMutex);
 
     m_context.m_regs[REG_EIP] = entry;
-	m_context.m_regs[REG_ESP] = stack->BaseAddress() + stack->Size();
+	m_context.m_regs[REG_ESP] = stack->BaseAddress() + stack->Size() - 4; // 4 bytes reserved for the special thread exit return address
 	m_context.m_regs[REG_EBP] = stack->BaseAddress();
 	
 	// TODO: these should be set up by the kernel

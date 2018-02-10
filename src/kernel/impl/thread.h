@@ -9,6 +9,9 @@
 #include "kernel/impl/pmemmgr.h"
 
 
+// Special return address that marks the end of a thread
+#define THREAD_EXIT_RETURN_ADDRESS 0x00000000
+
 class ThreadSuspensionCondition;
 
 

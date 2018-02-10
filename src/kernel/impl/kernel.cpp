@@ -234,6 +234,11 @@ Thread *XboxKernel::CreateThread(uint32_t entryAddress, uint32_t stackSize) {
 		m_KiSystemProcess
 	);
 
+	// Write the special return address at the bottom of the stack so that the
+	// scheduler knows when the thread has exited
+	XboxTypes::DWORD *retAddr = ToPointer<XboxTypes::DWORD>(pThread->StackBase - 4);
+	*retAddr = THREAD_EXIT_RETURN_ADDRESS;
+
 	return new Thread(entryAddress, threadStack, pkthread, pThread);
 }
 

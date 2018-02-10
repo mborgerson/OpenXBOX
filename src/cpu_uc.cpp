@@ -115,7 +115,7 @@ int UnicornCpu::Initialize()
         return -1;
     }
 
-    err = uc_hook_add(m_uc, &hook_intr, // FIXME: We leak these hooks! They should be cleaned up.
+	err = uc_hook_add(m_uc, &hook_intr, // FIXME: We leak these hooks! They should be cleaned up.
                       UC_HOOK_INTR, (void*)&UnicornCpu::xb_uc_intr_hook,
                       this, 0, 0xffffffff);
     if (err != UC_ERR_OK) {

@@ -57,9 +57,9 @@ int Scheduler::Run()
 
 	// TODO: run all pending DPCs
 
-	// Handle thread exit
-	// TODO: find a better way to detect this
-	if (reg == 0) {
+	// Handle thread exit, identified by a special return address at the bottom
+	// of the stack
+	if (reg == THREAD_EXIT_RETURN_ADDRESS) {
 		log_debug("Thread #%d exited.\n", m_currentThread->m_id);
 		vec_erase(m_activeThreads, m_currentThread);
 		delete m_currentThread;
@@ -91,7 +91,7 @@ int Scheduler::ScheduleThread(Thread *thread)
 		m_cpu->RestoreContext(&thread->m_context);
 	}
 
-    m_activeThreads.push_back(thread);
+	m_activeThreads.push_back(thread);
 
     return 0;
 }
