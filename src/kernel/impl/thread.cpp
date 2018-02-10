@@ -34,3 +34,9 @@ Thread::~Thread()
 {
 	delete m_stack;
 }
+
+
+
+bool AlwaysTrueTSCondition::IsMet() {
+	return true;
+}

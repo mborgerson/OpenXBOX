@@ -1,10 +1,16 @@
 #pragma once
 
+#include <glib.h>
+#include <string.h>
+#include <vector>
+
 #include "cpu.h"
 #include "kernel/types.h"
 #include "kernel/impl/pmemmgr.h"
-#include <string.h>
-#include <vector>
+
+
+class ThreadSuspensionCondition;
+
 
 /*!
  * Emulated thread
@@ -20,6 +26,35 @@ public:
 	CpuContext m_context;
 	uint32_t m_id;
 
+	GCond m_suspensionSync;
+	GMutex m_suspensionMutex;
+	ThreadSuspensionCondition *m_suspensionCondition;
+
     Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD pkthread, XboxTypes::KTHREAD *kthread);
     ~Thread();
 };
+
+
+/*!
+ * Represents the condition that caused a thread to be suspended. When the
+ * condition evaluates to true, the thread will no longer be suspended.
+ */
+class ThreadSuspensionCondition {
+public:
+	/*!
+	 * Determines if the condition is met.
+	 */
+	virtual bool IsMet() = 0;
+};
+
+/*!
+ * A special condition that is always met, so that threads waiting on this
+ * condition are released immediately after a single time slice.
+ * This is useful for NtYieldExecution.
+ */
+class AlwaysTrueTSCondition : public ThreadSuspensionCondition {
+public:
+	bool IsMet();
+};
+
+// TODO: implement other conditions
