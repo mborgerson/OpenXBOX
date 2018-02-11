@@ -31,6 +31,8 @@ protected:
 	Thread                *m_currentThread;
 	uint32_t               m_nextThreadIndex;
 
+	std::map<XboxTypes::PKTHREAD, Thread *> m_threadsByPointer;
+
 	XboxTypes::KPCR       *m_kpcr; // pointer to Xbox RAM, MUST NOT BE FREED
 
 public:
@@ -70,6 +72,11 @@ public:
 	 * Suspends execution of the specified thread with the given condition.
 	 */
 	void SuspendThread(Thread *thread, ThreadSuspensionCondition *condition);
+
+	/*!
+	 * Unconditionally resumes execution of the given thread.
+	 */
+	void ResumeThread(XboxTypes::PKTHREAD thread);
 
 	/*!
 	 * Checks suspended threads and resumes one if their condition is met.

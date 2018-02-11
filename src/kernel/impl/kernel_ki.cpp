@@ -1,5 +1,4 @@
 #include "kernel/impl/kernel.h"
-#include "kernel/impl/kernel_ki.h"
 #include "log.h"
 
 XboxTypes::VOID XboxKernel::KiInitializeContextThread(XboxTypes::PKTHREAD Thread, XboxTypes::SIZE_T TlsDataSize, XboxTypes::PKSYSTEM_ROUTINE SystemRoutine, XboxTypes::PKSTART_ROUTINE StartRoutine, XboxTypes::PVOID StartContext) {
@@ -139,6 +138,9 @@ XboxTypes::VOID XboxKernel::KiReadyThread(XboxTypes::PRKTHREAD Thread) {
 	}
 
 	SetMember(threadPriority, m_kernelData->KiReadySummary);
+
+	// Tell the scheduler that the thread has been resumed
+	m_sched->ResumeThread(Thread);
 }
 
 XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql) {
@@ -165,4 +167,144 @@ XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql)
 
 	KfLowerIrql(OldIrql);
 	return;
+}
+
+XboxTypes::VOID XboxKernel::KiUnwaitThread(XboxTypes::PRKTHREAD Thread, XboxTypes::LONG_PTR WaitStatus, XboxTypes::KPRIORITY Increment) {
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(Thread);
+
+	pThread->WaitStatus |= WaitStatus;
+	XboxTypes::PKWAIT_BLOCK waitBlock = pThread->WaitBlockList;
+	do {
+		XboxTypes::KWAIT_BLOCK *pWaitBlock = ToPointer<XboxTypes::KWAIT_BLOCK>(waitBlock);
+		RemoveEntryList(&pWaitBlock->WaitListEntry);
+		waitBlock = pWaitBlock->NextWaitBlock;
+	} while (waitBlock != pThread->WaitBlockList);
+	RemoveEntryList(&pThread->WaitListEntry);
+
+	XboxTypes::KTIMER *timer = &pThread->Timer;
+	if (timer->Header.Inserted != FALSE) {
+		KiRemoveTreeTimer(timer);
+	}
+
+	XboxTypes::KQUEUE *queue = ToPointer<XboxTypes::KQUEUE>(pThread->Queue);
+	if (queue != NULL) {
+		queue->CurrentCount += 1;
+	}
+
+	XboxTypes::KPROCESS *process = ToPointer<XboxTypes::KPROCESS>(pThread->ApcState.Process);
+	if (pThread->Priority < LOW_REALTIME_PRIORITY) {
+		if (pThread->PriorityDecrement == 0 && !pThread->DisableBoost) {
+			XboxTypes::KPRIORITY newPriority = pThread->BasePriority + Increment;
+
+			if (newPriority > pThread->Priority) {
+				if (newPriority >= LOW_REALTIME_PRIORITY) {
+					pThread->Priority = LOW_REALTIME_PRIORITY - 1;
+				}
+				else {
+					pThread->Priority = newPriority;
+				}
+			}
+		}
+
+		if (pThread->BasePriority >= TIME_CRITICAL_PRIORITY_BOUND) {
+			pThread->Quantum = process->ThreadQuantum;
+		}
+		else {
+			pThread->Quantum -= WAIT_QUANTUM_DECREMENT;
+			if (pThread->Quantum <= 0) {
+				pThread->Quantum = process->ThreadQuantum;
+				pThread->Priority -= (pThread->PriorityDecrement + 1);
+				if (pThread->Priority < pThread->BasePriority) {
+					pThread->Priority = pThread->BasePriority;
+				}
+
+				pThread->PriorityDecrement = 0;
+			}
+		}
+	}
+	else {
+		pThread->Quantum = process->ThreadQuantum;
+	}
+
+	KiReadyThread(Thread);
+}
+
+XboxTypes::VOID XboxKernel::KiWaitSatisfyAll(XboxTypes::PKWAIT_BLOCK WaitBlock) {
+	XboxTypes::KWAIT_BLOCK *pWaitBlock = ToPointer<XboxTypes::KWAIT_BLOCK>(WaitBlock);
+	
+	XboxTypes::KWAIT_BLOCK *pCurrentWaitBlock = pWaitBlock;
+	XboxTypes::PKTHREAD thread = pWaitBlock->Thread;
+	do {
+		if (pCurrentWaitBlock->WaitKey != STATUS_TIMEOUT) {
+			KiWaitSatisfyAny((XboxTypes::PKMUTANT)pCurrentWaitBlock->Object, thread);
+		}
+		pCurrentWaitBlock = ToPointer<XboxTypes::KWAIT_BLOCK>(pCurrentWaitBlock->NextWaitBlock);
+	} while (pCurrentWaitBlock != pWaitBlock);
+}
+
+XboxTypes::VOID XboxKernel::KiWaitSatisfyAny(XboxTypes::PKMUTANT Object, XboxTypes::PKTHREAD Thread) {
+	XboxTypes::KMUTANT *pObject = ToPointer<XboxTypes::KMUTANT>(Object);
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(Thread);
+
+	if ((pObject->Header.Type & DISPATCHER_OBJECT_TYPE_MASK) == XboxTypes::EventSynchronizationObject) {
+		pObject->Header.SignalState = 0;
+	}
+	else if (pObject->Header.Type == XboxTypes::SemaphoreObject) {
+		pObject->Header.SignalState -= 1;
+	}
+	else if (pObject->Header.Type == XboxTypes::MutantObject) {
+		pObject->Header.SignalState -= 1;
+		if (pObject->Header.SignalState == 0) {
+			pObject->OwnerThread = Thread;
+			if (pObject->Abandoned == TRUE) {
+				pObject->Abandoned = FALSE;
+				pThread->WaitStatus = STATUS_ABANDONED;
+			}
+			InsertHeadList(pThread->MutantListHead.Blink, &pObject->MutantListEntry);
+		}
+	}
+}
+
+XboxTypes::VOID XboxKernel::KiWaitTest(XboxTypes::PVOID Object, XboxTypes::KPRIORITY Increment) {
+	XboxTypes::KEVENT *pEvent = ToPointer<XboxTypes::KEVENT>(Object);
+	
+	XboxTypes::LIST_ENTRY *listHead = &pEvent->Header.WaitListHead;
+	XboxTypes::LIST_ENTRY *waitEntry = ToPointer<XboxTypes::LIST_ENTRY>(listHead->Flink);
+	while (pEvent->Header.SignalState > 0 && waitEntry != listHead) {
+		XboxTypes::KWAIT_BLOCK *waitBlock = CONTAINING_RECORD(waitEntry, XboxTypes::KWAIT_BLOCK, WaitListEntry);
+
+		XboxTypes::PRKTHREAD thread = waitBlock->Thread;
+		if (waitBlock->WaitType != XboxTypes::WaitAny) {
+			XboxTypes::BOOLEAN continueScan = FALSE;
+			XboxTypes::KWAIT_BLOCK *nextWaitBlock = ToPointer<XboxTypes::KWAIT_BLOCK>(waitBlock->NextWaitBlock);
+			while (nextWaitBlock != waitBlock) {
+				if (nextWaitBlock->WaitKey != STATUS_TIMEOUT) {
+					XboxTypes::KMUTANT *pMutant = ToPointer<XboxTypes::KMUTANT>(nextWaitBlock->Object);
+					if (pMutant->Header.Type == XboxTypes::MutantObject && pMutant->Header.SignalState <= 0 && thread == pMutant->OwnerThread) {
+						nextWaitBlock = ToPointer<XboxTypes::KWAIT_BLOCK>(nextWaitBlock->NextWaitBlock);
+						continue;
+					}
+
+					if (pMutant->Header.SignalState <= 0) {
+						continueScan = TRUE;
+						break;
+					}
+				}
+			}
+
+			waitEntry = ToPointer<XboxTypes::LIST_ENTRY>(waitEntry->Blink);
+			if (continueScan) {
+				continue;
+			}
+
+			KiWaitSatisfyAll(_PTR_TO_ADDR(KWAIT_BLOCK, waitBlock));
+		}
+		else {
+			waitEntry = ToPointer<XboxTypes::LIST_ENTRY>(waitEntry->Blink);
+			KiWaitSatisfyAny((XboxTypes::PKMUTANT)Object, thread);
+		}
+
+		KiUnwaitThread(thread, waitBlock->WaitKey, Increment);
+		waitEntry = ToPointer<XboxTypes::LIST_ENTRY>(waitEntry->Blink);
+	}
 }

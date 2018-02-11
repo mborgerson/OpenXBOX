@@ -62,6 +62,7 @@ int Scheduler::Run()
 	if (reg == THREAD_EXIT_RETURN_ADDRESS) {
 		log_debug("Thread #%d exited.\n", m_currentThread->m_id);
 		vec_erase(m_activeThreads, m_currentThread);
+		m_threadsByPointer.erase(m_currentThread->m_pkthread);
 		delete m_currentThread;
 		m_currentThread = nullptr;
 		return SCHEDULER_EXIT_THREAD_EXITED;
@@ -92,6 +93,7 @@ int Scheduler::ScheduleThread(Thread *thread)
 	}
 
 	m_activeThreads.push_back(thread);
+	m_threadsByPointer[thread->m_pkthread] = thread;
 
     return 0;
 }
@@ -123,6 +125,37 @@ void Scheduler::SuspendThread(Thread *thread, ThreadSuspensionCondition *conditi
 		g_cond_wait(cond, mutex);
 		thread->m_suspensionSynced = false;
 		g_mutex_unlock(mutex);
+	}
+}
+
+void Scheduler::ResumeThread(XboxTypes::PKTHREAD kthread) {
+	// Find thread
+	if (m_threadsByPointer.count(kthread)) {
+		Thread *thread = m_threadsByPointer[kthread];
+		
+		if (thread == m_currentThread) {
+			// TODO: this shouldn't happen as the code that invokes runs on a
+			// supposedly ready thread
+			log_warning("Sanity check failed, current thread is being resumed");
+		}
+		else {
+			// Make it the current thread
+			m_currentThread = thread;
+
+			// Restore the CPU context
+			m_cpu->RestoreContext(&thread->m_context);
+
+			// Mark the thread as active
+			m_activeThreads.push_back(thread);
+			vec_erase(m_suspendedThreads, thread);
+
+			// Clear suspension condition
+			delete thread->m_suspensionCondition;
+			thread->m_suspensionCondition = nullptr;
+		}
+	}
+	else {
+		log_warning("Thread 0x%x is not mapped", kthread);
 	}
 }
 

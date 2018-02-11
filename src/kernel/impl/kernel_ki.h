@@ -5,6 +5,10 @@
 #define KiLockDispatcherDatabase(oldIRQL) \
 	*(oldIRQL) = KeRaiseIrqlToDpcLevel();
 
+#define KiRemoveTreeTimer(Timer) \
+    (Timer)->Header.Inserted = FALSE; \
+    RemoveEntryList(&(Timer)->TimerListEntry)
+
 
 const XboxTypes::UCHAR KiFindLeftNibbleBitTable[] = { 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3 };
 

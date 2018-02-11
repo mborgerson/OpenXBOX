@@ -1,6 +1,54 @@
 #include "kernel/impl/kernel.h"
-#include "kernel/impl/kernel_ki.h"
 #include "log.h"
+
+XboxTypes::BOOLEAN XboxKernel::KeAlertThread(XboxTypes::PKTHREAD Thread, XboxTypes::KPROCESSOR_MODE AlertMode) {
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(Thread);
+
+	XboxTypes::KIRQL oldIRQL;
+	KiLockDispatcherDatabase(&oldIRQL);
+
+	XboxTypes::BOOLEAN alerted = pThread->Alerted[AlertMode];
+	if (!alerted) {
+		if (pThread->State == XboxTypes::Waiting && pThread->Alertable && AlertMode <= pThread->WaitMode) {
+			KiUnwaitThread(Thread, STATUS_ALERTED, ALERT_INCREMENT);
+		}
+		else {
+			pThread->Alerted[AlertMode] = TRUE;
+		}
+	}
+
+	KiUnlockDispatcherDatabase(oldIRQL);
+	return alerted;
+}
+
+XboxTypes::BOOLEAN XboxKernel::KeAlertResumeThread(XboxTypes::PKTHREAD Thread) {
+	XboxTypes::KTHREAD *pThread = ToPointer<XboxTypes::KTHREAD>(Thread);
+
+	XboxTypes::KIRQL oldIRQL;
+	KiLockDispatcherDatabase(&oldIRQL);
+
+	if (pThread->Alerted[XboxTypes::KernelMode] == FALSE) {
+		if (pThread->State == XboxTypes::Waiting && pThread->Alertable) {
+			KiUnwaitThread(Thread, STATUS_ALERTED, ALERT_INCREMENT);
+		}
+		else {
+			pThread->Alerted[XboxTypes::KernelMode] = TRUE;
+		}
+	}
+
+	XboxTypes::ULONG prevSuspendCount = pThread->SuspendCount;
+	if (prevSuspendCount != 0) {
+		pThread->SuspendCount -= 1;
+
+		if (pThread->SuspendCount == 0) {
+			pThread->SuspendSemaphore.Header.SignalState += 1;
+			KiWaitTest(_PTR_TO_ADDR(VOID, &pThread->SuspendSemaphore), RESUME_INCREMENT);
+		}
+	}
+
+	KiUnlockDispatcherDatabase(oldIRQL);
+	return prevSuspendCount;
+}
 
 XboxTypes::VOID XboxKernel::KeBugCheck(XboxTypes::ULONG BugCheckCode) {
 	KeBugCheckEx(BugCheckCode, 0, 0, 0, 0);

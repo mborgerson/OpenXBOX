@@ -1,5 +1,4 @@
 #include "kernel/impl/kernel.h"
-#include "kernel/impl/kernel_ki.h"
 
 XboxTypes::NTSTATUS XboxKernel::NtAllocateVirtualMemory(XboxTypes::PPVOID BaseAddress, XboxTypes::ULONG_PTR ZeroBits, XboxTypes::PSIZE_T RegionSize, XboxTypes::ULONG AllocationType, XboxTypes::ULONG Protect) {
 	XboxTypes::SIZE_T regionSize;
@@ -121,6 +120,7 @@ XboxTypes::NTSTATUS XboxKernel::NtYieldExecution() {
 			InsertTailList(&m_kernelData->KiDispatcherReadyListHead[priority], &pThread->WaitListEntry);
 
 			SetMember(priority, m_kernelData->KiReadySummary);
+			//KiSwapThread();
 			m_sched->SuspendCurrentThread(new AlwaysTrueTSCondition());
 			status = STATUS_SUCCESS;
 

@@ -1,6 +1,5 @@
 #include <assert.h>
 #include "kernel/impl/kernel.h"
-#include "kernel/impl/kernel_ki.h"
 #include "kernel/impl/gdt.h"
 #include "kernel/impl/tss.h"
 #include "kernel/impl/tls.h"

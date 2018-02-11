@@ -175,6 +175,7 @@ typedef LONG NTSTATUS;
 
 #define STATUS_WAIT_0 ((XboxTypes::NTSTATUS)0x00000000L)
 #define STATUS_ABANDONED_WAIT_0 ((XboxTypes::NTSTATUS)0x00000080L)
+#define STATUS_ABANDONED ((XboxTypes::NTSTATUS)0x00000080L)
 #define STATUS_USER_APC ((XboxTypes::NTSTATUS)0x000000C0L)
 #define STATUS_ALERTED ((XboxTypes::NTSTATUS)0x00000101L)
 #define STATUS_TIMEOUT ((XboxTypes::NTSTATUS)0x00000102L)
@@ -1126,6 +1127,8 @@ typedef struct _DISPATCHER_HEADER
 	LONG SignalState;
 	LIST_ENTRY WaitListHead;
 } DISPATCHER_HEADER;
+
+#define DISPATCHER_OBJECT_TYPE_MASK 0x7
 
 typedef enum _KOBJECTS {
     EventNotificationObject     = 0,
@@ -2551,6 +2554,14 @@ typedef VOID (* NTAPI PKSYSTEM_ROUTINE) (
 
 #define NORMAL_BASE_PRIORITY 8
 #define FOREGROUND_BASE_PRIORITY 9
+#define TIME_CRITICAL_PRIORITY_BOUND 14
+
+#define ALERT_INCREMENT 2           // Alerted unwait priority increment
+#define BALANCE_INCREMENT 10        // Balance set priority increment
+#define RESUME_INCREMENT 0          // Resume thread priority increment
+#define TIMER_EXPIRE_INCREMENT 0    // Timer expiration priority increment
+
+#define WAIT_QUANTUM_DECREMENT 10
 
 #define THREAD_QUANTUM 60
 

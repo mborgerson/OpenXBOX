@@ -6,6 +6,7 @@
 #include "kernel/impl/sched.h"
 #include "kernel/impl/pmemmgr.h"
 #include "kernel/impl/objmgr.h"
+#include "kernel/impl/kernel_ki.h"
 #ifdef _WIN32
 	#include "kernel/undef_win.h"
 #endif
@@ -150,6 +151,8 @@ public:
 	XboxTypes::VOID IoSetShareAccess(XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::ULONG DesiredShareAccess, XboxTypes::PFILE_OBJECT FileObject, XboxTypes::PSHARE_ACCESS ShareAccess);
 
 	// Kernel core (Ke/Kf)
+	XboxTypes::BOOLEAN KeAlertThread(XboxTypes::PKTHREAD Thread, XboxTypes::KPROCESSOR_MODE AlertMode);
+	XboxTypes::BOOLEAN KeAlertResumeThread(XboxTypes::PKTHREAD Thread);
 	XboxTypes::VOID KeBugCheck(XboxTypes::ULONG BugCheckCode);
 	XboxTypes::VOID KeBugCheckEx(XboxTypes::ULONG BugCheckCode, XboxTypes::ULONG_PTR BugCheckParameter1, XboxTypes::ULONG_PTR BugCheckParameter2, XboxTypes::ULONG_PTR BugCheckParameter3, XboxTypes::ULONG_PTR BugCheckParameter4);
 	XboxTypes::BOOLEAN KeConnectInterrupt(XboxTypes::PKINTERRUPT Interrupt);
@@ -191,7 +194,12 @@ public:
 	XboxTypes::VOID KiInitSystem();
 	XboxTypes::PKTHREAD KiFindReadyThread(XboxTypes::KPRIORITY LowPriority);
 	XboxTypes::VOID KiReadyThread(XboxTypes::PRKTHREAD Thread);
+	//XboxTypes::LONG_PTR KiSwapThread();
 	XboxTypes::VOID KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql);
+	XboxTypes::VOID KiUnwaitThread(XboxTypes::PRKTHREAD Thread, XboxTypes::LONG_PTR WaitStatus, XboxTypes::KPRIORITY Increment);
+	XboxTypes::VOID KiWaitSatisfyAll(XboxTypes::PKWAIT_BLOCK WaitBlock);
+	XboxTypes::VOID KiWaitSatisfyAny(XboxTypes::PKMUTANT Object, XboxTypes::PKTHREAD Thread);
+	XboxTypes::VOID KiWaitTest(XboxTypes::PVOID Object, XboxTypes::KPRIORITY Increment);
 
 	// Memory manager (Mm)
 	XboxTypes::PVOID MmAllocateContiguousMemory(XboxTypes::SIZE_T NumberOfBytes);
