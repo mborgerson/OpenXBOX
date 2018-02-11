@@ -143,8 +143,7 @@ XboxTypes::VOID XboxKernel::KiReadyThread(XboxTypes::PRKTHREAD Thread) {
 
 XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql) {
 	if (m_pKPCR->PrcbData.NextThread == NULL) {
-		// FIXME: this should be KfLowerIrql(oldIRQL);
-		m_pKPCR->Irql = OldIrql;
+		KfLowerIrql(OldIrql);
 		return;
 	}
 
@@ -153,8 +152,7 @@ XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql)
 			// TODO: HalRequestSoftwareInterrupt(DISPATCH_LEVEL);
 		}
 
-		// FIXME: this should be KfLowerIrql(oldIRQL);
-		m_pKPCR->Irql = OldIrql;
+		KfLowerIrql(OldIrql);
 		return;
 	}
 
@@ -162,11 +160,9 @@ XboxTypes::VOID XboxKernel::KiUnlockDispatcherDatabase(XboxTypes::KIRQL OldIrql)
 	XboxTypes::KIRQL prevIrql = pCurrThread->WaitIrql;
 	m_pKPCR->PrcbData.CurrentThread = m_pKPCR->PrcbData.NextThread;
 	m_pKPCR->PrcbData.NextThread = NULL;
-	// TODO: tell scheduler that the current thread has changed
 	// FIXME: this is incomplete
 	// At this point, pending APCs (if any) should run at IRQL = APC_LEVEL
 
-	// FIXME: this should be KfLowerIrql(oldIRQL);
-	m_pKPCR->Irql = OldIrql;
+	KfLowerIrql(OldIrql);
 	return;
 }

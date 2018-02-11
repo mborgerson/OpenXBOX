@@ -300,7 +300,7 @@ XboxTypes::BOOLEAN XboxKernel::KeInsertQueueDpc(XboxTypes::PRKDPC Dpc, XboxTypes
 		}
 	}
 
-	// TODO: KfLowerIrql(oldIrql);
+	KfLowerIrql(oldIrql);
 
 	return !inserted;
 }
@@ -462,6 +462,11 @@ XboxTypes::BOOLEAN XboxKernel::KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes:
 
 XboxTypes::VOID XboxKernel::KeStallExecutionProcessor(XboxTypes::ULONG MicroSeconds) {
 	log_spew("Stalling execution for %ud microseconds\n", MicroSeconds);
+}
+
+XboxTypes::VOID XboxKernel::KfLowerIrql(XboxTypes::KIRQL NewIrql) {
+	m_pKPCR->Irql = NewIrql;
+	// TODO: check for and dispatch pending interrupts
 }
 
 XboxTypes::KIRQL XboxKernel::KfRaiseIrql(XboxTypes::KIRQL NewIrql) {

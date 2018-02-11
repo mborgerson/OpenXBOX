@@ -177,6 +177,7 @@ public:
 	XboxTypes::BOOLEAN KeSetTimer(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::PKDPC Dpc);
 	XboxTypes::BOOLEAN KeSetTimerEx(XboxTypes::PKTIMER Timer, XboxTypes::LARGE_INTEGER DueTime, XboxTypes::LONG Period, XboxTypes::PKDPC Dpc);
 	XboxTypes::VOID KeStallExecutionProcessor(XboxTypes::ULONG MicroSeconds);
+	XboxTypes::VOID KfLowerIrql(XboxTypes::KIRQL NewIrql);
 	XboxTypes::KIRQL KfRaiseIrql(XboxTypes::KIRQL NewIrql);
 
 	// Internal kernel functions (Ki)

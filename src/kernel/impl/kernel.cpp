@@ -150,7 +150,7 @@ int XboxKernel::InitializeGDT() {
 }
 
 int XboxKernel::InitializeKernel() {
-	// TODO: KfLowerIrql(APC_LEVEL);
+	KfLowerIrql(APC_LEVEL);
 
 	PhysicalMemoryBlock *dataBlock = m_pmemmgr->AllocateContiguous(sizeof(KernelData));
 	if (nullptr == dataBlock) {

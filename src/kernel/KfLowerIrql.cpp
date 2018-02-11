@@ -13,6 +13,8 @@ int Xbox::KfLowerIrql()
 	K_ENTER_FASTCALL();
 	K_INIT_ARG(KIRQL, NewIrql);
 
+	m_kernel->KfLowerIrql(NewIrql);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_WARN_PARTIAL_IMPL;
 }
