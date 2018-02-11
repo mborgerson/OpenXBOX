@@ -15,6 +15,8 @@ int Xbox::IoRemoveShareAccess()
 	K_INIT_ARG(PFILE_OBJECT,  FileObject);
 	K_INIT_ARG(PSHARE_ACCESS, ShareAccess);
 
+	m_kernel->IoRemoveShareAccess(FileObject, ShareAccess);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

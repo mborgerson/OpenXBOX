@@ -14,6 +14,8 @@ int Xbox::IoAllocateIrp()
 	K_INIT_ARG(CCHAR, StackSize);
 	XboxTypes::PIRP rval;
 
+	rval = m_kernel->IoAllocateIrp(StackSize);
+
 	K_EXIT_WITH_VALUE(rval);
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

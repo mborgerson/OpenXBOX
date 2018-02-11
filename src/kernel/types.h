@@ -216,6 +216,9 @@ typedef LONG NTSTATUS;
 #define STATUS_IMAGE_GAME_REGION_VIOLATION ((XboxTypes::NTSTATUS)0xC0050001L)
 #define STATUS_IMAGE_MEDIA_TYPE_VIOLATION ((XboxTypes::NTSTATUS)0xC0050002L)
 
+// BugCheck codes
+#define MULTIPLE_IRP_COMPLETE_REQUESTS 0x00000044
+
 // Used in AvSendTVEncoderOption
 #define AV_PACK_NONE 0x00000000
 #define AV_PACK_STANDARD 0x00000001
@@ -1659,11 +1662,124 @@ typedef struct _FILE_OBJECT
     KEVENT Event;
 } FILE_OBJECT;
 
+DEF_POINTER_TYPE(VOID, PIO_COMPLETION_ROUTINE);
+/*
+typedef NTSTATUS (*PIO_COMPLETION_ROUTINE) (
+	IN PDEVICE_OBJECT DeviceObject,
+	IN PIRP Irp,
+	IN PVOID Context
+);
+*/
+
+#include "pshpack4.h"
+
+typedef struct _IO_STACK_LOCATION {
+	UCHAR MajorFunction;
+	UCHAR MinorFunction;
+	UCHAR Flags;
+	UCHAR Control;
+
+	union {
+		struct {
+			ACCESS_MASK DesiredAccess;
+			ULONG Options;
+			USHORT FileAttributes;
+			USHORT ShareAccess;
+			POBJECT_STRING RemainingName;
+		} Create;
+
+		struct {
+			ULONG Length;
+			union {
+				ULONG BufferOffset;
+				PVOID CacheBuffer;
+			};
+			LARGE_INTEGER ByteOffset;
+		} Read;
+
+		struct {
+			ULONG Length;
+			union {
+				ULONG BufferOffset;
+				PVOID CacheBuffer;
+			};
+			LARGE_INTEGER ByteOffset;
+		} Write;
+
+		struct {
+			ULONG Length;
+			POBJECT_STRING FileName;
+			FILE_INFORMATION_CLASS FileInformationClass;
+		} QueryDirectory;
+
+		struct {
+			ULONG Length;
+			FILE_INFORMATION_CLASS FileInformationClass;
+		} QueryFile;
+
+		struct {
+			ULONG Length;
+			FILE_INFORMATION_CLASS FileInformationClass;
+			PFILE_OBJECT FileObject;
+		} SetFile;
+
+		struct {
+			ULONG Length;
+			FS_INFORMATION_CLASS FsInformationClass;
+		} QueryVolume;
+
+		struct {
+			ULONG Length;
+			FS_INFORMATION_CLASS FsInformationClass;
+		} SetVolume;
+
+		struct {
+			ULONG OutputBufferLength;
+			PVOID InputBuffer;
+			ULONG InputBufferLength;
+			ULONG FsControlCode;
+		} FileSystemControl;
+		
+		struct {
+			ULONG OutputBufferLength;
+			PVOID InputBuffer;
+			ULONG InputBufferLength;
+			ULONG IoControlCode;
+		} DeviceIoControl;
+
+		struct {
+			struct _SCSI_REQUEST_BLOCK *Srb;
+		} Scsi;
+
+		struct {
+			ULONG Length;
+			PUCHAR Buffer;
+			ULONG SectorNumber;
+			ULONG BufferOffset;
+		} IdexReadWrite;
+		
+		struct {
+			PVOID Argument1;
+			PVOID Argument2;
+			PVOID Argument3;
+			PVOID Argument4;
+		} Others;
+	} Parameters;
+
+	PDEVICE_OBJECT DeviceObject;
+	PFILE_OBJECT FileObject;
+	PIO_COMPLETION_ROUTINE CompletionRoutine;
+	PVOID Context;
+} IO_STACK_LOCATION;
+DEF_POINTER_TYPE(IO_STACK_LOCATION, PIO_STACK_LOCATION);
+
+
+#include "poppack.h"
+
 /**
  * This struct represents an I/O request packet
  */
-typedef struct _IRP
-{
+typedef struct _IRP {
     CSHORT Type;
     USHORT Size;
     ULONG Flags; /**< Flags for the packet */
@@ -1676,10 +1792,8 @@ typedef struct _IRP
     PIO_STATUS_BLOCK UserIosb;
     PKEVENT UserEvent;
 
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             PIO_APC_ROUTINE UserApcRoutine;
             PVOID UserApcContext;
         } AsynchronousParameters;
@@ -1690,12 +1804,9 @@ typedef struct _IRP
     PFILE_SEGMENT_ELEMENT SegmentArray;
     ULONG LockedBufferLength;
 
-    union
-    {
-        struct
-        {
-            union
-            {
+    union {
+        struct{
+            union {
                 KDEVICE_QUEUE_ENTRY DeviceQueueEntry;
                 struct
                 {
@@ -1704,12 +1815,10 @@ typedef struct _IRP
             };
             PETHREAD Thread;
 
-            struct
-            {
+            struct {
                 LIST_ENTRY ListEntry;
-                union
-                {
-                    PVOID CurrentStackLocation;
+                union {
+                    PIO_STACK_LOCATION CurrentStackLocation;
                     ULONG PacketType;
                 };
             };
@@ -1722,6 +1831,31 @@ typedef struct _IRP
     } Tail;
 } IRP;
 DEF_POINTER_TYPE(IRP, PIRP);
+
+#define IO_TYPE_DEVICE 3
+#define IO_TYPE_DRIVER 4
+#define IO_TYPE_FILE 5
+#define IO_TYPE_IRP 6
+#define IO_TYPE_OPEN_PACKET 8
+#define IO_TYPE_TIMER 9
+
+#define IRP_MJ_CREATE 0x00
+#define IRP_MJ_CLOSE 0x01
+#define IRP_MJ_READ 0x02
+#define IRP_MJ_WRITE 0x03
+#define IRP_MJ_QUERY_INFORMATION 0x04
+#define IRP_MJ_SET_INFORMATION 0x05
+#define IRP_MJ_FLUSH_BUFFERS 0x06
+#define IRP_MJ_QUERY_VOLUME_INFORMATION 0x07
+#define IRP_MJ_DIRECTORY_CONTROL 0x08
+#define IRP_MJ_FILE_SYSTEM_CONTROL 0x09
+#define IRP_MJ_DEVICE_CONTROL 0x0a
+#define IRP_MJ_INTERNAL_DEVICE_CONTROL 0x0b
+#define IRP_MJ_SHUTDOWN 0x0c
+#define IRP_MJ_CLEANUP 0x0d
+#define IRP_MJ_MAXIMUM_FUNCTION 0x0d
+
+#define IRP_MJ_SCSI IRP_MJ_INTERNAL_DEVICE_CONTROL
 
 #define IRP_NOCACHE 0x00000001
 #define IRP_MOUNT_COMPLETION 0x00000002
@@ -2469,6 +2603,11 @@ typedef VOID (* NTAPI PKSYSTEM_ROUTINE) (
 #define FILE_GENERIC_READ (STANDARD_RIGHTS_READ | FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_READ_EA | SYNCHRONIZE)
 #define FILE_GENERIC_WRITE (STANDARD_RIGHTS_WRITE | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | FILE_WRITE_EA | FILE_APPEND_DATA | SYNCHRONIZE)
 #define FILE_GENERIC_EXECUTE (STANDARD_RIGHTS_EXECUTE | FILE_READ_ATTRIBUTES | FILE_EXECUTE | SYNCHRONIZE)
+
+#define FILE_SHARE_READ 0x00000001
+#define FILE_SHARE_WRITE 0x00000002
+#define FILE_SHARE_DELETE 0x00000004
+#define FILE_SHARE_VALID_FLAGS 0x00000007
 
 /* values for FileAttributes */
 #define FILE_ATTRIBUTE_READONLY 0x00000001

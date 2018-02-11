@@ -19,6 +19,8 @@ int Xbox::IoSetShareAccess()
 	K_INIT_ARG(PFILE_OBJECT,  FileObject);
 	K_INIT_ARG(PSHARE_ACCESS, ShareAccess);
 
+	m_kernel->IoSetShareAccess(DesiredAccess, DesiredShareAccess, FileObject, ShareAccess);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }

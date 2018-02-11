@@ -129,6 +129,7 @@ public:
 	XboxTypes::VOID HalReturnToFirmware(XboxTypes::FIRMWARE_REENTRY Routine);
 
 	// I/O manager (Io/Iof)
+	XboxTypes::PIRP IoAllocateIrp(XboxTypes::CCHAR StackSize);
 	XboxTypes::NTSTATUS IoCreateFile(
 		XboxTypes::PHANDLE FileHandle,
 		XboxTypes::ACCESS_MASK DesiredAccess,
@@ -142,6 +143,11 @@ public:
 		XboxTypes::ULONG Options
 	);
 	XboxTypes::NTSTATUS IoCreateSymbolicLink(XboxTypes::POBJECT_STRING SymbolicLinkName, XboxTypes::POBJECT_STRING DeviceName);
+	XboxTypes::VOID IoFreeIrp(XboxTypes::PIRP Irp);
+	XboxTypes::VOID IoInitializeIrp(XboxTypes::PIRP Irp, XboxTypes::USHORT PacketSize, XboxTypes::CCHAR StackSize);
+	XboxTypes::VOID IoQueueThreadIrp(XboxTypes::PIRP Irp);
+	XboxTypes::VOID IoRemoveShareAccess(XboxTypes::PFILE_OBJECT FileObject, XboxTypes::PSHARE_ACCESS ShareAccess);
+	XboxTypes::VOID IoSetShareAccess(XboxTypes::ACCESS_MASK DesiredAccess, XboxTypes::ULONG DesiredShareAccess, XboxTypes::PFILE_OBJECT FileObject, XboxTypes::PSHARE_ACCESS ShareAccess);
 
 	// Kernel core (Ke/Kf)
 	XboxTypes::VOID KeBugCheck(XboxTypes::ULONG BugCheckCode);

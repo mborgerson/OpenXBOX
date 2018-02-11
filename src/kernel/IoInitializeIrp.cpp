@@ -17,6 +17,8 @@ int Xbox::IoInitializeIrp()
 	K_INIT_ARG(USHORT, PacketSize);
 	K_INIT_ARG(CCHAR,  StackSize);
 
+	m_kernel->IoInitializeIrp(Irp, PacketSize, StackSize);
+
 	K_EXIT();
-	return KF_ERROR_NOT_IMPLEMENTED;
+	return KF_OK;
 }
