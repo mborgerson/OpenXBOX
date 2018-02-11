@@ -121,7 +121,7 @@ XboxTypes::NTSTATUS XboxKernel::NtYieldExecution() {
 			InsertTailList(&m_kernelData->KiDispatcherReadyListHead[priority], &pThread->WaitListEntry);
 
 			SetMember(priority, m_kernelData->KiReadySummary);
-			m_sched->SuspendThread(new AlwaysTrueTSCondition());
+			m_sched->SuspendCurrentThread(new AlwaysTrueTSCondition());
 			status = STATUS_SUCCESS;
 
 		}

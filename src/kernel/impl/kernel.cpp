@@ -254,6 +254,13 @@ int XboxKernel::ScheduleNewThread(uint32_t entryAddress, uint32_t stackSize) {
 }
 
 /*!
+ * Checks suspended threads and resumes one if their condition is met.
+ */
+bool XboxKernel::CheckSuspendedThreads() {
+	return m_sched->CheckSuspendedThreads();
+}
+
+/*!
  * Reserves a region of memory.
  */
 PhysicalMemoryBlock *XboxKernel::ReserveMemory(uint32_t baseAddress, uint32_t size, uint32_t protect) {

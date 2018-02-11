@@ -7,11 +7,12 @@
 #include <string.h>
 #include <vector>
 
-#define SCHEDULER_EXIT_ERROR    (-1)
-#define SCHEDULER_EXIT_HLT        0
-#define SCHEDULER_EXIT_EXPIRE     1
-#define SCHEDULER_EXIT_NOTHREADS  2
-#define SCHEDULER_EXIT_THREAD     3
+#define SCHEDULER_EXIT_ERROR         (-1)
+#define SCHEDULER_EXIT_HLT             0
+#define SCHEDULER_EXIT_EXPIRE          1
+#define SCHEDULER_EXIT_NOTHREADS       2
+#define SCHEDULER_EXIT_THREAD_EXITED   3
+#define SCHEDULER_EXIT_THREAD_RESUMED  4
 
 /*!
  * CPU Scheduler
@@ -63,7 +64,18 @@ public:
 	/*!
 	 * Suspends execution of the current thread with the given condition.
 	 */
-	void SuspendThread(ThreadSuspensionCondition *condition);
+	void SuspendCurrentThread(ThreadSuspensionCondition *condition);
+
+	/*!
+	 * Suspends execution of the specified thread with the given condition.
+	 */
+	void SuspendThread(Thread *thread, ThreadSuspensionCondition *condition);
+
+	/*!
+	 * Checks suspended threads and resumes one if their condition is met.
+	 * Returns true if the current host thread should exit.
+	 */
+	bool CheckSuspendedThreads();
 
 private:
 	/*!

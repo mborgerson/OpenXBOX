@@ -13,6 +13,7 @@ Thread::Thread(uint32_t entry, PhysicalMemoryBlock *stack, XboxTypes::PKTHREAD p
 	, m_pkthread(pkthread)
 	, m_kthread(kthread)
 {
+	m_suspensionSynced = false;
 	g_cond_init(&m_suspensionSync);
 	g_mutex_init(&m_suspensionMutex);
 

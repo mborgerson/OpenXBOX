@@ -64,7 +64,7 @@ int Scheduler::Run()
 		vec_erase(m_activeThreads, m_currentThread);
 		delete m_currentThread;
 		m_currentThread = nullptr;
-		return SCHEDULER_EXIT_THREAD;
+		return SCHEDULER_EXIT_THREAD_EXITED;
 	}
 
 	// Debugging
@@ -96,24 +96,67 @@ int Scheduler::ScheduleThread(Thread *thread)
     return 0;
 }
 
-void Scheduler::SuspendThread(ThreadSuspensionCondition *condition) {
+void Scheduler::SuspendCurrentThread(ThreadSuspensionCondition *condition) {
+	SuspendThread(m_currentThread, condition);
+}
+
+void Scheduler::SuspendThread(Thread *thread, ThreadSuspensionCondition *condition) {
 	// Save the CPU context of the current guest thread
 	SaveCPUContext();
 
-	// Mark the thread as suspended and set the suspension condition
-	m_currentThread->m_suspensionCondition = condition;
-	m_suspendedThreads.push_back(m_currentThread);
-	vec_erase(m_activeThreads, m_currentThread);
+	// Mark the thread as suspended and set the condition
+	thread->m_suspensionCondition = condition;
+	m_suspendedThreads.push_back(thread);
+	vec_erase(m_activeThreads, thread);
 
-	// Start a new host thread to continue execution of the emulator
-	g_thread_new("Emulation thread", m_emuThreadFunc, m_emuThreadData);
+	// Suspend the host thread if the guest thread to be suspended happens to
+	// be the one we're currently executing
+	if (thread == m_currentThread) {
+		// Start a new host thread to continue execution of the emulator
+		g_thread_new("Emulation thread", m_emuThreadFunc, m_emuThreadData);
 
-	// Wait for the condition to be signaled
-	GCond *cond = &m_currentThread->m_suspensionSync;
-	GMutex *mutex = &m_currentThread->m_suspensionMutex;
-	g_mutex_lock(mutex); 
-	g_cond_wait(cond, mutex);
-	g_mutex_unlock(mutex);
+		// Wait for the condition to be signaled
+		GCond *cond = &thread->m_suspensionSync;
+		GMutex *mutex = &thread->m_suspensionMutex;
+		g_mutex_lock(mutex);
+		thread->m_suspensionSynced = true;
+		g_cond_wait(cond, mutex);
+		thread->m_suspensionSynced = false;
+		g_mutex_unlock(mutex);
+	}
+}
+
+bool Scheduler::CheckSuspendedThreads() {
+	for (auto it = m_suspendedThreads.begin(); it != m_suspendedThreads.end(); it++) {
+		Thread *thread = *it;
+		
+		// If the thread's condition is met
+		if (thread->m_suspensionCondition->IsMet()) {
+			// Make it the current thread
+			m_currentThread = thread;
+
+			// Restore the CPU context
+			m_cpu->RestoreContext(&thread->m_context);
+			
+			// Mark the thread as active
+			m_activeThreads.push_back(thread);
+			m_suspendedThreads.erase(it);
+			
+			// Clear suspension condition
+			delete thread->m_suspensionCondition;
+			thread->m_suspensionCondition = nullptr;
+
+			// If there is a synchronization object, signal it to wake up the original host thread,
+			// and terminate execution of the current thread
+			if (thread->m_suspensionSynced) {
+				g_mutex_lock(&thread->m_suspensionMutex);
+				g_cond_signal(&thread->m_suspensionSync);
+				g_mutex_unlock(&thread->m_suspensionMutex);
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 

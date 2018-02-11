@@ -93,6 +93,8 @@ public:
 	Thread *CreateThread(uint32_t entryAddress, uint32_t stackSize);
 	int ScheduleThread(Thread *thread);
 	int ScheduleNewThread(uint32_t entryAddress, uint32_t stackSize);
+	bool CheckSuspendedThreads();
+
 	PhysicalMemoryBlock *ReserveMemory(uint32_t baseAddress, uint32_t size, uint32_t protect);
 
 	// ------------------------------------------------------------------------

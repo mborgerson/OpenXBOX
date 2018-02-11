@@ -28,6 +28,7 @@ public:
 	CpuContext m_context;
 	uint32_t m_id;
 
+	bool m_suspensionSynced; // indicates that there is a thread waiting on the GCond
 	GCond m_suspensionSync;
 	GMutex m_suspensionMutex;
 	ThreadSuspensionCondition *m_suspensionCondition;

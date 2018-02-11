@@ -319,8 +319,11 @@ int Xbox::RunEmulation()
 			log_debug("Scheduler no longer has threads to execute\n");
 			break;
 		}
-		else if (result == SCHEDULER_EXIT_THREAD) {
+		else if (result == SCHEDULER_EXIT_THREAD_EXITED) {
 			log_debug("Scheduled thread has exited\n");
+		}
+		else if (result == SCHEDULER_EXIT_THREAD_RESUMED) {
+			log_debug("Scheduler resumed a suspended thread\n");
 		}
 		else if (result != 0) {
             log_error("Error occured\n");
@@ -349,6 +352,13 @@ int Xbox::RunEmulation()
 
 		// Let the scheduler save the CPU context
 		m_kernel->SaveCPUContext();
+
+		// Check every suspended thread
+		if (m_kernel->CheckSuspendedThreads()) {
+			// Make this thread exit if another host thread was awoken
+			result = SCHEDULER_EXIT_THREAD_RESUMED;
+			break;
+		}
 		
 		// t.Start();
         // m_video->Update();
