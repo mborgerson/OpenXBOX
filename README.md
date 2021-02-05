@@ -1,1 +1,1 @@
-Check out [xqemu](https://github.com/xqemu/xqemu)!
+Check out [xemu](https://xemu.app)!
